@@ -11,6 +11,9 @@ Usage:
 
 import sys
 import time
+import os
+import base64
+import json
 from pathlib import Path
 from urllib.parse import quote
 
@@ -27,7 +30,7 @@ except ImportError:
     sys.exit(1)
 
 # Force line-buffered output so logs appear immediately when redirected
-sys.stdout.reconfigure(line_buffering=True)
+sys.stdout.reconfigure(line_buffering=True) # type: ignore[attr-defined]
 
 # ─────────────────────────────────────────────
 # CONFIG -- Edit these for future videos
@@ -41,7 +44,9 @@ IMAGE_WIDTH   = 1920
 IMAGE_HEIGHT  = 1080
 MODEL         = "flux"   # Options: flux, turbo, flux-realism
 RETRY_LIMIT   = 3        # Retries per image on failure
-DELAY_BETWEEN = 2        # Seconds to wait between requests
+DELAY_BETWEEN = 3        # Seconds to wait between requests
+BACKOFF_BASE  = 10       # Base seconds for exponential backoff on 402 responses
+MAX_BACKOFF   = 120      # Max backoff wait in seconds
 
 # Style applied to every image -- matches the MS Paint / stickman brief
 STYLE_PREFIX = (
@@ -157,13 +162,37 @@ def build_url(scene_prompt: str) -> str:
 
 def generate_image(timestamp: str, scene_prompt: str, output_dir: Path) -> bool:
     """Download and save a single image. Returns True on success."""
+    # Priority order for local backends:
+    # 1. ComfyUI API (set COMFY_API_URL)
+    # 2. AUTOMATIC1111 WebUI (set LOCAL_SD_URL)
+    comfy_url = os.getenv("COMFY_API_URL")
+    if comfy_url:
+        workflow_path = os.getenv("COMFY_WORKFLOW_PATH")
+        return generate_image_comfy(timestamp, scene_prompt, output_dir, comfy_url, workflow_path)
+
+    # If a local Stable Diffusion WebUI is available, use it instead of Pollinations.
+    # Set the environment variable `LOCAL_SD_URL` to the base URL, e.g.:
+    #   http://127.0.0.1:7860
+    local_sd = os.getenv("LOCAL_SD_URL")
+    if local_sd:
+        return generate_image_local_sd(timestamp, scene_prompt, output_dir, local_sd)
+
     url = build_url(scene_prompt)
     filename = output_dir / f"{timestamp}.png"
+    # Use browser-like headers — some endpoints block unknown user-agents or require a referer.
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+            "(KHTML, like Gecko) Chrome/125.0 Safari/537.36"
+        ),
+        "Referer": "https://pollinations.ai/",
+        "Accept": "image/*,*/*;q=0.8",
+    }
 
     for attempt in range(1, RETRY_LIMIT + 1):
         try:
             print(f"  Requesting from Pollinations.AI (attempt {attempt}/{RETRY_LIMIT})...")
-            response = requests.get(url, timeout=90)
+            response = requests.get(url, timeout=90, headers=headers)
 
             content_type = response.headers.get("content-type", "")
             if response.status_code == 200 and content_type.startswith("image"):
@@ -171,8 +200,31 @@ def generate_image(timestamp: str, scene_prompt: str, output_dir: Path) -> bool:
                 size_kb = len(response.content) // 1024
                 print(f"  [OK] Saved -> {filename.name}  ({size_kb} KB)")
                 return True
-            else:
-                print(f"  [WARN] Unexpected response: {response.status_code} -- retrying...")
+            # Handle rate-limit / queue-full (Pollinations returns 402 with JSON explaining the queue)
+            if response.status_code == 402:
+                try:
+                    body = response.json()
+                    err = body.get("error") if isinstance(body, dict) else str(body)
+                except Exception:
+                    err = response.text[:1000]
+
+                print(f"  [WARN] 402 rate/queue response: {err}")
+                # Exponential backoff based on attempt number
+                backoff = min(BACKOFF_BASE * (2 ** (attempt - 1)), MAX_BACKOFF)
+                print(f"  [WAIT] Backing off for {backoff} seconds before retrying...")
+                time.sleep(backoff)
+                # continue to next attempt
+                continue
+
+            # On other non-image responses, print a short snippet of the body to aid debugging
+            snippet = None
+            try:
+                snippet = response.text[:1000]
+            except Exception:
+                snippet = f"<unable to decode response body; length={len(response.content)} bytes>"
+
+            print(f"  [WARN] Unexpected response: {response.status_code} -- {content_type}")
+            print(f"  [RESP] {snippet}")
 
         except requests.exceptions.Timeout:
             print(f"  [TIMEOUT] Attempt {attempt} timed out -- retrying...")
@@ -183,6 +235,182 @@ def generate_image(timestamp: str, scene_prompt: str, output_dir: Path) -> bool:
             time.sleep(5)
 
     print(f"  [FAIL] Failed after {RETRY_LIMIT} attempts -- skipping {timestamp}.png")
+    return False
+
+
+def generate_image_local_sd(timestamp: str, scene_prompt: str, output_dir: Path, sd_url: str) -> bool:
+    """Generate image using a local AUTOMATIC1111-style WebUI (/sdapi/v1/txt2img).
+    sd_url should be like 'http://127.0.0.1:7860' and the WebUI must be running.
+    """
+    full_prompt = f"{STYLE_PREFIX}, {scene_prompt}"
+    payload = {
+        "prompt": full_prompt,
+        "width": IMAGE_WIDTH,
+        "height": IMAGE_HEIGHT,
+        "sampler_name": "Euler a",
+        "steps": 20,
+        "cfg_scale": 7.0,
+        "batch_size": 1,
+    }
+
+    api = sd_url.rstrip("/") + "/sdapi/v1/txt2img"
+    try:
+        print(f"  Requesting local SD WebUI at {api}...")
+        resp = requests.post(api, json=payload, timeout=120)
+    except requests.exceptions.RequestException as e:
+        print(f"  [ERROR] Local SD request failed: {e}")
+        return False
+
+    if resp.status_code != 200:
+        snippet = resp.text[:1000] if resp.text else f"<no body; status {resp.status_code}>"
+        print(f"  [WARN] Local SD returned {resp.status_code}: {snippet}")
+        return False
+
+    try:
+        data = resp.json()
+        images = data.get("images") or []
+        if not images:
+            print("  [WARN] No images returned from local SD")
+            return False
+
+        b64 = images[0]
+        image_bytes = base64.b64decode(b64.split(",")[-1])
+        filename = output_dir / f"{timestamp}.png"
+        filename.write_bytes(image_bytes)
+        print(f"  [OK] Saved -> {filename.name}  ({len(image_bytes)//1024} KB)")
+        return True
+    except Exception as e:
+        print(f"  [ERROR] Failed to decode/save image from local SD: {e}")
+        return False
+
+
+def generate_image_comfy(timestamp: str, scene_prompt: str, output_dir: Path, comfy_url: str, workflow_path: str | None) -> bool:
+    """Attempt to generate an image by calling a ComfyUI API endpoint.
+
+    The function will try common endpoints and payload shapes and will attempt
+    to decode a base64 image from the response. If you exported a workflow
+    JSON (e.g. gsl_starter_1_1.json), set the environment variable
+    `COMFY_WORKFLOW_PATH` to include it and the payload will include the workflow.
+    """
+    full_prompt = f"{STYLE_PREFIX}, {scene_prompt}"
+    endpoints = [
+        "/api/generate",
+        "/api/v1/generate",
+        "/generate",
+        "/api/workflow/run",
+        "/api/v1/workflow/run",
+        "/api/run_workflow",
+    ]
+
+    headers = {"Accept": "application/json", "Content-Type": "application/json"}
+
+    # Load workflow JSON if provided
+    workflow_json = None
+    if workflow_path:
+        try:
+            p = Path(workflow_path)
+            workflow_json = json.loads(p.read_text(encoding="utf-8"))
+        except Exception as e:
+            print(f"  [WARN] Failed to load COMFY_WORKFLOW_PATH '{workflow_path}': {e}")
+            workflow_json = None
+
+    payload_variants = []
+    # Simple txt2img payload
+    payload_variants.append({"prompt": full_prompt, "width": IMAGE_WIDTH, "height": IMAGE_HEIGHT})
+    # Explicit inputs container
+    payload_variants.append({"inputs": {"prompt": full_prompt, "width": IMAGE_WIDTH, "height": IMAGE_HEIGHT}})
+    # Workflow-run payload if we have workflow JSON
+    if workflow_json is not None:
+        payload_variants.append({"workflow": workflow_json, "inputs": {"prompt": full_prompt}})
+
+    base = comfy_url.rstrip("/")
+    for ep in endpoints:
+        url = base + ep
+        for payload in payload_variants:
+            try:
+                print(f"  Requesting ComfyUI endpoint {url} with payload keys: {', '.join(payload.keys())}...")
+                resp = requests.post(url, json=payload, headers=headers, timeout=120)
+            except requests.exceptions.RequestException as e:
+                print(f"  [ERROR] Request to {url} failed: {e}")
+                continue
+
+            if resp.status_code != 200:
+                snippet = resp.text[:1000] if resp.text else f"<no body; status {resp.status_code}>"
+                print(f"  [WARN] ComfyUI {url} returned {resp.status_code}: {snippet}")
+                continue
+
+            # Try to parse JSON and extract common image fields (base64)
+            try:
+                data = resp.json()
+            except Exception:
+                print("  [WARN] ComfyUI response not JSON; attempting to save raw content if it is an image")
+                ct = resp.headers.get("content-type", "")
+                if ct.startswith("image"):
+                    fname = output_dir / f"{timestamp}.png"
+                    fname.write_bytes(resp.content)
+                    print(f"  [OK] Saved raw image -> {fname.name}")
+                    return True
+                continue
+
+            # Search for base64 image in common fields
+            candidates = []
+            if isinstance(data, dict):
+                for key in ("images", "image", "result", "outputs", "data"):
+                    if key in data:
+                        candidates.append(data[key])
+
+            # Normalize candidates to list of base64 strings
+            b64_list = []
+            for cand in candidates:
+                if isinstance(cand, str):
+                    b64_list.append(cand)
+                elif isinstance(cand, list):
+                    for item in cand:
+                        if isinstance(item, str):
+                            b64_list.append(item)
+                        elif isinstance(item, dict) and "b64" in item:
+                            b64_list.append(item.get("b64"))
+
+            # If nothing found, try to walk the JSON for base64-like strings
+            if not b64_list:
+                def find_b64(obj):
+                    if isinstance(obj, str) and obj.strip().startswith("data:image"):
+                        return obj
+                    if isinstance(obj, dict):
+                        for v in obj.values():
+                            r = find_b64(v)
+                            if r:
+                                return r
+                    if isinstance(obj, list):
+                        for v in obj:
+                            r = find_b64(v)
+                            if r:
+                                return r
+                    return None
+
+                found = find_b64(data)
+                if found:
+                    b64_list.append(found)
+
+            if not b64_list:
+                print("  [WARN] No base64 image found in ComfyUI response JSON")
+                continue
+
+            # Decode first base64 image and save
+            try:
+                raw = b64_list[0]
+                if raw.startswith("data:image"):
+                    raw = raw.split(",", 1)[1]
+                image_bytes = base64.b64decode(raw)
+                fname = output_dir / f"{timestamp}.png"
+                fname.write_bytes(image_bytes)
+                print(f"  [OK] Saved -> {fname.name}  ({len(image_bytes)//1024} KB)")
+                return True
+            except Exception as e:
+                print(f"  [ERROR] Failed to decode/save ComfyUI image: {e}")
+                continue
+
+    print("  [FAIL] All ComfyUI endpoints/payloads failed for this prompt")
     return False
 
 

@@ -4,7 +4,7 @@ Your job is to read the script carefully and create a separate image for each ti
 
 Each image must visually illustrate what the narrator is saying at the exact moment. The image should make sense with the story, the emotion, and the idea being explained. Do not create random images. Every image should feel like a simple visual explanation of the current line in the script.
 
-The images must be generated using Pollinations.AI.
+The images must be generated using ChatGPT Image 2.
 
 STYLE REQUIREMENTS:
 

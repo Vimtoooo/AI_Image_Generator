@@ -1,16 +1,9 @@
 [project]
 name = "image-generator"
 version = "0.1.0"
-description = "Generates YouTube script images via Pollinations.AI (free, no API key required)"
-requires-python = ">=3.10"
+description = "A YouTube image generator script which uses Pollinations.AI"
+readme = "README.md"
+requires-python = ">=3.14"
 dependencies = [
-    "requests>=2.32.0",
+    "requests>=2.34.2",
 ]
-
-[project.scripts]
-# Use the module path so entry resolution works when the project is run via tools
-# that import the package (uv, pipx, etc.).
-generate = "scripts.image_generator.generate_images:main"
-
-[tool.uv]
-dev-dependencies = []
