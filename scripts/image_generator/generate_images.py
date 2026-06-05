@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 YouTube Script Image Generator
-================================
-Generates MS Paint-style stickman images for each timestamp in a YouTube script
-using Pollinations.AI -- completely free, no API key required, unlimited generations.
+=================================
+Generates MS Paint-style stickman images for each timestamp in a YouTube script.
+Prefers a local ComfyUI API (recommended) or local AUTOMATIC1111 WebUI; Pollinations.AI
+is kept only as a remote fallback and may be rate-limited.
 
 Usage:
     uv run generate_images.py
@@ -12,8 +13,10 @@ Usage:
 import sys
 import time
 import os
+import argparse
 import base64
 import json
+import re
 from pathlib import Path
 from urllib.parse import quote
 
@@ -39,7 +42,7 @@ sys.stdout.reconfigure(line_buffering=True) # type: ignore[attr-defined]
 # Output folder (relative to this script's location). Matches repository Assets/Generated_Images
 OUTPUT_DIR = Path(__file__).parent.parent.parent / "Assets" / "Generated_Images"
 
-# Pollinations.AI settings
+# Remote Pollinations (fallback) settings
 IMAGE_WIDTH   = 1920
 IMAGE_HEIGHT  = 1080
 MODEL         = "flux"   # Options: flux, turbo, flux-realism
@@ -47,6 +50,9 @@ RETRY_LIMIT   = 3        # Retries per image on failure
 DELAY_BETWEEN = 3        # Seconds to wait between requests
 BACKOFF_BASE  = 10       # Base seconds for exponential backoff on 402 responses
 MAX_BACKOFF   = 120      # Max backoff wait in seconds
+
+# ComfyUI/Comfy API settings: prefer an explicit env var but fall back to localhost
+COMFY_URL = os.environ.get("COMFY_API_URL", "http://127.0.0.1:8188")
 
 # Style applied to every image -- matches the MS Paint / stickman brief
 STYLE_PREFIX = (
@@ -145,12 +151,83 @@ IMAGES = [
 ]
 
 
+def sanitize_timestamp_for_filename(ts: str) -> str:
+    """Return a filesystem-safe filename for a timestamp string."""
+    # Replace colons and spaces with dots, remove any characters except [0-9a-zA-Z._-]
+    s = ts.strip()
+    s = s.replace(":", ".").replace(" ", ".").replace("/", "-")
+    s = re.sub(r"[^0-9A-Za-z._-]", "", s)
+    return s
+
+
+def load_images_from_script(path: str) -> list:
+    """Load timestamp/prompt pairs from a plain-text script file.
+
+    Supports simple formats where a line starting with a timestamp begins a
+    new prompt. Timestamp formats supported include `MM:SS`, `H:MM:SS`, or
+    `M.SS` (dots) and `MM.SS`. The description may continue on the same
+    line after a dash or on subsequent indented/non-timestamp lines.
+    """
+    p = Path(path)
+    if not p.exists():
+        raise FileNotFoundError(path)
+
+    text = p.read_text(encoding="utf-8")
+
+    # First, try to detect inline timestamps like: (0:02) Some text (0:10) more text
+    inline_re = re.compile(r"\(?\s*(\d{1,2}(?::\d{2}){1,2}|\d{1,2}\.\d{2})\s*\)?")
+    matches = list(inline_re.finditer(text))
+    if matches and len(matches) > 0:
+        entries = []
+        for i, m in enumerate(matches):
+            ts = m.group(1)
+            start = m.end()
+            end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+            prompt = text[start:end].strip()
+            # Clean surrounding punctuation/newlines
+            prompt = prompt.strip(" \t\n\r-–—:;,.\'")
+            if prompt:
+                entries.append((ts, prompt))
+        return entries
+
+    # Fallback: original line-based parsing where each line starts with a timestamp
+    lines = text.splitlines()
+    entries = []
+    current_ts = None
+    current_lines = []
+
+    # Timestamp regex: matches 1:23, 01:23, 1.23, 1:02:33 at start of line
+    ts_line_re = re.compile(r"^\s*(\d{1,2}(?::\d{2}){0,2}|\d{1,2}\.\d{2})\s*(?:[-–—]\s*)?(.*)$")
+
+    for ln in lines:
+        m = ts_line_re.match(ln)
+        if m:
+            # flush previous
+            if current_ts is not None:
+                prompt = " ".join([l.strip() for l in current_lines if l.strip()])
+                entries.append((current_ts, prompt))
+            current_ts = m.group(1)
+            rest = m.group(2) or ""
+            current_lines = [rest] if rest else []
+        else:
+            # continuation line
+            if current_ts is not None:
+                current_lines.append(ln)
+
+    # flush last
+    if current_ts is not None:
+        prompt = " ".join([l.strip() for l in current_lines if l.strip()])
+        entries.append((current_ts, prompt))
+
+    return entries
+
+
 # ─────────────────────────────────────────────
 # GENERATOR
 # ─────────────────────────────────────────────
 
 def build_url(scene_prompt: str) -> str:
-    """Build the Pollinations.AI image URL."""
+    """Build the Pollinations.AI fallback image URL."""
     full_prompt = f"{STYLE_PREFIX}, {scene_prompt}"
     encoded = quote(full_prompt)
     return (
@@ -159,13 +236,15 @@ def build_url(scene_prompt: str) -> str:
         f"&nologo=true&model={MODEL}"
     )
 
+    # banner printed in main()
 
 def generate_image(timestamp: str, scene_prompt: str, output_dir: Path) -> bool:
     """Download and save a single image. Returns True on success."""
     # Priority order for local backends:
     # 1. ComfyUI API (set COMFY_API_URL)
     # 2. AUTOMATIC1111 WebUI (set LOCAL_SD_URL)
-    comfy_url = os.getenv("COMFY_API_URL")
+    # Prefer ComfyUI endpoint (can be a full path); COMFY_URL defaults to localhost if unset
+    comfy_url = COMFY_URL
     if comfy_url:
         workflow_path = os.getenv("COMFY_WORKFLOW_PATH")
         return generate_image_comfy(timestamp, scene_prompt, output_dir, comfy_url, workflow_path)
@@ -178,7 +257,8 @@ def generate_image(timestamp: str, scene_prompt: str, output_dir: Path) -> bool:
         return generate_image_local_sd(timestamp, scene_prompt, output_dir, local_sd)
 
     url = build_url(scene_prompt)
-    filename = output_dir / f"{timestamp}.png"
+    safe_name = sanitize_timestamp_for_filename(timestamp)
+    filename = output_dir / f"{safe_name}.png"
     # Use browser-like headers — some endpoints block unknown user-agents or require a referer.
     headers = {
         "User-Agent": (
@@ -191,7 +271,7 @@ def generate_image(timestamp: str, scene_prompt: str, output_dir: Path) -> bool:
 
     for attempt in range(1, RETRY_LIMIT + 1):
         try:
-            print(f"  Requesting from Pollinations.AI (attempt {attempt}/{RETRY_LIMIT})...")
+            print(f"  Requesting Pollinations.AI (fallback) (attempt {attempt}/{RETRY_LIMIT})...")
             response = requests.get(url, timeout=90, headers=headers)
 
             content_type = response.headers.get("content-type", "")
@@ -275,7 +355,7 @@ def generate_image_local_sd(timestamp: str, scene_prompt: str, output_dir: Path,
 
         b64 = images[0]
         image_bytes = base64.b64decode(b64.split(",")[-1])
-        filename = output_dir / f"{timestamp}.png"
+        filename = output_dir / f"{sanitize_timestamp_for_filename(timestamp)}.png"
         filename.write_bytes(image_bytes)
         print(f"  [OK] Saved -> {filename.name}  ({len(image_bytes)//1024} KB)")
         return True
@@ -346,7 +426,7 @@ def generate_image_comfy(timestamp: str, scene_prompt: str, output_dir: Path, co
                 print("  [WARN] ComfyUI response not JSON; attempting to save raw content if it is an image")
                 ct = resp.headers.get("content-type", "")
                 if ct.startswith("image"):
-                    fname = output_dir / f"{timestamp}.png"
+                    fname = output_dir / f"{sanitize_timestamp_for_filename(timestamp)}.png"
                     fname.write_bytes(resp.content)
                     print(f"  [OK] Saved raw image -> {fname.name}")
                     return True
@@ -402,7 +482,7 @@ def generate_image_comfy(timestamp: str, scene_prompt: str, output_dir: Path, co
                 if raw.startswith("data:image"):
                     raw = raw.split(",", 1)[1]
                 image_bytes = base64.b64decode(raw)
-                fname = output_dir / f"{timestamp}.png"
+                fname = output_dir / f"{sanitize_timestamp_for_filename(timestamp)}.png"
                 fname.write_bytes(image_bytes)
                 print(f"  [OK] Saved -> {fname.name}  ({len(image_bytes)//1024} KB)")
                 return True
@@ -415,24 +495,78 @@ def generate_image_comfy(timestamp: str, scene_prompt: str, output_dir: Path, co
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Generate images per timestamped script lines")
+    parser.add_argument("--script", "-s", help="Path to a text script containing timestamps and descriptions")
+    parser.add_argument("--test", "-t", type=int, default=None,
+                        help="Generate only the first N images (quick test mode)")
+    args = parser.parse_args()
+
     print("")
     print("=" * 55)
-    print("  YouTube Script Image Generator - Pollinations.AI")
+    print("  YouTube Script Image Generator - ComfyUI (preferred)")
     print("=" * 55)
 
     # Ensure output folder exists
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     print(f"\n[DIR] Output folder: {OUTPUT_DIR}\n")
 
+    # Determine list of (timestamp, prompt) pairs. Prefer a script file if provided
+    # via CLI or the SCRIPT_PATH environment variable. Otherwise fall back to
+    # the in-script `IMAGES` list.
+    script_path = args.script or os.getenv("SCRIPT_PATH")
+    # If no script path provided, look for scripts in the repository `prompts/` folder
+    if not script_path:
+        repo_root = Path(__file__).parent.parent.parent
+        prompts_dir = repo_root / "prompts"
+        found = None
+        if prompts_dir.exists() and prompts_dir.is_dir():
+            # prefer a file named `my_video_script.txt` if present
+            preferred = prompts_dir / "my_video_script.txt"
+            if preferred.exists():
+                found = preferred
+            else:
+                # pick the first .txt file in the prompts folder
+                for p in sorted(prompts_dir.glob("*.txt")):
+                    found = p
+                    break
+        if found:
+            script_path = str(found)
+            print(f"[AUTO] Using script from prompts/: {script_path}")
+    if script_path:
+        try:
+            parsed = load_images_from_script(script_path)
+            if parsed:
+                image_list = parsed
+            else:
+                print(f"[WARN] No timestamped entries found in script: {script_path}; using built-in IMAGES")
+                image_list = IMAGES
+        except Exception as e:
+            print(f"[WARN] Failed to load script '{script_path}': {e}; using built-in IMAGES")
+            image_list = IMAGES
+    else:
+        image_list = IMAGES
+
     # Skip already-generated images
     to_generate = []
     skipped = []
-    for timestamp, prompt in IMAGES:
-        target = OUTPUT_DIR / f"{timestamp}.png"
+    for timestamp, prompt in image_list:
+        safe_name = sanitize_timestamp_for_filename(timestamp)
+        target = OUTPUT_DIR / f"{safe_name}.png"
         if target.exists():
-            skipped.append(timestamp)
+            skipped.append(safe_name)
         else:
             to_generate.append((timestamp, prompt))
+
+    # If test mode is enabled, only generate the first N images
+    if args.test is not None:
+        try:
+            n = int(args.test)
+            if n < 0:
+                n = 0
+        except Exception:
+            n = 0
+        to_generate = to_generate[:n]
+        print(f"[TEST] Test mode active — generating first {len(to_generate)} image(s)")
 
     if skipped:
         print(f"[SKIP] Already exists ({len(skipped)}): {', '.join(skipped)}\n")
