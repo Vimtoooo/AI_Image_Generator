@@ -1,0 +1,3 @@
+requests>=2.32.0
+# Optional: install the 'uv' runner globally if you use it
+# pip install uv
