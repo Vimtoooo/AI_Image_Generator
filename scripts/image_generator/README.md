@@ -21,6 +21,12 @@ cd scripts\image_generator
 uv sync
 ```
 
+If you are not using `uv`, or you run the script directly with `python`, ensure required packages are installed into the interpreter you will use:
+
+```powershell
+python -m pip install requests
+```
+
 ### Where to store scripts
 
 - Use the existing `scripts/` folder as the top-level place for utility scripts.
@@ -73,9 +79,9 @@ Options when seeing 402 responses:
 
 ## Local Stable Diffusion (recommended for high-volume use)
 
-If you have an NVIDIA GPU (like an RTX 3050), running Stable Diffusion locally is the most reliable way to generate many images without rate limits.
+If you have an NVIDIA GPU (like an RTX 3050), running Stable Diffusion locally is one option. This repository is now focused on ComfyUI as the primary backend. The generator expects a running ComfyUI API by default.
 
-Quick overview (AUTOMATIC1111 WebUI):
+Quick overview (AUTOMATIC1111 WebUI) — OPTIONAL fallback (not required):
 
 1. Install NVIDIA drivers and CUDA runtime (use latest stable drivers from NVIDIA).
 2. Install Miniconda (recommended) on Windows.
@@ -119,7 +125,6 @@ Set persistent environment variables (PowerShell, user-level):
 ```powershell
 setx COMFY_API_URL "http://127.0.0.1:8188"
 setx COMFY_WORKFLOW_PATH "C:\path\to\gsl_starter_1_1.json"
-setx LOCAL_SD_URL "http://127.0.0.1:7860"   # optional fallback
 setx SCRIPT_PATH "C:\path\to\your_script.txt"  # optional default script path
 ```
 
@@ -128,7 +133,6 @@ Set variables for the current PowerShell session only (useful for testing):
 ```powershell
 $env:COMFY_API_URL = "http://127.0.0.1:8188"
 $env:COMFY_WORKFLOW_PATH = "C:\path\to\gsl_starter_1_1.json"
-$env:LOCAL_SD_URL = "http://127.0.0.1:7860"
 $env:SCRIPT_PATH = "C:\path\to\your_script.txt"
 ```
 
@@ -153,7 +157,7 @@ uv run generate_images.py --script ..\..\prompts\my_video_script.txt
 Or run directly with your Python interpreter (no uv):
 
 ```powershell
-python .\scripts\image_generator\generate_images.py --script .\prompts\my_video_script.txt
+python .\scripts\image_generator\generate_images.py --comfy-url http://127.0.0.1:8188 --script .\prompts\my_video_script.txt
 ```
 
 Notes:
@@ -162,6 +166,7 @@ Notes:
 - The script sanitizes timestamps to produce safe filenames (for example `0:02` → `0.02.png`).
 
 Notes:
+- The script will try several common ComfyUI API endpoints and payload shapes. If your API exposes a different path, set `COMFY_API_URL` to include that path (for example `http://127.0.0.1:8188/api/generate`).
 - The script will try several common ComfyUI API endpoints and payload shapes. If your API exposes a different path, set `COMFY_API_URL` to include that path (for example `http://127.0.0.1:8188/api/generate`).
 - The script searches the JSON response for base64-encoded images (data:image/* or plain base64 strings) and saves the first image it finds.
 

@@ -19,6 +19,7 @@ import json
 import re
 from pathlib import Path
 from urllib.parse import quote
+# urllib.parse.quote removed — Pollinations fallback removed; this script uses ComfyUI only
 
 # Provide a clear error if required third-party modules are missing. This helps
 # when the script is run with a different Python interpreter than the one
@@ -51,8 +52,9 @@ DELAY_BETWEEN = 3        # Seconds to wait between requests
 BACKOFF_BASE  = 10       # Base seconds for exponential backoff on 402 responses
 MAX_BACKOFF   = 120      # Max backoff wait in seconds
 
-# ComfyUI/Comfy API settings: prefer an explicit env var but fall back to localhost
-COMFY_URL = os.environ.get("COMFY_API_URL", "http://127.0.0.1:8188")
+# ComfyUI/Comfy API settings: prefer an explicit env var; do NOT default to localhost
+# Leaving this unset avoids wrongly assuming an API is available on localhost
+# COMFY_API_URL is read when needed from environment or CLI; do not set a module-level default
 
 # Style applied to every image -- matches the MS Paint / stickman brief
 STYLE_PREFIX = (
@@ -226,142 +228,32 @@ def load_images_from_script(path: str) -> list:
 # GENERATOR
 # ─────────────────────────────────────────────
 
-def build_url(scene_prompt: str) -> str:
-    """Build the Pollinations.AI fallback image URL."""
-    full_prompt = f"{STYLE_PREFIX}, {scene_prompt}"
-    encoded = quote(full_prompt)
-    return (
-        f"https://image.pollinations.ai/prompt/{encoded}"
-        f"?width={IMAGE_WIDTH}&height={IMAGE_HEIGHT}"
-        f"&nologo=true&model={MODEL}"
-    )
+def verify_comfy_api(comfy_url: str) -> bool:
+    """Verify ComfyUI is reachable and accepts workflow/run endpoints.
 
-    # banner printed in main()
-
-def generate_image(timestamp: str, scene_prompt: str, output_dir: Path) -> bool:
-    """Download and save a single image. Returns True on success."""
-    # Priority order for local backends:
-    # 1. ComfyUI API (set COMFY_API_URL)
-    # 2. AUTOMATIC1111 WebUI (set LOCAL_SD_URL)
-    # Prefer ComfyUI endpoint (can be a full path); COMFY_URL defaults to localhost if unset
-    comfy_url = COMFY_URL
-    if comfy_url:
-        workflow_path = os.getenv("COMFY_WORKFLOW_PATH")
-        return generate_image_comfy(timestamp, scene_prompt, output_dir, comfy_url, workflow_path)
-
-    # If a local Stable Diffusion WebUI is available, use it instead of Pollinations.
-    # Set the environment variable `LOCAL_SD_URL` to the base URL, e.g.:
-    #   http://127.0.0.1:7860
-    local_sd = os.getenv("LOCAL_SD_URL")
-    if local_sd:
-        return generate_image_local_sd(timestamp, scene_prompt, output_dir, local_sd)
-
-    url = build_url(scene_prompt)
-    safe_name = sanitize_timestamp_for_filename(timestamp)
-    filename = output_dir / f"{safe_name}.png"
-    # Use browser-like headers — some endpoints block unknown user-agents or require a referer.
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-            "(KHTML, like Gecko) Chrome/125.0 Safari/537.36"
-        ),
-        "Referer": "https://pollinations.ai/",
-        "Accept": "image/*,*/*;q=0.8",
-    }
-
-    for attempt in range(1, RETRY_LIMIT + 1):
+    Returns True if a POST probe to common Comfy endpoints does not return 405.
+    """
+    endpoints = ["/api/v1/workflow/run", "/api/workflow/run", "/api/v1/generate", "/api/generate"]
+    headers = {"Content-Type": "application/json"}
+    payload = {"workflow": {}, "inputs": {"prompt": "test"}}
+    base = comfy_url.rstrip("/")
+    for ep in endpoints:
         try:
-            print(f"  Requesting Pollinations.AI (fallback) (attempt {attempt}/{RETRY_LIMIT})...")
-            response = requests.get(url, timeout=90, headers=headers)
-
-            content_type = response.headers.get("content-type", "")
-            if response.status_code == 200 and content_type.startswith("image"):
-                filename.write_bytes(response.content)
-                size_kb = len(response.content) // 1024
-                print(f"  [OK] Saved -> {filename.name}  ({size_kb} KB)")
+            r = requests.post(base + ep, json=payload, headers=headers, timeout=5)
+            if r.status_code != 405:
                 return True
-            # Handle rate-limit / queue-full (Pollinations returns 402 with JSON explaining the queue)
-            if response.status_code == 402:
-                try:
-                    body = response.json()
-                    err = body.get("error") if isinstance(body, dict) else str(body)
-                except Exception:
-                    err = response.text[:1000]
-
-                print(f"  [WARN] 402 rate/queue response: {err}")
-                # Exponential backoff based on attempt number
-                backoff = min(BACKOFF_BASE * (2 ** (attempt - 1)), MAX_BACKOFF)
-                print(f"  [WAIT] Backing off for {backoff} seconds before retrying...")
-                time.sleep(backoff)
-                # continue to next attempt
-                continue
-
-            # On other non-image responses, print a short snippet of the body to aid debugging
-            snippet = None
-            try:
-                snippet = response.text[:1000]
-            except Exception:
-                snippet = f"<unable to decode response body; length={len(response.content)} bytes>"
-
-            print(f"  [WARN] Unexpected response: {response.status_code} -- {content_type}")
-            print(f"  [RESP] {snippet}")
-
-        except requests.exceptions.Timeout:
-            print(f"  [TIMEOUT] Attempt {attempt} timed out -- retrying...")
-        except requests.exceptions.RequestException as e:
-            print(f"  [ERROR] Request error: {e} -- retrying...")
-
-        if attempt < RETRY_LIMIT:
-            time.sleep(5)
-
-    print(f"  [FAIL] Failed after {RETRY_LIMIT} attempts -- skipping {timestamp}.png")
+        except requests.exceptions.RequestException:
+            continue
     return False
 
 
-def generate_image_local_sd(timestamp: str, scene_prompt: str, output_dir: Path, sd_url: str) -> bool:
-    """Generate image using a local AUTOMATIC1111-style WebUI (/sdapi/v1/txt2img).
-    sd_url should be like 'http://127.0.0.1:7860' and the WebUI must be running.
-    """
-    full_prompt = f"{STYLE_PREFIX}, {scene_prompt}"
-    payload = {
-        "prompt": full_prompt,
-        "width": IMAGE_WIDTH,
-        "height": IMAGE_HEIGHT,
-        "sampler_name": "Euler a",
-        "steps": 20,
-        "cfg_scale": 7.0,
-        "batch_size": 1,
-    }
+def generate_image(timestamp: str, scene_prompt: str, output_dir: Path, comfy_url: str) -> bool:
+    """Generate a single image using ComfyUI and save it."""
+    workflow_path = os.getenv("COMFY_WORKFLOW_PATH")
+    return generate_image_comfy(timestamp, scene_prompt, output_dir, comfy_url, workflow_path)
 
-    api = sd_url.rstrip("/") + "/sdapi/v1/txt2img"
-    try:
-        print(f"  Requesting local SD WebUI at {api}...")
-        resp = requests.post(api, json=payload, timeout=120)
-    except requests.exceptions.RequestException as e:
-        print(f"  [ERROR] Local SD request failed: {e}")
-        return False
 
-    if resp.status_code != 200:
-        snippet = resp.text[:1000] if resp.text else f"<no body; status {resp.status_code}>"
-        print(f"  [WARN] Local SD returned {resp.status_code}: {snippet}")
-        return False
-
-    try:
-        data = resp.json()
-        images = data.get("images") or []
-        if not images:
-            print("  [WARN] No images returned from local SD")
-            return False
-
-        b64 = images[0]
-        image_bytes = base64.b64decode(b64.split(",")[-1])
-        filename = output_dir / f"{sanitize_timestamp_for_filename(timestamp)}.png"
-        filename.write_bytes(image_bytes)
-        print(f"  [OK] Saved -> {filename.name}  ({len(image_bytes)//1024} KB)")
-        return True
-    except Exception as e:
-        print(f"  [ERROR] Failed to decode/save image from local SD: {e}")
-        return False
+# Local AUTOMATIC1111/WebUI support removed — script is ComfyUI-only
 
 
 def generate_image_comfy(timestamp: str, scene_prompt: str, output_dir: Path, comfy_url: str, workflow_path: str | None) -> bool:
@@ -497,6 +389,7 @@ def generate_image_comfy(timestamp: str, scene_prompt: str, output_dir: Path, co
 def main():
     parser = argparse.ArgumentParser(description="Generate images per timestamped script lines")
     parser.add_argument("--script", "-s", help="Path to a text script containing timestamps and descriptions")
+    parser.add_argument("--comfy-url", "-c", help="ComfyUI API base URL (e.g. http://127.0.0.1:8188)")
     parser.add_argument("--test", "-t", type=int, default=None,
                         help="Generate only the first N images (quick test mode)")
     args = parser.parse_args()
@@ -580,9 +473,19 @@ def main():
     success_count = 0
     fail_count = 0
 
+    comfy_url = args.comfy_url or os.getenv("COMFY_API_URL")
+    if not comfy_url:
+        print("\n[ERROR] No ComfyUI URL provided. Set --comfy-url or COMFY_API_URL environment variable.")
+        sys.exit(2)
+
+    print(f"[PROBE] Verifying ComfyUI at {comfy_url}...")
+    if not verify_comfy_api(comfy_url):
+        print("[ERROR] ComfyUI API did not accept probe requests. Check ComfyUI is running and the API endpoints are enabled.")
+        sys.exit(3)
+
     for i, (timestamp, prompt) in enumerate(to_generate, 1):
         print(f"[{i}/{len(to_generate)}] Timestamp {timestamp}")
-        ok = generate_image(timestamp, prompt, OUTPUT_DIR)
+        ok = generate_image(timestamp, prompt, OUTPUT_DIR, comfy_url)
         if ok:
             success_count += 1
         else:
