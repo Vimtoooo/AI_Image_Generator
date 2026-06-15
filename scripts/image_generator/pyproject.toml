@@ -1,9 +1,0 @@
-[project]
-name = "image-generator"
-version = "0.1.0"
-description = "A YouTube image generator script which uses Pollinations.AI"
-readme = "README.md"
-requires-python = ">=3.14"
-dependencies = [
-    "requests>=2.34.2",
-]
