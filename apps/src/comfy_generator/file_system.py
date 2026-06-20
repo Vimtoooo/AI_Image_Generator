@@ -34,6 +34,9 @@ class FileSystem:
         # If the path to the assets and generated_images folder does not exist, it'll make it automatically
         self.__path_to_assets.mkdir(parents=True, exist_ok=True)
 
+        # Store the path to the workflows folder
+        self.__path_to_workflows: Path = self.__project_root / "apps" / "workflows"
+
     # Getter, setter and deleter methods:
     
     @property
@@ -65,4 +68,12 @@ class FileSystem:
     
     @project_root.setter
     def project_root(self, new_path: Path) -> Never:
-        raise IllegalRootProjectAlteration(f"Altering root project paths is forbidden. Given argument: {new_path}")
+        raise IllegalPathAlterationError(f"Altering root project paths is forbidden. Given argument: {new_path}")
+    
+    @property
+    def path_to_workflows(self) -> Path:
+        return self.__path_to_workflows
+    
+    @path_to_workflows.setter
+    def path_to_workflows(self, new_path: Path) -> Never:
+        raise IllegalPathAlterationError(f"Altering the workflows path is forbidden. Given argument: {new_path}")

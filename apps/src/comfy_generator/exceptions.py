@@ -14,6 +14,6 @@ class RootProjectFolderNotFoundError(Exception):
     def __init__(self, error):
         super().__init__(error)
 
-class IllegalRootProjectAlteration(Exception):
+class IllegalPathAlterationError(Exception):
     def __init__(self, error):
         super().__init__(error)
