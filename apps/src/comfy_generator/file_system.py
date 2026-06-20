@@ -9,7 +9,7 @@ This file must isolate all file interactions, handling:
 import json
 import sys
 from pathlib import Path
-from typing import Final, NoReturn, Never
+from typing import Final, Never
 
 from exceptions import *
 
@@ -21,7 +21,7 @@ class FileSystem:
     def __init__(self):
         current_system: str = sys.platform
 
-        if not any(current_system.startswith(platform) for platform in self.ALLOWED_PLATFORMS):
+        if not any(current_system.startswith(p) for p in self.ALLOWED_PLATFORMS):
             raise InvalidOperatingSystem(f"Only PC operating systems are allowed. Not '{current_system}'")
         self.__system: str = current_system
 
@@ -36,6 +36,15 @@ class FileSystem:
 
         # Store the path to the workflows folder
         self.__path_to_workflows: Path = self.__project_root / "apps" / "workflows"
+
+        # Path to prompts folder
+        self.__path_to_prompts: Path = self.__project_root / "prompts"
+
+        # Path to scripts folder
+        self.__path_to_scripts: Path = self.__project_root / "scripts"
+
+        # Store the current workflow data from the ComfyUI's API and maintain it's parsed data as a Python dictionary
+        self.__current_workflow_data: dict | None = None
 
     # Getter, setter and deleter methods:
     
@@ -53,6 +62,9 @@ class FileSystem:
     
     @path_to_assets.setter
     def path_to_assets(self, new_path: Path):
+        if not isinstance(new_path, Path):
+            raise ValueError(f"Invalid data type for the argument 'new_path': {new_path}")
+
         if "assets" not in new_path.parts:
             raise AssetsPathNotFoundError(f"The given path does not include the 'assets' folder")
 
@@ -77,3 +89,33 @@ class FileSystem:
     @path_to_workflows.setter
     def path_to_workflows(self, new_path: Path) -> Never:
         raise IllegalPathAlterationError(f"Altering the workflows path is forbidden. Given argument: {new_path}")
+    
+    @property
+    def path_to_prompts(self) -> Path:
+        return self.__path_to_prompts
+    
+    @path_to_prompts.setter
+    def path_to_prompts(self, new_path: Path) -> Never:
+        raise IllegalPathAlterationError(f"Altering the prompts path is forbidden. Given argument: {new_path}")
+    
+    @property
+    def path_to_scripts(self) -> Path:
+        return self.__path_to_scripts
+    
+    @path_to_scripts.setter
+    def path_to_scripts(self, new_path: Path) -> Never:
+        raise IllegalPathAlterationError(f"Altering the scripts path is forbidden. Given argument: {new_path}")
+    
+    @property
+    def current_workflows_data(self) -> dict | None:
+        return self.__current_workflow_data
+    
+    @current_workflows_data.setter
+    def current_workflows_data(self, new_workflows_data: dict | None) -> None:
+        if not isinstance(new_workflows_data, dict):
+            raise ValueError(f"Invalid data type for the argument 'new_workflows_data': {new_workflows_data}")
+        
+        if not any(self.__path_to_workflows.glob("comfyui_api.json")):
+            raise FileNotFoundError(f"The 'comfyui_api.json' file is not present in the workflows folder. Current path: {self.__path_to_workflows}")
+        
+        self.__current_workflow_data = new_workflows_data
