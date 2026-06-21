@@ -44,9 +44,46 @@ class FileSystem:
         self.__path_to_scripts: Path = self.__project_root / "scripts"
 
         # Store the current workflow data from the ComfyUI's API and maintain it's parsed data as a Python dictionary
-        self.__current_workflow_data: dict | None = None
+        self.__current_workflow_data: dict[str, dict] | None = None
+    
+    """Core Methods"""
 
-    # Getter, setter and deleter methods:
+    def load_workflow_json(self, filename: str | None = None) -> None:
+        """
+        <h3>Safely reads the ComfyUI's configuration map.</h3>
+        Breakdown of the process:
+        <ol>
+        <li>Combines the path to workflows with the optionally given filename variable to make an absolute path.</li>
+        <li>Verifies if the target file exists on the computer.</li>
+        <li>Reads the raw text.</li>
+        <li>Parses the raw JSON text to a working Python dictionary.</li>
+        <li>Saves the output directly into the current_workflow_data private attribute.</li>
+        </ol>
+
+        <h4>Exceptions & Errors:</h4>
+
+        - Raises a **FileNotFoundError** if the file name is not located.
+        """
+        pass
+
+    def load_video_script(self, timestamped_text_file_name: str) -> None:
+        """
+        <h3>Reads the external prompts featuring timestamps.</h3>
+        Breakdown of the process:
+        <ol>
+        <li>Locates the file inside the path_to_scripts folder.</li>
+        <li>Checks for physical existence on the hard drive.</li>
+        <li>Safely opens the file and reads its contents line-by-line using a file loop.</li>
+        <li>Displays each raw line inside the console, confirming the file-traveling mechanism work without errors.</li>
+        </ol>
+
+        <h4>Exceptions & Errors:</h4>
+
+        - Raises a **FileNotFoundError** if the file name is not located.
+        """
+        pass
+
+    """Getter, setter and deleter methods"""
     
     @property
     def system(self) -> str:
