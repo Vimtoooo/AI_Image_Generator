@@ -2,20 +2,26 @@
 
 This directory contains the automated tools designed to support the YouTube channel production pipeline. The primary application is a **ComfyUI Image Generator** that interacts with a local AI instance to generate custom visual assets programmatically.
 
+Status: Implementation phase (in progress)
+
+License: This repository is licensed under the GNU General Public License v3 (GPLv3). See the [License](License) file for the full text.
+
 ## 🤖 ComfyUI Image Generator
 
 This Python application automates the interaction with ComfyUI's API. Instead of manually using the web interface, this script loads predefined workflows, injects dynamic prompts (like the "MS Paint" style defined in our project), and triggers the GPU to generate images.
 
 ### 🛠 Prerequisites
+Before the project is feature-complete this repository is in the implementation phase. The prerequisites below reflect the current state: some automation pieces are implemented, others are planned.
 
-Before running the application, ensure the following are set up:
+Minimum required to start using the generator today:
 
-1.  **ComfyUI Instance**: Have ComfyUI installed and running on your local machine (usually at `http://127.0.0.1:8188`).
-2.  **Dev Mode Enabled**: 
-    - Open ComfyUI in your browser.
-    - Click the **Settings** (gear icon).
-    - Enable **"Enable Dev mode Options"**. This allows you to export workflows in the required **API Format (JSON)**.
-3.  **Python 3.10+**: Ensure Python is installed on your system.
+1. **ComfyUI installed and running locally** (API accessible). The app expects ComfyUI to be available at a local URL such as `http://127.0.0.1:8188`.
+2. **ComfyUI: Dev / API export enabled** so you can Save workflows in the "API Format (JSON)" and place them in `apps/workflows/`.
+3. **Python 3.10+** and the project dependencies installed (`pip install -r apps/requirements.txt`).
+
+Notes:
+- The project is not yet fully finished — additional setup steps (environment variables, optional runtime checks, and asset post-processing) will be documented as implementation continues.
+- If you want to run end-to-end automation you should have a GPU-enabled ComfyUI instance and network access between the generator and the ComfyUI API endpoint.
 
 ### 🚀 Installation & Setup
 
@@ -57,12 +63,23 @@ Before running the application, ensure the following are set up:
 - `workflow_mgr.py`: Logic for reading, traversing, and modifying the JSON workflow files.
 - `/workflows`: Storage for your exported ComfyUI API templates.
 
+Other notable files and folders:
+
+- `apps/src/comfy_generator/file_system.py` — handles project-relative paths and creates the `assets/generated_images` folder automatically; some setter validations and exception handling are implemented and unit tests are currently not included in the repo.
+- `apps/src/comfy_generator/exceptions.py` — custom exception classes used by the generator utilities.
+- `assets/generated_images/` — target directory for generated images (created automatically by the file system helper when the code runs).
+- `prompts/` and `scripts/` — contain prompt templates and timestamped script fragments referenced by the generator.
+
+Testing and CI:
+
+- There are no automated tests or CI configuration included yet. Adding `pytest` tests for error paths (file not found, invalid platform, setters) is recommended.
+
 ### Current Tasks:
 
 1. `file_system.py`:
     - [x] **Path Management**: Define where everything lives in the working directory, especially making it dynamical to locate the project's root folder and the `Assets` folder. Avoid hardcoding strings for defining paths, and use the built-in `pathlib` module and utilize the `__file__` variable to anchor paths relatively.
     - [x] **Workflow Loading**: Read the ComfyUI Canvas configuration, by creating a function that opens the `workflow_api.json` file, parses its contents, and returns it as a native Python dictionary so other scripts can modify it later. Use proper file-handling blocks like `with open(...)` to ensure files close automatically, and consider how to catch errors if the file is missing or corrupted.
-    - [ ] **Asset Preparation**: Prepare a landing pad for the generated images, making another function that verifies if the `Assets` directory exists. If it does not exist yet, create it automatically on the fly. Use `pathlib` for creating these directories safely without throwing an error if the directory already exists.
+    - [x] **Asset Preparation**: Prepare a landing pad for the generated images, making another function that verifies if the `Assets` directory exists. If it does not exist yet, create it automatically on the fly. Use `pathlib` for creating these directories safely without throwing an error if the directory already exists.
 
 ## 📈 Future Roadmap
 
