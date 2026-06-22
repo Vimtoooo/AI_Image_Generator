@@ -60,13 +60,22 @@ class FileSystem:
         <li>Saves the output directly into the current_workflow_data private attribute.</li>
         </ol>
 
-        <h4>Exceptions & Errors:</h4>
+        <h4>Throws:</h4>
 
-        - Raises a **FileNotFoundError** if the file name is not located.
+        - **FileNotFoundError:** if the file name is not located.
         """
-        pass
 
-    def load_video_script(self, timestamped_text_file_name: str) -> None:
+        target_file: str = filename if filename is not None else "comfyui_api.json"
+        file_path: Path = self.__path_to_workflows / target_file
+
+        if not Path.exists(file_path):
+            raise FileNotFoundError(f"The given file name does not exist: {filename}")
+        
+        with open(file_path, 'r') as file:
+            parsed_api: dict = json.load(file)
+            self.__current_workflow_data = parsed_api
+
+    def load_video_script(self, script_filename: str) -> None:
         """
         <h3>Reads the external prompts featuring timestamps.</h3>
         Breakdown of the process:
@@ -77,11 +86,19 @@ class FileSystem:
         <li>Displays each raw line inside the console, confirming the file-traveling mechanism work without errors.</li>
         </ol>
 
-        <h4>Exceptions & Errors:</h4>
+        <h4>Throws:</h4>
 
-        - Raises a **FileNotFoundError** if the file name is not located.
+        - **FileNotFoundError:** if the file name is not located.
         """
-        pass
+
+        script_file_path: Path = self.__path_to_scripts / script_filename
+
+        if not Path.exists(script_file_path):
+            raise FileNotFoundError(f"The given filename does not exist? {script_filename}")
+        
+        with open(script_file_path, 'r') as script_file:
+            for line in script_file:
+                print(line)
 
     """Getter, setter and deleter methods"""
     
