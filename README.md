@@ -1,4 +1,4 @@
-# YouTube Automation Apps: Image Generator
+# Automation Apps: Image Generator
 
 This directory contains the automated tools designed to support the YouTube channel production pipeline. The primary application is a **ComfyUI Image Generator** that interacts with a local AI instance to generate custom visual assets programmatically.
 
