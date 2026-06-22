@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 from typing import Final, Never
 
-from exceptions import *
+from comfy_generator.exceptions import *
 
 class FileSystem:
 
@@ -51,6 +51,8 @@ class FileSystem:
     def load_workflow_json(self, filename: str | None = None) -> None:
         """
         <h3>Safely reads the ComfyUI's configuration map.</h3>
+        <h3>Parameters:</h3>
+        <ul><li><b>filename:</b> The name of the file that you wish to load the API.</li></ul>
         Breakdown of the process:
         <ol>
         <li>Combines the path to workflows with the optionally given filename variable to make an absolute path.</li>
@@ -78,6 +80,8 @@ class FileSystem:
     def load_video_script(self, script_filename: str) -> None:
         """
         <h3>Reads the external prompts featuring timestamps.</h3>
+        <h3>Parameters:</h3>
+        <ul><li><b>script_filename:</b> The name of the file that you wish to load the script with dedicated timestamps.</li></ul>
         Breakdown of the process:
         <ol>
         <li>Locates the file inside the path_to_scripts folder.</li>
@@ -173,3 +177,29 @@ class FileSystem:
             raise FileNotFoundError(f"The 'comfyui_api.json' file is not present in the workflows folder. Current path: {self.__path_to_workflows}")
         
         self.__current_workflow_data = new_workflows_data
+
+
+
+# BUG: Workspace for quick testing & debugging 🧪
+if __name__ == "__main__":
+    from traceback import format_exc
+
+    try:
+        fs = FileSystem()
+        fs.load_workflow_json()
+        print(fs.current_workflows_data)
+        fs.load_video_script("my_script.txt")
+    except (
+        InvalidOperatingSystem,
+        NonSettableInstanceException,
+        AssetsPathNotFoundError,
+        RootProjectFolderNotFoundError,
+        IllegalPathAlterationError,
+        FileNotFoundError,
+        ValueError,
+    ) as e:
+        print(f"{type(e).__name__}: {e}")
+        print(format_exc())
+    except Exception as e:
+        print(f"Unexpected {type(e).__name__}: {e}")
+        print(format_exc())

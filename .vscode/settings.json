@@ -1,0 +1,4 @@
+// {
+//   "python.analysis.extraPaths": ["${workspaceFolder}/apps/.venv/Lib/site-packages"],
+//   "python.analysis.useLibraryCodeForTypes": true
+// }
