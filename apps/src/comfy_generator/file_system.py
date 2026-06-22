@@ -11,7 +11,9 @@ import sys
 from pathlib import Path
 from typing import Final, Never
 
-from comfy_generator.exceptions import *
+# from comfy_generator.exceptions import *
+# Or
+from exceptions import *
 
 class FileSystem:
 
@@ -186,9 +188,20 @@ if __name__ == "__main__":
 
     try:
         fs = FileSystem()
+        print("================================== Loading the workflow json ==================================\n")
         fs.load_workflow_json()
         print(fs.current_workflows_data)
+        print("\n================================== Loading the video script ==================================\n")
         fs.load_video_script("my_script.txt")
+        print("\n================================== Printing attributes ==================================\n")
+        print(f"Path to Assets: {fs.path_to_assets}")
+        print(f"Path to Prompts: {fs.path_to_prompts}")
+        print(f"Path to Scripts: {fs.path_to_scripts}")
+        print(f"Path to root: {fs.project_root}")
+        print(f"Path to Workflows: {fs.path_to_workflows}")
+        print(f"Current Operating System: {fs.system}")
+        print(f"Current Data: {fs.current_workflows_data}")
+
     except (
         InvalidOperatingSystem,
         NonSettableInstanceException,

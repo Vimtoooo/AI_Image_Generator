@@ -1,5 +1,5 @@
 
-# BUG: Workspace for quick testing & debugging 🧪
+# BUG: Workspace for testing & debugging 🧪
 
 import sys
 import pytest

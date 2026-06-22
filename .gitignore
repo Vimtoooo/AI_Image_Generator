@@ -24,10 +24,14 @@ dist/
 # Do not upload hundreds of megabytes of locally generated AI images
 assets/generated_images/*
 !assets/generated_images/.gitkeep
+assets/youtube_profile_assets/
 
-# --- Project Input Scripts ---
-# Ignores your custom text files containing personal timestamps/prompts
+# --- Project Input Scripts & Documents ---
+# Ignores your custom text files containing personal timestamps/prompts and documents
+documents/
 scripts/*.txt
+!prompts/.gitkeep
+!scripts/.gitkeep
 
 # --- ComfyUI Local Configurations ---
 apps/workflows/comfyui_api.json

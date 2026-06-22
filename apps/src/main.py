@@ -2,8 +2,7 @@ from comfy_generator.file_system import FileSystem
 from comfy_generator.exceptions import *
 from traceback import format_exc
 
-def main():
-
+def file_system_test():
     try:
         fs = FileSystem()
         fs.load_workflow_json()
@@ -23,6 +22,9 @@ def main():
     except Exception as e:
         print(f"Unexpected {type(e).__name__}: {e}")
         print(format_exc())
+
+def main():
+    file_system_test()
 
 
 if __name__ == "__main__":

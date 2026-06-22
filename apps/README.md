@@ -60,8 +60,8 @@ Before running the application, ensure the following are set up:
 ### Current Tasks:
 
 1. `file_system.py`:
-    - [ ] **Path Management**: Define where everything lives in the working directory, especially making it dynamical to locate the project's root folder and the `Assets` folder. Avoid hardcoding strings for defining paths, and use the built-in `pathlib` module and utilize the `__file__` variable to anchor paths relatively.
-    - [ ] **Workflow Loading**: Read the ComfyUI Canvas configuration, by creating a function that opens the `workflow_api.json` file, parses its contents, and returns it as a native Python dictionary so other scripts can modify it later. Use proper file-handling blocks like `with open(...)` to ensure files close automatically, and consider how to catch errors if the file is missing or corrupted.
+    - [x] **Path Management**: Define where everything lives in the working directory, especially making it dynamical to locate the project's root folder and the `Assets` folder. Avoid hardcoding strings for defining paths, and use the built-in `pathlib` module and utilize the `__file__` variable to anchor paths relatively.
+    - [x] **Workflow Loading**: Read the ComfyUI Canvas configuration, by creating a function that opens the `workflow_api.json` file, parses its contents, and returns it as a native Python dictionary so other scripts can modify it later. Use proper file-handling blocks like `with open(...)` to ensure files close automatically, and consider how to catch errors if the file is missing or corrupted.
     - [ ] **Asset Preparation**: Prepare a landing pad for the generated images, making another function that verifies if the `Assets` directory exists. If it does not exist yet, create it automatically on the fly. Use `pathlib` for creating these directories safely without throwing an error if the directory already exists.
 
 ## 📈 Future Roadmap
