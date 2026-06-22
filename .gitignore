@@ -1,0 +1,33 @@
+# --- Python & Testing Cache ---
+**/__pycache__/
+*.pyc
+.pytest_cache/
+.tox/
+.coverage
+htmlcov/
+
+# --- IDEs & Local Workspaces ---
+.vscode/
+.idea/
+*.swp
+*.suo
+
+# --- Virtual Environments (Never upload your local environment) ---
+.venv/
+venv/
+env/
+ENV/
+build/
+dist/
+
+# --- Project Assets & Outputs (Keep repositories lightweight) ---
+# Do not upload hundreds of megabytes of locally generated AI images
+assets/generated_images/*
+!assets/generated_images/.gitkeep
+
+# --- Project Input Scripts ---
+# Ignores your custom text files containing personal timestamps/prompts
+scripts/*.txt
+
+# --- ComfyUI Local Configurations ---
+apps/workflows/comfyui_api.json
