@@ -30,6 +30,7 @@ assets/youtube_profile_assets/
 # Ignores your custom text files containing personal timestamps/prompts and documents
 documents/
 scripts/*.txt
+prompts/*.txt
 !prompts/.gitkeep
 !scripts/.gitkeep
 

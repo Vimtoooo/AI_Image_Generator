@@ -77,9 +77,9 @@ Testing and CI:
 ### Current Tasks:
 
 1. `file_system.py`:
-    - [x] **Path Management**: Define where everything lives in the working directory, especially making it dynamical to locate the project's root folder and the `Assets` folder. Avoid hardcoding strings for defining paths, and use the built-in `pathlib` module and utilize the `__file__` variable to anchor paths relatively.
-    - [x] **Workflow Loading**: Read the ComfyUI Canvas configuration, by creating a function that opens the `workflow_api.json` file, parses its contents, and returns it as a native Python dictionary so other scripts can modify it later. Use proper file-handling blocks like `with open(...)` to ensure files close automatically, and consider how to catch errors if the file is missing or corrupted.
-    - [x] **Asset Preparation**: Prepare a landing pad for the generated images, making another function that verifies if the `Assets` directory exists. If it does not exist yet, create it automatically on the fly. Use `pathlib` for creating these directories safely without throwing an error if the directory already exists.
+    - [ ] **Server Address Configurations:** Define where the ComfyUI engine resides, store base configurations for hostnames and ports (like `127.0.0.1:8188`), requiring a unique identification string (with `uuid.uuid4()` to generate a unique token for the client instance).
+    - [ ] **The Base Health Connection Check:** Confirm the AIP server is alive before running intensive tasks. Create a standard connectivity function for making basic `GET` requests using the `requests` library to a simple ComfyUI checking endpoint (such as `/system_stats` or `/history`), returning a clean boolean state (`True`/`False`).
+    - [ ] **The HTTP Loader:** Submits workflow execution orders, with a function that is capable of accepting your configures workflow dictionary, wraps it in a secure transaction template, and ships it via a `POST` request directly to ComfyUI's `/prompt` endpoint.
 
 ## 📈 Future Roadmap
 
