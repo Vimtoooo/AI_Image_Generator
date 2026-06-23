@@ -1,11 +1,3 @@
-"""
-                    ***Utility File***
-This file must isolate all file interactions, handling:
-* Loading ComfyUI workflow JSON.
-* Managing and maneuver through files in the hard drive, along with a few functions.
-* Ensures that the output folder `Assets\\Generated_Images` is ready to receive data!
-"""
-
 import json
 import sys
 from pathlib import Path
@@ -16,6 +8,13 @@ from typing import Final, Never
 from exceptions import *
 
 class FileSystem:
+    """
+                        <h2>Utility File</h2>
+    This file must isolate all file interactions, handling:
+    * Loading ComfyUI workflow JSON.
+    * Managing and maneuver through files in the hard drive, along with a few functions.
+    * Ensures that the output folder `Assets\\Generated_Images` is ready to receive data!
+    """
 
     # Class Attributes:
     ALLOWED_PLATFORMS: Final[tuple[str, str, str]] = ("win32", "darwin", "linux")
