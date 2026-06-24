@@ -1,11 +1,17 @@
-from pathlib import Path
+import json
 import requests
+from websocket import WebSocket
 from uuid import uuid4, UUID
 from typing import Never
-from exceptions import InvalidOperatingSystem, ConnectionError, RequestException
+from exceptions import (
+    ConnectionError,
+    RequestException,
+    ServerOfflineException,
+    WorkflowSubmissionFailedError
+)
 
 
-class ComfyClient:
+class ComfyUIClient:
     """
     <h2>Communication File</h2>
     Acts as the communication layer for transferring information between the
@@ -61,52 +67,153 @@ class ComfyClient:
         ensure the script never attempts network execution while offline.
         """
 
-        """Core Methods"""
+    """Core Methods"""
 
-        def check_connection(self) -> bool:
-            """
-            Verifies the connection to the ComfyUI's session.
-            <h3>Breakdown of the Process:</h3>
+    def check_connection(self) -> bool:
+        """
+        Verifies the connection to the ComfyUI's session.
+        <h3>Breakdown of the Process:</h3>
 
-            1. Combines the base HTTP URL with the `system_stats` routing endpoint.
-            2. Proceeds with a quick `GET` request to ComfyUI's health or system
-            statistics endpoint, providing an explicit `timeout` argument if the
-            network operations tend to freeze indefinitely, making the server hang.
-            3. Validates if the server's status code is successful (`200`), setting
-            `self.__is_connected` to `True` and returning `True`. Otherwise,
-            catching any exceptions on the way, then returning `False`.
+        1. Combines the base HTTP URL with the `system_stats` routing endpoint.
+        2. Proceeds with a quick `GET` request to ComfyUI's health or system
+        statistics endpoint, providing an explicit `timeout` argument if the
+        network operations tend to freeze indefinitely, making the server hang.
+        3. Validates if the server's status code is successful (`200`), setting
+        `self.__is_connected` to `True` and returning `True`. Otherwise,
+        catching any exceptions on the way, then returning `False`.
 
-            <h3>Throws:</h3>
+        <h3>Throws:</h3>
 
-            - **ConnectionError:** If the connection was not successful.
-            - **RequestException:** If the request was unsuccessful.
-            """
+        - **ConnectionError:** If the connection was not successful.
+        - **RequestException:** If the request was unsuccessful.
+        """
             
-            try:
-                stats_url: str = f"{self.__base_http_url}/system_stats"
+        try:
+            stats_url: str = f"{self.__base_http_url}/system_stats"
 
-                r = requests.get(stats_url, timeout=5)
-                current_status_code: int = r.status_code
+            r = requests.get(stats_url, timeout=5)
+            current_status_code: int = r.status_code
 
-                if current_status_code == 200:
-                    self.__is_connected = True
-                    return True
+            if current_status_code == 200:
+                self.__is_connected = True
+                return True
                 
-                self.__is_connected = False
-                print(f"Current Status Code: {current_status_code}")
-                return False
+            self.__is_connected = False
+            print(f"Current Status Code: {current_status_code}")
+            return False
             
-            except ConnectionError as e1:
-                self.__is_connected = False
-                print(f"Connection Error: {e1}")
-                return False
+        except ConnectionError as e1:
+            self.__is_connected = False
+            print(f"Connection Error: {e1}")
+            return False
                 
-            except RequestException as e2:
-                self.__is_connected = False
-                print(f"Request Error: {e2}")
-                return False
+        except RequestException as e2:
+            self.__is_connected = False
+            print(f"Request Error: {e2}")
+            return False
             
-            except Exception as e:
-                self.__is_connected = False
-                print(f"Unexpected Error: {e}")
-                return False
+        except Exception as e:
+            self.__is_connected = False
+            print(f"Unexpected Error: {e}")
+            return False
+
+    def queue_workflow(self, workflow_data: dict) -> str:
+        """
+        Ships the modified ComfyUI JSON graph layout to your computer's local
+        ComfyUI server to begin the image rendering process.
+        <h3>Parameters:</h3>
+
+        - **workflow_data:** The parsed ComfyUI dictionary (from `FileSystem`).
+        
+        <h3>Breakdown of the Process:</h3>
+        
+        1. Inspects the internal state variable `self.__is_connected`.
+        2. Constructs the transmission payload, in a neat, nested structure.
+        3. Uses the `requests` library to make a synchronous `POST` request,
+        appending the `/prompt` routing endpoint to the base HTTP URL, then
+        passing the payload dictionary into the `json=` parameter of `requests.post()`
+        4. Finally, tracks the prompt token ID, whether it's submission was
+        successful or not. The ComfyUI's server will respond with a small JSON
+        confirmation containing a unique task identifier string
+        (e.g., `{"prompt_id": "xxxx-xxxx-xxxx"}`).
+        5. Returns the tracking string for the orchestrator script, which helps
+        verify if the image generation was complete.
+
+        <h3>Throws:</h3>
+
+        - **ServerOfflineException:** If the server connection if off.
+        """
+        if not self.__is_connected:
+            raise ServerOfflineException("Unable to queue workflows, thus the server is offline.")
+        
+        payload: dict = {
+            "prompt": workflow_data,
+            "client_id": self.__client_id
+        }
+
+        prompt_url: str = f"{self.__base_http_url}/prompt"
+
+        r = requests.post(prompt_url, json=payload)
+        current_status_code: int = r.status_code
+
+        if current_status_code == 200:
+            response_data = r.json()
+            return response_data["prompt_id"]
+
+        raise WorkflowSubmissionFailedError(f"Server rejected payload with code {current_status_code}")
+    
+    def track_generation_progress(self, prompt_id: str) -> None:
+        """
+        Reads ComfyUI's **WebSocked channel** that streams live events to anyone.
+        This helps maintain track of any images that have not been generated yet.
+
+        <h3>Breakdown of the Process:</h3>
+
+        1. Establishes a persistent data tunnel with a query parameter
+        (e.g., `f"{self.__base_ws_url}/ws?clientId={self.__client_id}"`), telling
+        the server to only stream messages related to *your* active session.
+        2. Intercept the server progress data in real time, creating an infinite
+        loop that continuously calls a socket read function. ComfyUI streams back
+        text messages formatted as JSON strings, then convert it into a dictionary,
+        simplifying what the server is doing.
+        3. Break the infinite loop the **exact millisecond** the image finishes
+        generating.
+
+        <h3>Throws:</h3>
+
+        - **
+        """
+
+        if not self.__is_connected:
+            raise ServerOfflineException(f"Unable to queue workflows, thus the server is offline.")
+        
+        query_parameter: str = f"{self.__base_ws_url}/ws?clientId={self.__client_id}"
+
+        ws: WebSocket = WebSocket()
+        ws.connect(query_parameter)
+
+        while True:
+            message = ws.recv()
+
+            if isinstance(message, bytes):
+                continue
+
+            result: dict = json.loads(message)
+
+            if result.get("data") is None:
+                continue
+
+            data_dict: dict = result["data"]
+
+            if data_dict.get("prompt_id") is None:
+                continue
+
+            if result["type"] == "executing" and data_dict["prompt_id"] == prompt_id:
+                
+                if data_dict["node"] is None:
+                    ws.close()
+                    break
+
+    """Getter and Setter Methods"""
+
+    

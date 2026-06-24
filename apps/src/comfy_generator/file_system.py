@@ -60,7 +60,7 @@ class FileSystem:
         <h3>Safely reads the ComfyUI's configuration map.</h3>
         <h3>Parameters:</h3>
         <ul><li><b>filename:</b> The name of the file that you wish to load the API.</li></ul>
-        Breakdown of the process:
+        <h3>Breakdown of the process:</h3>
         <ol>
         <li>Combines the path to workflows with the optionally given filename variable to make an absolute path.</li>
         <li>Verifies if the target file exists on the computer.</li>
@@ -89,7 +89,7 @@ class FileSystem:
         <h3>Reads the external prompts featuring timestamps.</h3>
         <h3>Parameters:</h3>
         <ul><li><b>script_filename:</b> The name of the file that you wish to load the script with dedicated timestamps.</li></ul>
-        Breakdown of the process:
+        <h3>Breakdown of the process:</h3>
         <ol>
         <li>Locates the file inside the path_to_scripts folder.</li>
         <li>Checks for physical existence on the hard drive.</li>
