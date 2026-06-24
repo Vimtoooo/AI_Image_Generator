@@ -1,3 +1,5 @@
+from requests.exceptions import ConnectionError, RequestException
+
 class InvalidOperatingSystem(Exception):
     def __init__(self, error):
         super().__init__(error)
