@@ -86,7 +86,9 @@ Testing and CI:
     - [x] **The Base Health Connection Check:** Confirm the AIP server is alive before running intensive tasks. Create a standard connectivity function for making basic `GET` requests using the `requests` library to a simple ComfyUI checking endpoint (such as `/system_stats` or `/history`), returning a clean boolean state (`True`/`False`).
     - [x] **The HTTP Loader:** Submits workflow execution orders, with a function that is capable of accepting your configures workflow dictionary, wraps it in a secure transaction template, and ships it via a `POST` request directly to ComfyUI's `/prompt` endpoint.
 
-3. `workflow_mgr.py`:
+3. `payload_mgr.py`:
+    - [ ] **Node Key Mapping (The Directory Coordinates):** Prevent the code from filling up with confusing raw strings and arbitrary string numbers (`"3"`, `"6"`, or `"24"`). Making a manager class that maps these abstract numbers to human-readable names using **Class Constants** or internal, private instance attributes, defining variables that state exactly which noe index holds the position prompt text field.
+    - [ ] **Workflow State Holder:** Hold a temporary working copy of your graph dictionary in an instance variable. This is crucial for making *reference safety*, since Python dictionaries are passed by **reference**. If the manager mutates a dictionary directly, it will modify the original version sitting inside the `FileSystem` classe. Prevent the structural memory pollution across loops by using Python's built-in `copy.deepcopy()` to clone a clean, isolated version of the graph every time it is loaded.
 
 ## 📈 Future Roadmap
 

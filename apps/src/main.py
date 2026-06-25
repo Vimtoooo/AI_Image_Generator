@@ -1,5 +1,6 @@
 from comfy_generator.file_system import FileSystem
 from comfy_generator.client import ComfyUIClient
+from comfy_generator.payload_mgr import PayloadManager
 from comfy_generator.exceptions import (
     AssetsPathNotFoundError,
     ConnectionError,
@@ -10,25 +11,6 @@ from comfy_generator.exceptions import (
     WorkflowSubmissionFailedError,
 )
 from traceback import format_exc
-
-def file_system_test():
-    try:
-        fs = FileSystem()
-        fs.load_workflow_json()
-        print(fs.current_workflows_data)
-        fs.load_video_script("my_script.txt")
-    except (
-        InvalidOperatingSystem,
-        AssetsPathNotFoundError,
-        RootProjectFolderNotFoundError,
-        FileNotFoundError,
-        ValueError,
-    ) as e:
-        print(f"{type(e).__name__}: {e}")
-        print(format_exc())
-    except Exception as e:
-        print(f"Unexpected {type(e).__name__}: {e}")
-        print(format_exc())
 
 def client_test() -> bool:
     try:

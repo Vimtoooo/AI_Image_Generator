@@ -1,5 +1,5 @@
 import json
-from typing import Final, Never
+from typing import Final, Any
 from uuid import UUID, uuid4
 
 import requests
@@ -153,7 +153,7 @@ class ComfyUIClient:
         if not self.__is_connected:
             raise ServerOfflineException("Unable to queue workflows, thus the server is offline.")
 
-        payload: dict = {
+        payload: dict[str, Any] = {
             "prompt": workflow_data,
             "client_id": self.__client_id,
         }
@@ -164,7 +164,7 @@ class ComfyUIClient:
         current_status_code: int = response.status_code
 
         if current_status_code == 200:
-            response_data = response.json()
+            response_data: dict[str, Any] = response.json()
             return response_data["prompt_id"]
 
         raise WorkflowSubmissionFailedError(f"Server rejected payload with code {current_status_code}")
@@ -205,7 +205,7 @@ class ComfyUIClient:
             if isinstance(message, bytes):
                 continue
 
-            result: dict = json.loads(message)
+            result: dict[str, Any] = json.loads(message)
 
             if result.get("data") is None:
                 continue

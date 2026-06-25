@@ -1,7 +1,7 @@
 import json
 import sys
 from pathlib import Path
-from typing import Final, Never
+from typing import Final, Any
 
 # from comfy_generator.exceptions import *
 # Or
@@ -49,7 +49,7 @@ class FileSystem:
         self.__path_to_scripts: Path = self.__project_root / "scripts"
 
         # Store the current workflow data from the ComfyUI's API and maintain it's parsed data as a Python dictionary
-        self.__current_workflow_data: dict[str, dict] | None = None
+        self.__current_workflow_data: dict[str, Any] | None = None
     
     """Core Methods"""
 
@@ -79,7 +79,7 @@ class FileSystem:
             raise FileNotFoundError(f"The given file name does not exist: {filename}")
         
         with open(file_path, 'r') as file:
-            parsed_api: dict = json.load(file)
+            parsed_api: dict[str, Any] = json.load(file)
             self.__current_workflow_data = parsed_api
 
     def load_video_script(self, script_filename: str) -> None:
@@ -150,11 +150,11 @@ class FileSystem:
         return self.__path_to_scripts
     
     @property
-    def current_workflows_data(self) -> dict | None:
+    def current_workflows_data(self) -> dict[str, Any] | None:
         return self.__current_workflow_data
     
     @current_workflows_data.setter
-    def current_workflows_data(self, new_workflows_data: dict | None) -> None:
+    def current_workflows_data(self, new_workflows_data: dict[str, Any] | None) -> None:
         if not isinstance(new_workflows_data, dict):
             raise ValueError(f"Invalid data type for the argument 'new_workflows_data': {new_workflows_data}")
         

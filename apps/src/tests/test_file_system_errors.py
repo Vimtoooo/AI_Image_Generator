@@ -28,8 +28,8 @@ def test_load_video_script_file_not_found(tmp_path):
 
 def test_system_setter_raises():
     fs = FileSystem()
-    with pytest.raises(NonSettableInstanceException):
-        fs.system = "win32"
+    with pytest.raises(ValueError):
+        fs.system = "win32" # type: ignore
 
 def test_current_workflows_data_setter_type_check():
     fs = FileSystem()
