@@ -10,10 +10,8 @@ def file_system_test():
         fs.load_video_script("my_script.txt")
     except (
         InvalidOperatingSystem,
-        NonSettableInstanceException,
         AssetsPathNotFoundError,
         RootProjectFolderNotFoundError,
-        IllegalPathAlterationError,
         FileNotFoundError,
         ValueError,
     ) as e:

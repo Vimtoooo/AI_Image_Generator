@@ -7,10 +7,8 @@ from typing import Final, Never
 # Or
 from exceptions import (
     InvalidOperatingSystem,
-    NonSettableInstanceException,
     AssetsPathNotFoundError,
     RootProjectFolderNotFoundError,
-    IllegalPathAlterationError
 )
 
 class FileSystem:
@@ -30,7 +28,7 @@ class FileSystem:
 
         if not any(current_system.startswith(p) for p in self.ALLOWED_PLATFORMS):
             raise InvalidOperatingSystem(f"Only PC operating systems are allowed. Not '{current_system}'")
-        self.__system: str = current_system
+        self.__SYSTEM: Final[str] = current_system
 
         # Store the path to the root of the project
         self.__project_root: Path = Path(__file__).resolve().parents[3]
@@ -115,11 +113,7 @@ class FileSystem:
     
     @property
     def system(self) -> str:
-        return self.__system
-    
-    @system.setter
-    def system(self, new_system: str) -> Never:
-        raise NonSettableInstanceException(f"Altering operating systems are not permitted. Given argument: {new_system}")
+        return self.__SYSTEM
     
     @property
     def path_to_assets(self) -> Path:
@@ -143,33 +137,17 @@ class FileSystem:
     def project_root(self) -> Path:
         return self.__project_root
     
-    @project_root.setter
-    def project_root(self, new_path: Path) -> Never:
-        raise IllegalPathAlterationError(f"Altering root project paths is forbidden. Given argument: {new_path}")
-    
     @property
     def path_to_workflows(self) -> Path:
         return self.__path_to_workflows
-    
-    @path_to_workflows.setter
-    def path_to_workflows(self, new_path: Path) -> Never:
-        raise IllegalPathAlterationError(f"Altering the workflows path is forbidden. Given argument: {new_path}")
     
     @property
     def path_to_prompts(self) -> Path:
         return self.__path_to_prompts
     
-    @path_to_prompts.setter
-    def path_to_prompts(self, new_path: Path) -> Never:
-        raise IllegalPathAlterationError(f"Altering the prompts path is forbidden. Given argument: {new_path}")
-    
     @property
     def path_to_scripts(self) -> Path:
         return self.__path_to_scripts
-    
-    @path_to_scripts.setter
-    def path_to_scripts(self, new_path: Path) -> Never:
-        raise IllegalPathAlterationError(f"Altering the scripts path is forbidden. Given argument: {new_path}")
     
     @property
     def current_workflows_data(self) -> dict | None:
@@ -209,10 +187,8 @@ if __name__ == "__main__":
 
     except (
         InvalidOperatingSystem,
-        NonSettableInstanceException,
         AssetsPathNotFoundError,
         RootProjectFolderNotFoundError,
-        IllegalPathAlterationError,
         FileNotFoundError,
         ValueError,
     ) as e:

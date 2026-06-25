@@ -1,13 +1,15 @@
 import json
+from typing import Final, Never
+from uuid import UUID, uuid4
+
 import requests
 from websocket import WebSocket
-from uuid import uuid4, UUID
-from typing import Never
+
 from exceptions import (
     ConnectionError,
     RequestException,
     ServerOfflineException,
-    WorkflowSubmissionFailedError
+    WorkflowSubmissionFailedError,
 )
 
 
@@ -17,9 +19,11 @@ class ComfyUIClient:
     Acts as the communication layer for transferring information between the
     system and the API interface. Managing network state, handle payload routing
     and maintain data streaming channels.
-
-    - 
     """
+
+    DEFAULT_HOST: Final[str] = "127.0.0.1"
+    DEFAULT_PORT: Final[int] = 8188
+    REQUEST_TIMEOUT_SECONDS: Final[int] = 5
 
     def __init__(
         self,
@@ -35,12 +39,12 @@ class ComfyUIClient:
         status updates.
         """
         
-        self.__host: str = host if host else "127.0.0.1"
+        self.__host: str = host if host else ComfyUIClient.DEFAULT_HOST
         """
         The raw IP address or domain name (e.g., `127.0.0.1`).
         """
 
-        self.__port: int = port if port else 8188
+        self.__port: int = port if port else ComfyUIClient.DEFAULT_PORT
         """
         The execution port number (e.g., `8188`).
         """
@@ -67,6 +71,9 @@ class ComfyUIClient:
         ensure the script never attempts network execution while offline.
         """
 
+        self.__request_timeout_seconds: int = ComfyUIClient.REQUEST_TIMEOUT_SECONDS
+        """Amount given for the request to be remade."""
+
     """Core Methods"""
 
     def check_connection(self) -> bool:
@@ -91,27 +98,27 @@ class ComfyUIClient:
         try:
             stats_url: str = f"{self.__base_http_url}/system_stats"
 
-            r = requests.get(stats_url, timeout=5)
-            current_status_code: int = r.status_code
+            response = requests.get(stats_url, timeout=self.REQUEST_TIMEOUT_SECONDS)
+            current_status_code: int = response.status_code
 
             if current_status_code == 200:
                 self.__is_connected = True
                 return True
-                
+
             self.__is_connected = False
             print(f"Current Status Code: {current_status_code}")
             return False
-            
+
         except ConnectionError as e1:
             self.__is_connected = False
             print(f"Connection Error: {e1}")
             return False
-                
+
         except RequestException as e2:
             self.__is_connected = False
             print(f"Request Error: {e2}")
             return False
-            
+
         except Exception as e:
             self.__is_connected = False
             print(f"Unexpected Error: {e}")
@@ -124,14 +131,14 @@ class ComfyUIClient:
         <h3>Parameters:</h3>
 
         - **workflow_data:** The parsed ComfyUI dictionary (from `FileSystem`).
-        
+
         <h3>Breakdown of the Process:</h3>
-        
+
         1. Inspects the internal state variable `self.__is_connected`.
         2. Constructs the transmission payload, in a neat, nested structure.
         3. Uses the `requests` library to make a synchronous `POST` request,
         appending the `/prompt` routing endpoint to the base HTTP URL, then
-        passing the payload dictionary into the `json=` parameter of `requests.post()`
+        passing the payload dictionary into the `json=` parameter of `requests.post()`.
         4. Finally, tracks the prompt token ID, whether it's submission was
         successful or not. The ComfyUI's server will respond with a small JSON
         confirmation containing a unique task identifier string
@@ -145,23 +152,23 @@ class ComfyUIClient:
         """
         if not self.__is_connected:
             raise ServerOfflineException("Unable to queue workflows, thus the server is offline.")
-        
+
         payload: dict = {
             "prompt": workflow_data,
-            "client_id": self.__client_id
+            "client_id": self.__client_id,
         }
 
         prompt_url: str = f"{self.__base_http_url}/prompt"
 
-        r = requests.post(prompt_url, json=payload)
-        current_status_code: int = r.status_code
+        response = requests.post(prompt_url, json=payload)
+        current_status_code: int = response.status_code
 
         if current_status_code == 200:
-            response_data = r.json()
+            response_data = response.json()
             return response_data["prompt_id"]
 
         raise WorkflowSubmissionFailedError(f"Server rejected payload with code {current_status_code}")
-    
+
     def track_generation_progress(self, prompt_id: str) -> None:
         """
         Reads ComfyUI's **WebSocked channel** that streams live events to anyone.
@@ -181,12 +188,12 @@ class ComfyUIClient:
 
         <h3>Throws:</h3>
 
-        - **
+        - **ServerOfflineException:** If the server connection if off.
         """
 
         if not self.__is_connected:
-            raise ServerOfflineException(f"Unable to queue workflows, thus the server is offline.")
-        
+            raise ServerOfflineException("Unable to queue workflows, thus the server is offline.")
+
         query_parameter: str = f"{self.__base_ws_url}/ws?clientId={self.__client_id}"
 
         ws: WebSocket = WebSocket()
@@ -209,11 +216,36 @@ class ComfyUIClient:
                 continue
 
             if result["type"] == "executing" and data_dict["prompt_id"] == prompt_id:
-                
                 if data_dict["node"] is None:
                     ws.close()
                     break
 
     """Getter and Setter Methods"""
 
+    @property
+    def client_id(self) -> str:
+        return self.__client_id
+
+    @property
+    def host(self) -> str:
+        return self.__host
+
+    @property
+    def port(self) -> int:
+        return self.__port
+
+    @property
+    def base_http_url(self) -> str:
+        return self.__base_http_url
+
+    @property
+    def base_ws_url(self) -> str:
+        return self.__base_ws_url
+
+    @property
+    def is_connected(self) -> bool:
+        return self.__is_connected
     
+    @property
+    def request_timeout_seconds(self) -> int:
+        return self.__request_timeout_seconds

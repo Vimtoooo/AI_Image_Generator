@@ -4,15 +4,7 @@ class AssetsPathNotFoundError(Exception):
     def __init__(self, error):
         super().__init__(error)
 
-class IllegalPathAlterationError(Exception):
-    def __init__(self, error):
-        super().__init__(error)
-
 class InvalidOperatingSystem(Exception):
-    def __init__(self, error):
-        super().__init__(error)
-
-class NonSettableInstanceException(Exception):
     def __init__(self, error):
         super().__init__(error)
 
