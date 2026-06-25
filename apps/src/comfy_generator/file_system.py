@@ -5,7 +5,7 @@ from typing import Final, Never
 
 # from comfy_generator.exceptions import *
 # Or
-from exceptions import (
+from comfy_generator.exceptions import (
     InvalidOperatingSystem,
     AssetsPathNotFoundError,
     RootProjectFolderNotFoundError,

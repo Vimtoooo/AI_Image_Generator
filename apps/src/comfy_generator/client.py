@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 import requests
 from websocket import WebSocket
 
-from exceptions import (
+from comfy_generator.exceptions import (
     ConnectionError,
     RequestException,
     ServerOfflineException,

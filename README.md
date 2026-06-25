@@ -1,6 +1,6 @@
 # Automation Apps: Image Generator
 
-This directory contains the automated tools designed to support the YouTube channel production pipeline. The primary application is a **ComfyUI Image Generator** that interacts with a local AI instance to generate custom visual assets programmatically.
+This directory contains the automated tools designed to simply the generation of images on the fly. The primary application is a **ComfyUI Image Generator** that interacts with a local AI instance to generate custom visual assets programmatically.
 
 Status: Implementation phase (in progress)
 
@@ -77,9 +77,9 @@ Testing and CI:
 ### Current Tasks:
 
 1. `file_system.py`:
-    - [ ] **Server Address Configurations:** Define where the ComfyUI engine resides, store base configurations for hostnames and ports (like `127.0.0.1:8188`), requiring a unique identification string (with `uuid.uuid4()` to generate a unique token for the client instance).
-    - [ ] **The Base Health Connection Check:** Confirm the AIP server is alive before running intensive tasks. Create a standard connectivity function for making basic `GET` requests using the `requests` library to a simple ComfyUI checking endpoint (such as `/system_stats` or `/history`), returning a clean boolean state (`True`/`False`).
-    - [ ] **The HTTP Loader:** Submits workflow execution orders, with a function that is capable of accepting your configures workflow dictionary, wraps it in a secure transaction template, and ships it via a `POST` request directly to ComfyUI's `/prompt` endpoint.
+    - [x] **Server Address Configurations:** Define where the ComfyUI engine resides, store base configurations for hostnames and ports (like `127.0.0.1:8188`), requiring a unique identification string (with `uuid.uuid4()` to generate a unique token for the client instance).
+    - [x] **The Base Health Connection Check:** Confirm the AIP server is alive before running intensive tasks. Create a standard connectivity function for making basic `GET` requests using the `requests` library to a simple ComfyUI checking endpoint (such as `/system_stats` or `/history`), returning a clean boolean state (`True`/`False`).
+    - [x] **The HTTP Loader:** Submits workflow execution orders, with a function that is capable of accepting your configures workflow dictionary, wraps it in a secure transaction template, and ships it via a `POST` request directly to ComfyUI's `/prompt` endpoint.
 
 ## 📈 Future Roadmap
 
