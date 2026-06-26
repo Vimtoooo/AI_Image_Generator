@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from typing import Final, Any
 from uuid import UUID, uuid4
 
@@ -219,6 +220,76 @@ class ComfyUIClient:
                 if data_dict["node"] is None:
                     ws.close()
                     break
+
+    def download_image(self, filename: str, subfolder: str, save_path: Path) -> bool:
+        """
+        Downloads any rendered binary stream image from the ComfyUI application
+        to the given `save_path` and writes it to the disk.
+
+        <h3>Parameters:</h3>
+
+        - **filename:** The name of the filename that you wish to download.
+        - **subfolder:** The key-value of the output image data dictionary.
+        - **save_path:** Indicates the path to save the generated image.
+
+        <h3>Breakdown of the process:</h3>
+
+        1. Sets up the target endpoint, where the `view_url` is ComfyUI's exposed
+        GET endpoint called `/view` (meant for displaying and downloading images).
+        Also bundling all file criteria into a clean dictionary (`parameters`),
+        so that the `requests` module will automatically format it into a secure
+        query string (`http://`127.0.0`).
+        2. Execute a HTTP GET request to fetch the image, but instead of downloading
+        the entirety of the file into the computer's RAM all at once, `stream=True`
+        performs precise byte readings before initiating file downloads into the RAM.
+        3. Write all binary chunks to the disk by identifying the raw bytes and
+        their destination file paths with `'wb'` **(Write Binary)**, then performs
+        a chunking engine with `response.iter_content(chunk_size=8192)`. This loop
+        asks the network socket to pass the image data ove in tiny packets of exactly
+        **8,192 bytes (8 Kilobytes)** at a time. Grabs an 8KB chunk, writes to the
+        hard drive, empties the RAM and repeats the cycle until the file is fully
+        transferred.
+        4. Returns `True` if the operation was successful, `False` otherwise.
+
+        <h3>Throws:</h3>
+
+        - **ServerOfflineException:** If the server connection if off.
+
+        """
+        
+        if not self.__is_connected:
+            raise ServerOfflineException("Unable to download images, thus the server is offline.")
+        
+        try:
+            view_url: str = f"{self.__base_http_url}/view"
+            parameters: dict[str, str] = {
+                "filename": filename,
+                "subfolder": subfolder,
+                "type": "output"
+            }
+
+            response = requests.get(
+                view_url,
+                params=parameters,
+                timeout=self.REQUEST_TIMEOUT_SECONDS,
+                stream=True
+            )
+
+            if response.status_code == 200:
+                with open(save_path, 'wb') as file:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        file.write(chunk)
+
+                return True
+            return False
+        
+        except PermissionError as e:
+            print(f"Error with the target folder. Maybe it's locked? {e}")
+            return False
+        
+        except Exception as e:
+            print(f"Network asset download failed: {e}")#
+            return False
 
     """Getter and Setter Methods"""
 
