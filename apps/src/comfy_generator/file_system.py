@@ -84,7 +84,7 @@ class FileSystem:
             parsed_api: dict[str, Any] = json.load(file)
             self.__current_workflow_data = parsed_api
 
-    def load_video_script(self, script_filename: str) -> list[str]:
+    def load_video_script(self, script_filename: str, print_script: bool = False) -> list[str]:
         """
         <h3>Reads the external prompts featuring timestamps.</h3>
         <h3>Parameters:</h3>
@@ -126,18 +126,16 @@ class FileSystem:
                             formatted_line = str.join(" ", formatted_timestamp_list)
                             script_list.append(formatted_line)
                             formatted_timestamp_list.clear()
-                            # print(formatted_line)
 
-                    formatted_timestamp_list.append(word)
+                            if print_script:
+                                print(formatted_line)
+
+                    formatted_timestamp_list.append(word.replace("\n", ""))
             
             if len(formatted_timestamp_list) > 0:
                 final_script_line: str = str.join(" ", formatted_timestamp_list)
                 script_list.append(final_script_line)
-                # print(final_script_line)
             
-        # FIXME: Remove new liners from the final list result!
-        final_script_list: list[str] = [line.replace("\n", " ").strip() for line in script_list if "\n" in line]
-
         return script_list
 
     """Getter, setter and deleter methods"""
@@ -207,7 +205,7 @@ if __name__ == "__main__":
         # print(fs.current_workflows_data)
         print("\n================================== Loading the video script ==================================\n")
         script_list: list[str] = fs.load_video_script("my_script.txt")
-        # print(script_list)
+        print(script_list)
         print("\n================================== Printing attributes ==================================\n")
         print(f"Path to Assets: {fs.path_to_assets}")
         print(f"Path to Prompts: {fs.path_to_prompts}")
