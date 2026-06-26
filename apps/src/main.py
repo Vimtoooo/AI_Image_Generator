@@ -21,13 +21,13 @@ def main() -> None:
         print("=================== 1. The Initialization Sequence =================== ")
 
         # Instantiate Core Modules Sequently:
-        client: ComfyUIClient = ComfyUIClient()
-        client.check_connection()
+        comfy_client: ComfyUIClient = ComfyUIClient()
+        comfy_client.check_connection()
 
-        fs: FileSystem = FileSystem()
-        fs.load_workflow_json()
+        comfy_fs: FileSystem = FileSystem()
+        comfy_fs.load_workflow_json()
 
-        current_workflow: dict[str, Any] | None = fs.current_workflows_data
+        current_workflow: dict[str, Any] | None = comfy_fs.current_workflows_data
 
         if current_workflow is None:
             raise WorkflowNotDefinedError("The workflow cannot be of type 'None'")
@@ -37,7 +37,7 @@ def main() -> None:
         print("=================== 2. The Dynamic Loop Orchestration ===================")
 
         new_seed: int = random.randint(100000000000000, 999999999999999)
-        positive_prompt: Path = fs.path_to_prompts / "positive_prompt.txt"
+        positive_prompt: Path = comfy_fs.path_to_prompts / "positive_prompt.txt"
 
         # ready_graph = (
         #     mgr

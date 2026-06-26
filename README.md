@@ -90,6 +90,11 @@ Testing and CI:
     - [x] **Node Key Mapping (The Directory Coordinates):** Prevent the code from filling up with confusing raw strings and arbitrary string numbers (`"3"`, `"6"`, or `"24"`). Making a manager class that maps these abstract numbers to human-readable names using **Class Constants** or internal, private instance attributes, defining variables that state exactly which noe index holds the position prompt text field.
     - [x] **Workflow State Holder:** Hold a temporary working copy of your graph dictionary in an instance variable. This is crucial for making *reference safety*, since Python dictionaries are passed by **reference**. If the manager mutates a dictionary directly, it will modify the original version sitting inside the `FileSystem` classe. Prevent the structural memory pollution across loops by using Python's built-in `copy.deepcopy()` to clone a clean, isolated version of the graph every time it is loaded.
 
+4. `main.py`:
+    - [x] **The initialization Sequence:** Instantiate core modules sequentially, while checking the server's initial health status, loading the target configuration assets and retrieving the data payload straight into your data mutation module.
+    - [ ] **Dynamic Loop Orchestration:** The generations runner loop should step through the time-stamped files line by line, separating the timestamp data from the core scene description text and execute a chain mutation for every independent line item. Run the chain mutation sequence to prepare a distinct frame.
+    - [ ] **Execution and Handoff Routing:** Responsible for transferring the newly calculated `ready_graph` dictionary payload directly into your network submitter: `prompt_id = comfy_client.queue_workflow(ready_graph)`. Pass the active execution identifier token straight into the tracker block: `comfy_client.track_generation_progress(prompt_id)`. Once the websocket loop hits its exit condition and breaks, it'll mean that ComfyUI has successfully dropped your newly generated image directly into the user's computer output file space!
+
 ## 📈 Future Roadmap
 
 - [ ] **Polling Mechanism**: Implement real-time status checking to wait for generation completion.
