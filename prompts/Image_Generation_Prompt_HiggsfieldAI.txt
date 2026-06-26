@@ -54,11 +54,11 @@ The image must be clean, readable and centred, do not crop important objects. Le
 
 IMPORTANT:
 
-for every timestamp create a different image that matches the script at the at that moment. The image should feel like they belong in the same video and same drawing style.
+For every timestamp create a different image that matches the script at that moment. The image should feel like they belong in the same video and same drawing style.
 
 Do not make the drawings look too good. Do not make them polished. Do not make them professional. The entire point is that they look like simple, funny, beginner MS Paint drawings.
 
-here's the script with timestamps. Generate one image for each timestamp:
+Here's the script with timestamps. Generate one image for each timestamp:
 
 (0:02) Imagine you've just deleted your most important work file. You panic, your heart stops, but then (0:10) you remember you have a backup drive. Now, imagine that file is actually the entire future of human (0:17) food.
 Welcome to Svalbard, a remote group of island halfway between mainland Norway and the (0:26) North Pole. It's freezing, it's dark for months, and polar bears outnumber people. It is also home (0:35) to this, the Global Seed Vault, often called the Doomsday Vault.

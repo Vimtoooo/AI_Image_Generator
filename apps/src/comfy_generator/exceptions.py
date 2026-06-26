@@ -16,6 +16,10 @@ class ServerOfflineException(Exception):
     def __init__(self, error):
         super().__init__(error)
 
+class WorkflowNotDefinedError(Exception):
+    def __init__(self, error):
+        super().__init__(error)
+
 class WorkflowSubmissionFailedError(Exception):
     def __init__(self, error):
         super().__init__(error)

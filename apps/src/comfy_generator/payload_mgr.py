@@ -5,7 +5,8 @@ from typing import Final, Any
 class PayloadManager:
     """
     <h2>In-Memory Graph Mutation File</h2>
-    Manages gigantic ComfyUI API payloads and highly nested JSON trees of string
+    Handles dynamic memory data mutations and parameter configurations. Manages
+    gigantic ComfyUI API payloads and highly nested JSON trees of string
     and numbers. Including these several actions:
 
     * Takes the clean workflow map dictionary from the `FileSystem` class.
@@ -33,13 +34,14 @@ class PayloadManager:
 
     """Core Methods"""
 
-    def reset_payload(self) -> None:
+    def reset_payload(self) -> "PayloadManager":
         """
         Retores the working payload layout back to the clean template state before
         starting a brand-new generation loop.
         """
 
         self.__current_payload = copy.deepcopy(self.__BASE_WORKFLOW)
+        return self
 
     def update_positive_prompt(self, positive_prompt: str) -> "PayloadManager":
         """
@@ -104,7 +106,7 @@ class PayloadManager:
             raise ValueError(f"The seed value cannot be negative: {seed_value}")
         
         try:
-            self.__current_payload[self.KSAMPLER_NODE]["inputs"]["seed"] += seed_value
+            self.__current_payload[self.KSAMPLER_NODE]["inputs"]["seed"] = seed_value
             return self
 
         except KeyError as e1:

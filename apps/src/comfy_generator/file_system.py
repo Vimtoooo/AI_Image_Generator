@@ -13,8 +13,10 @@ from comfy_generator.exceptions import (
 
 class FileSystem:
     """
-                        <h2>Utility File</h2>
+    <h2>Utility File</h2>
+
     This file must isolate all file interactions, handling:
+
     * Loading ComfyUI workflow JSON.
     * Managing and maneuver through files in the hard drive, along with a few functions.
     * Ensures that the output folder `Assets\\Generated_Images` is ready to receive data!
@@ -82,7 +84,7 @@ class FileSystem:
             parsed_api: dict[str, Any] = json.load(file)
             self.__current_workflow_data = parsed_api
 
-    def load_video_script(self, script_filename: str) -> None:
+    def load_video_script(self, script_filename: str) -> list[str]:
         """
         <h3>Reads the external prompts featuring timestamps.</h3>
         <h3>Parameters:</h3>
@@ -105,9 +107,27 @@ class FileSystem:
         if not Path.exists(script_file_path):
             raise FileNotFoundError(f"The given filename does not exist? {script_filename}")
         
+        script_list: list[str] = []
+        is_first_parenthese: bool = True
+        is_new_timestamp: bool = False
+        
         with open(script_file_path, 'r') as script_file:
             for line in script_file:
-                print(line)
+                timestamp_line: str = ""
+
+                for char in line:
+                    if char == "(":
+                        if is_first_parenthese:
+                            is_first_parenthese = False
+                        elif is_new_timestamp:
+                            timestamp_line = ""
+                            is_new_timestamp = False
+                        else:
+                            script_list.append(timestamp_line)
+                    # FIXME: After the first timestamp line, the timestamp_line var should reset to a blank string to add the next timestamp line...
+                    timestamp_line += char
+                    
+            
 
     """Getter, setter and deleter methods"""
     
