@@ -3,13 +3,13 @@ import sys
 from pathlib import Path
 from typing import Final, Any
 
-# from comfy_generator.exceptions import *
+from exceptions import *
 # Or
-from comfy_generator.exceptions import (
-    InvalidOperatingSystem,
-    AssetsPathNotFoundError,
-    RootProjectFolderNotFoundError,
-)
+# from comfy_generator.exceptions import (
+#     InvalidOperatingSystem,
+#     AssetsPathNotFoundError,
+#     RootProjectFolderNotFoundError,
+# )
 
 class FileSystem:
     """
@@ -109,25 +109,36 @@ class FileSystem:
         
         script_list: list[str] = []
         is_first_parenthese: bool = True
-        is_new_timestamp: bool = False
         
         with open(script_file_path, 'r') as script_file:
-            for line in script_file:
-                timestamp_line: str = ""
+            formatted_timestamp_list: list[str] = []
 
-                for char in line:
-                    if char == "(":
+            for line in script_file:
+                words_list: list[str] = line.split(" ")
+
+                for word in words_list:
+                    if "(" in word:
+                        
                         if is_first_parenthese:
                             is_first_parenthese = False
-                        elif is_new_timestamp:
-                            timestamp_line = ""
-                            is_new_timestamp = False
+
                         else:
-                            script_list.append(timestamp_line)
-                    # FIXME: After the first timestamp line, the timestamp_line var should reset to a blank string to add the next timestamp line...
-                    timestamp_line += char
-                    
+                            formatted_line = str.join(" ", formatted_timestamp_list)
+                            script_list.append(formatted_line)
+                            formatted_timestamp_list.clear()
+                            # print(formatted_line)
+
+                    formatted_timestamp_list.append(word)
             
+            if len(formatted_timestamp_list) > 0:
+                final_script_line: str = str.join(" ", formatted_timestamp_list)
+                script_list.append(final_script_line)
+                # print(final_script_line)
+            
+        # FIXME: Remove new liners from the final list result!
+        final_script_list: list[str] = [line.replace("\n", " ").strip() for line in script_list if "\n" in line]
+
+        return script_list
 
     """Getter, setter and deleter methods"""
     
@@ -193,9 +204,10 @@ if __name__ == "__main__":
         fs = FileSystem()
         print("================================== Loading the workflow json ==================================\n")
         fs.load_workflow_json()
-        print(fs.current_workflows_data)
+        # print(fs.current_workflows_data)
         print("\n================================== Loading the video script ==================================\n")
-        fs.load_video_script("my_script.txt")
+        script_list: list[str] = fs.load_video_script("my_script.txt")
+        # print(script_list)
         print("\n================================== Printing attributes ==================================\n")
         print(f"Path to Assets: {fs.path_to_assets}")
         print(f"Path to Prompts: {fs.path_to_prompts}")
@@ -203,7 +215,7 @@ if __name__ == "__main__":
         print(f"Path to root: {fs.project_root}")
         print(f"Path to Workflows: {fs.path_to_workflows}")
         print(f"Current Operating System: {fs.system}")
-        print(f"Current Data: {fs.current_workflows_data}")
+        # print(f"Current Data: {fs.current_workflows_data}")
 
     except (
         InvalidOperatingSystem,
