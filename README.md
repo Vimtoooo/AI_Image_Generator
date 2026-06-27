@@ -1,10 +1,10 @@
-# Automation Apps: Image Generator
+# Autonomous Storyboard Pipeline: ComfyUI Image Generator
 
 This directory contains the automated tools designed to simply the generation of images on the fly. The primary application is a **ComfyUI Image Generator** that interacts with a local AI instance to generate custom visual assets programmatically.
 
-Status: Implementation phase (in progress)
+**Status:** Completed & Stable (Production ready)
 
-License: This repository is licensed under the GNU General Public License v3 (GPLv3). See the [License](License) file for the full text.
+**License:** This repository is licensed under the GNU General Public License v3 (GPLv3). See the [License](License) file for the full text.
 
 ## 🤖 ComfyUI Image Generator
 
@@ -60,7 +60,7 @@ Notes:
 - `__init__.py`: Initializing dependencies.
 - `client.py`: Handles all HTTP communication and error checking with the ComfyUI server.
 - `file_system.py`: Responsible for managing and maneuvering through files and folders in the hard drive.
-- `workflow_mgr.py`: Logic for reading, traversing, and modifying the JSON workflow files.
+- `payload_mgr.py`: Logic for reading, traversing, and modifying the JSON workflow files.
 - `/workflows`: Storage for your exported ComfyUI API templates.
 
 Other notable files and folders:
@@ -73,6 +73,12 @@ Other notable files and folders:
 Testing and CI:
 
 - There are no automated tests or CI configuration included yet. Adding `pytest` tests for error paths (file not found, invalid platform, setters) is recommended.
+
+### Architecture & Design Patters:
+
+* **Strict Decoupling:** Modules communicate via a master orchestrator (`main.py`) to prevent coupling vulnerabilities.
+* **Memory Sandbox Isolation:** `PayloadManager` utilizes deep memory copying (`copy.deepcopy()`) to prevent reference mutations across frames.
+* **Persistent WebSocket Streaming:** The client utilizes a blocking network listener thread to intercept downstream completion event packets without polling.
 
 ### Current Tasks:
 
@@ -92,10 +98,10 @@ Testing and CI:
 
 4. `main.py`:
     - [x] **The initialization Sequence:** Instantiate core modules sequentially, while checking the server's initial health status, loading the target configuration assets and retrieving the data payload straight into your data mutation module.
-    - [ ] **Dynamic Loop Orchestration:** The generations runner loop should step through the time-stamped files line by line, separating the timestamp data from the core scene description text and execute a chain mutation for every independent line item. Run the chain mutation sequence to prepare a distinct frame.
-    - [ ] **Execution and Handoff Routing:** Responsible for transferring the newly calculated `ready_graph` dictionary payload directly into your network submitter: `prompt_id = comfy_client.queue_workflow(ready_graph)`. Pass the active execution identifier token straight into the tracker block: `comfy_client.track_generation_progress(prompt_id)`. Once the websocket loop hits its exit condition and breaks, it'll mean that ComfyUI has successfully dropped your newly generated image directly into the user's computer output file space!
+    - [x] **Dynamic Loop Orchestration:** The generations runner loop should step through the time-stamped files line by line, separating the timestamp data from the core scene description text and execute a chain mutation for every independent line item. Run the chain mutation sequence to prepare a distinct frame.
+    - [x] **Execution and Handoff Routing:** Responsible for transferring the newly calculated `ready_graph` dictionary payload directly into your network submitter: `prompt_id = comfy_client.queue_workflow(ready_graph)`. Pass the active execution identifier token straight into the tracker block: `comfy_client.track_generation_progress(prompt_id)`. Once the websocket loop hits its exit condition and breaks, it'll mean that ComfyUI has successfully dropped your newly generated image directly into the user's computer output file space!
 
 ## 📈 Future Roadmap
 
-- [ ] **Polling Mechanism**: Implement real-time status checking to wait for generation completion.
-- [ ] **Automatic Retrieval**: Automatically download and rename images based on script timestamps.
+- [x] **Polling Mechanism**: Implement real-time status checking to wait for generation completion.
+- [x] **Automatic Retrieval**: Automatically download and rename images based on script timestamps.
