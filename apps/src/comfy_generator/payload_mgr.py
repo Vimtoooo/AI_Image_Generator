@@ -83,7 +83,6 @@ class PayloadManager:
             return self
     
     def update_seed(self, seed_value: int) -> "PayloadManager":
-        
         """
         Updates the current seed of the *K Sampler node* to a random integer.
 
@@ -111,6 +110,35 @@ class PayloadManager:
 
         except KeyError as e1:
             print(f"One of the keys to the positive prompt path is missing! {e1}")
+            return self
+        
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            return self
+        
+    def update_resolution(self, width: int = 1216, height: int = 684) -> "PayloadManager":
+        """
+        Updates the image resolution for SD 1.5 (multiples of 8).
+
+        <h3>Parameters:</h3>
+
+        - **width:** The width of the image.
+        - **height:** The height of the image.
+
+        <h3>Breakdown of the process:</h3>
+
+        1. Tries to access the keys to the `LATENT_IMAGE_NODE` (`5`) and traverse
+        through `"inputs"` and access to `"width"` and `"height"` key-values.
+        2. Return `self` (the object) once the operation is complete.
+        """
+
+        try:
+            self.__current_payload[self.LATENT_IMAGE_NODE]["inputs"]["width"] = width
+            self.__current_payload[self.LATENT_IMAGE_NODE]["inputs"]["height"] = height
+            return self
+
+        except KeyError as e:
+            print(f"One of the keys for latent image node is missing! {e}")
             return self
         
         except Exception as e:
