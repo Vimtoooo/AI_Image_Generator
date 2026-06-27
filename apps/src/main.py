@@ -37,17 +37,17 @@ def main() -> None:
         print("=================== 2. The Dynamic Loop Orchestration ===================")
 
         MASTER_STYLE: Final[str] = (
-            "minimalist line art, amateur hand-drawn ms paint style, simple childish illustration, "
-            "unpolished stickman drawing, 2d flat layout, raw sketches, primitive shapes, thick uneven black outlines, "
-            "wobbly hand-drawn lines, plain solid white background, maximum empty white space, no shading"
+            "photorealistic documentary film still, crisp daylight photography, "
+            "broad volumetric daytime lighting, natural color grading, hyper-realistic environment art, "
+            "wide-angle lens, expansive horizon, clear composition layout, sharp focus, 8k resolution, National Geographic style"
         )
 
         # Forcefully ban all rendering, shadows, artistic styles, and complex geometry
         MASTER_NEGATIVE: Final[str] = (
-            "photorealistic, masterpiece, best quality, ultra-detailed, 8k, 3d render, "
-            "cinematic lighting, dramatic shadows, soft focus, depth of field, gradients, textures, "
-            "smooth shading, realistic humans, intricate background details, professional vector art, "
-            "polished illustration, anime style, disney aesthetic, realistic cartoon, oil painting, digital art, pop art"
+            "dark fantasy, gothic illustration, abstract oil painting, severe shadows, high contrast shadows, "
+            "floating islands, impossible geometry, clipped top composition, cropped horizon, stylized digital painting, "
+            "glowing magical energy, lowres, bad quality, blurry, flat colors, cartoon, vector art, monochrome, "
+            "bad anatomy, text, signature, watermark, username"
         )
 
         script_list: list[str] = comfy_fs.load_video_script("my_script.txt")
