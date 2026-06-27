@@ -170,7 +170,7 @@ class ComfyUIClient:
 
         raise WorkflowSubmissionFailedError(f"Server rejected payload with code {current_status_code}")
 
-    def track_generation_progress(self, prompt_id: str) -> None:
+    def track_generation_progress(self, prompt_id: str) -> dict[str, str] | None:
         """
         Reads ComfyUI's **WebSocked channel** that streams live events to anyone.
         This helps maintain track of any images that have not been generated yet.
@@ -216,10 +216,13 @@ class ComfyUIClient:
             if data_dict.get("prompt_id") is None:
                 continue
 
-            if result["type"] == "executing" and data_dict["prompt_id"] == prompt_id:
-                if data_dict["node"] is None:
-                    ws.close()
-                    break
+            if result["type"] == "executed" and data_dict["prompt_id"] == prompt_id:
+                images_list: list[dict[str, str]] = data_dict["output"]["images"]
+                target_image: dict[str, str] | None = images_list[0]
+                ws.close()
+                break
+        
+        return target_image
 
     def download_image(self, filename: str, subfolder: str, save_path: Path) -> bool:
         """

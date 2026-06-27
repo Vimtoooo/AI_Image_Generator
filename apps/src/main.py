@@ -12,6 +12,7 @@ from comfy_generator.exceptions import (
     WorkflowSubmissionFailedError,
 )
 import random
+from pathlib import Path
 from typing import Any, Final
 from traceback import format_exc
 
@@ -51,11 +52,24 @@ def main() -> None:
                 comfy_mgr.reset_payload()
                     .update_positive_prompt(full_positive_prompt)
                     .update_seed(new_seed)
+                    .update_resolution()
                     .current_payload
             )
 
             prompt_id: str = comfy_client.queue_workflow(ready_graph)
-            comfy_client.track_generation_progress(prompt_id)
+            output_data: dict[str, str] | None = comfy_client.track_generation_progress(prompt_id)
+
+            if output_data is None:
+                print(f"⚠️ Warning: Did not receive asset metadata for timestamp {current_timestamp}. Skipping download.")
+                continue
+
+            final_destination: Path = comfy_fs.path_to_assets / f"{current_timestamp}.png"
+
+            comfy_client.download_image(
+                filename=output_data["filename"],
+                subfolder=output_data["subfolder"],
+                save_path=final_destination
+            )
 
             print(f"Frame '{current_timestamp}' has finished rendering by the GPU.")
     
