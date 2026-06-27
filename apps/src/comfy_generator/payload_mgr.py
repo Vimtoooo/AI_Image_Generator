@@ -64,11 +64,15 @@ class PayloadManager:
 
         <h3>Throws:</h3>
 
+        - **ValueError:** If the argument's data type is invalid.
         - **KeyError:** If the key is missing.
         """
 
         if not positive_prompt:
             raise ValueError("The given positive prompt was empty.")
+        
+        if not isinstance(positive_prompt, str):
+            raise valueError(f"Invalid data type for the parameter '{positive_prompt}' of the type: {type(positive_prompt)}")
         
         try:
             self.__current_payload[self.POSITIVE_PROMPT_NODE]["inputs"]["text"] = positive_prompt
@@ -76,6 +80,49 @@ class PayloadManager:
 
         except KeyError as e1:
             print(f"One of the keys to the positive prompt path is missing! {e1}")
+            return self
+        
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            return self
+        
+    def update_negative_prompt(self, negative_prompt: str) -> "PayloadManager":
+        """
+        Navigates to the nested dictionary structures to swap the AI instructions
+        for the negative prompt.
+
+        <h3>Parameters:</h3>
+
+        - **negative_prompt:** The prompt that the AI will absorb and imply with
+        it's given instructions (what it'll consider adding to the image).
+
+        <h3>Breakdown of the process:</h3>
+
+        1. Travels through the nested dictionary fields, following this path:
+        `self.__current_payload[self.NEGATIVE_PROMPT_NODE]["inputs"]["text"] =
+        new_prompt`.
+        2. Alters the information that is within that node's value.
+        3. Returning `self` (the object) whether or not the operation was
+        successful.
+
+        <h3>Throws:</h3>
+
+        - **ValueError:** If the argument's data type is invalid.
+        - **KeyError:** If the key is missing.
+        """
+
+        if not negative_prompt:
+            raise ValueError("The given negative prompt was empty.")
+        
+        if not isinstance(negative_prompt, str):
+            raise ValueError(f"Invalid data type for the parameter '{negative_prompt}' of the type: {type(negative_prompt)}")
+        
+        try:
+            self.__current_payload[self.NEGATIVE_PROMPT_NODE]["inputs"]["text"] = negative_prompt
+            return self
+
+        except KeyError as e1:
+            print(f"One of the keys to the negative prompt path is missing! {e1}")
             return self
         
         except Exception as e:

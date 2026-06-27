@@ -36,7 +36,19 @@ def main() -> None:
 
         print("=================== 2. The Dynamic Loop Orchestration ===================")
 
-        MASTER_STYLE: Final[str] = "vibrant colorful ms paint drawing, simple childish illustration, bright flat colors, thick uneven black outlines, clean white background, centered 16:9 widescreen layout"
+        MASTER_STYLE: Final[str] = (
+            "minimalist line art, amateur hand-drawn ms paint style, simple childish illustration, "
+            "unpolished stickman drawing, 2d flat layout, raw sketches, primitive shapes, thick uneven black outlines, "
+            "wobbly hand-drawn lines, plain solid white background, maximum empty white space, no shading"
+        )
+
+        # Forcefully ban all rendering, shadows, artistic styles, and complex geometry
+        MASTER_NEGATIVE: Final[str] = (
+            "photorealistic, masterpiece, best quality, ultra-detailed, 8k, 3d render, "
+            "cinematic lighting, dramatic shadows, soft focus, depth of field, gradients, textures, "
+            "smooth shading, realistic humans, intricate background details, professional vector art, "
+            "polished illustration, anime style, disney aesthetic, realistic cartoon, oil painting, digital art, pop art"
+        )
 
         script_list: list[str] = comfy_fs.load_video_script("my_script.txt")
         for line in script_list:
@@ -51,6 +63,7 @@ def main() -> None:
             ready_graph = (
                 comfy_mgr.reset_payload()
                     .update_positive_prompt(full_positive_prompt)
+                    .update_negative_prompt(MASTER_NEGATIVE)
                     .update_seed(new_seed)
                     .update_resolution()
                     .current_payload
@@ -71,9 +84,9 @@ def main() -> None:
                 save_path=final_destination
             )
 
-            print(f"Frame '{current_timestamp}' has finished rendering by the GPU.")
+            print(f"Frame '{current_timestamp}' has finished rendering from the GPU.")
     
-        print("Process Complete.")
+        print("Process Completed.")
 
     except (
         AssetsPathNotFoundError,
