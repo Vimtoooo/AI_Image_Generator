@@ -13,15 +13,29 @@ This Python application automates the interaction with ComfyUI's API. Instead of
 ### 🛠 Prerequisites
 Before the project is feature-complete this repository is in the implementation phase. The prerequisites below reflect the current state: some automation pieces are implemented, others are planned.
 
+* Having a **GPU** is **highly recommended** for using this system for executing high-demand tasks in your computer.
+* **Modern CPU (i5 / AMD Ryzen 5 or above)** helps the computer keep up with all compilation and calculations.
+
 Minimum required to start using the generator today:
 
-1. **ComfyUI installed and running locally** (API accessible). The app expects ComfyUI to be available at a local URL such as `http://127.0.0.1:8188`.
-2. **ComfyUI: Dev / API export enabled** so you can Save workflows in the "API Format (JSON)" and place them in `apps/workflows/`.
-3. **Python 3.10+** and the project dependencies installed (`pip install -r apps/requirements.txt`).
+1. **ComfyUI installed and running locally** (API accessible). The app expects ComfyUI to be available at a local URL such as `http://127.0.0.1:8188`. Make sure to clone the [official ComfyUI repository here](https://github.com/Comfy-Org/ComfyUI) and export it into a suitable location in your hard drive (recommended near the root file system).
+2. **Download your target AI Image Model Checkpoint:** Download your preferred `.safetensors` file from [Civitai](https://civitai.com/) or [Hugging Face](https://huggingface.co/) and place it inside your local `ComfyUI/models/checkpoints/` directory.
+3. **Configure your Text-Generation LLM:** Ensure you have access to your recommended external Large Language Model (either locally via **Ollama** or via a cloud API provider) to pre-process your script text into the target keyword schema.
+4. **ComfyUI: Dev / API export enabled** so you can Save workflows in the "API Format (JSON)" and place them in `apps/workflows/`.
+5. **Python 3.10+** and the project dependencies installed (`pip install -r apps/requirements.txt`).
 
-Notes:
-- The project is not yet fully finished — additional setup steps (environment variables, optional runtime checks, and asset post-processing) will be documented as implementation continues.
-- If you want to run end-to-end automation you should have a GPU-enabled ComfyUI instance and network access between the generator and the ComfyUI API endpoint.
+### 🎛️ AI Model & LLM Pairing Guide
+
+To customize the generation style of the output video frames, configure your local ComfyUI checkpoint directory (`ComfyUI/models/checkpoints/`) with your preferred Base Model, and instruct your prompt-generation LLM to match its corresponding prompt engineering schema:
+
+| Target Visual Goal | Preferred ComfyUI Checkpoint | Recommended External LLM | Prompt Optimization Style |
+| :--- | :--- | :--- | :--- |
+| **Cinematic Dark Fantasy** | `DreamShaper_8_pruned` (SD 1.5) | Llama 3 / Mistral 7B | Dense comma-separated keyword tokens & modifiers |
+| **Photorealism / Documentary**| `Juggernaut_XL_v9` (SDXL) | GPT-4o / Claude 3.5 | Rich descriptive prose, camera lens & daylight specs |
+| **Anime & Graphic Manga** | `Animagine_XL_v3` (SDXL) | Qwen2.5 / Command R+ | Pure Danbooru tag arrays (`1girl, weapon, aesthetic`) |
+| **Minimalist MS Paint/Sketch**| `v1-5-pruned-emaonly` (Base) | Gemma 2 / DeepSeek-V3 | Primitive object strings, zero artistic adjectives |
+
+> 💡 **Portfolio Tip:** Ensure the checkpoint filename inside your ComfyUI directory matches the `ckpt_name` value located inside Node `4` (or your specific canvas Checkpoint Loader Node) within your `comfyui_api.json` workflow file!
 
 ### 🚀 Installation & Setup
 
