@@ -28,7 +28,6 @@ dist/
 assets/generated_images/*
 !assets/generated_images/.gitkeep
 assets/youtube_profile_assets/
-assets/readme_assets/
 
 # --- Project Input Scripts & Documents ---
 # Ignores your custom text files containing personal timestamps/prompts and documents
