@@ -1,5 +1,9 @@
 # Autonomous Storyboard Pipeline: ComfyUI Image Generator
 
+<video controls>
+    <source src="assets/readme_assets/project_demonstration.mp4" type="video/mp4">
+</video>
+
 This directory contains the automated tools designed to simply the generation of images on the fly. The primary application is a **ComfyUI Image Generator** that interacts with a local AI instance to generate custom visual assets programmatically.
 
 **Status:** Completed & Stable (Production ready)
@@ -11,7 +15,7 @@ This directory contains the automated tools designed to simply the generation of
 This Python application automates the interaction with ComfyUI's API. Instead of manually using the web interface, this script loads predefined workflows, injects dynamic prompts (like the "MS Paint" style defined in our project), and triggers the GPU to generate images.
 
 ### 🛠 Prerequisites
-Before the project is feature-complete this repository is in the implementation phase. The prerequisites below reflect the current state: some automation pieces are implemented, others are planned.
+The prerequisites below reflect the current state: some automation pieces are implemented, others are planned.
 
 * Having a **GPU** is **highly recommended** for using this system for executing high-demand tasks in your computer.
 * **Modern CPU (i5 / AMD Ryzen 5 or above)** helps the computer keep up with all compilation and calculations.
@@ -35,6 +39,18 @@ To customize the generation style of the output video frames, configure your loc
 | **Anime & Graphic Manga** | `Animagine_XL_v3` (SDXL) | Qwen2.5 / Command R+ | Pure Danbooru tag arrays (`1girl, weapon, aesthetic`) |
 | **Minimalist MS Paint/Sketch**| `v1-5-pruned-emaonly` (Base) | Gemma 2 / DeepSeek-V3 | Primitive object strings, zero artistic adjectives |
 
+#### Generating with Newer Models (SDXL and higher)
+
+Newer generation models like **Flux.1 Shnell, Fluxed up and Persephone**, has an incredible high demand on VRAM, reaching heights of 12GB+. Preparing your launch file for non-dedicated GPUs can be crucial for preventing *Out-of-Memory (OOM) crashes*. To perform generative tasks while maintaining high efficiency, it is encouraged to tell ComfyUI to use a low-memory optimizer:
+
+1. Go to the `ComfyUI_windows_portable` folder.
+2. **Right click** on the preferred .bat` file that will open the ComfyUI system and select **Edit**.
+3. Certify that the startup command line includes the following:
+
+```bash
+.\python_embeded\python.exe -s ComfyUI\main.py --windows-standalone-build --lowvram
+```
+
 > 💡 **Portfolio Tip:** Ensure the checkpoint filename inside your ComfyUI directory matches the `ckpt_name` value located inside Node `4` (or your specific canvas Checkpoint Loader Node) within your `comfyui_api.json` workflow file!
 
 ### 🚀 Installation & Setup
@@ -45,7 +61,11 @@ To customize the generation style of the output video frames, configure your loc
     ```
 2.  **Install Dependencies**:
     ```bash
+    # Using pip:
     pip install -r requirements.txt
+
+    # Using UV (recommended):
+    uv sync
     ```
 3.  **Configure Environment**:
     Create or update the `.env` file in `apps` with your local settings:
@@ -65,7 +85,10 @@ To customize the generation style of the output video frames, configure your loc
     - Open your exported JSON and find the ID for the `CLIPTextEncode` node where you want to inject your prompt (standard IDs are often `6` or `11`).
 3.  **Run the Generator**:
     ```bash
-    python main.py
+    python src/main.py
+
+    # Or
+    uv run src/main.py
     ```
 
 ### 📂 Project Structure
@@ -119,3 +142,5 @@ Testing and CI:
 
 - [x] **Polling Mechanism**: Implement real-time status checking to wait for generation completion.
 - [x] **Automatic Retrieval**: Automatically download and rename images based on script timestamps.
+- [ ] **Addition to Flexibility**: Be able to optionally select files in folders, swapping models.
+- [ ] **Simple UI**: Easy to use UI for quickly configuring options and generating images.
