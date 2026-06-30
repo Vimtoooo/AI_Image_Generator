@@ -25,7 +25,7 @@ def main() -> None:
         comfy_client.check_connection()
 
         comfy_fs: FileSystem = FileSystem()
-        comfy_fs.load_workflow_json()
+        comfy_fs.load_workflow_json("comfyui_api.json")
 
         current_workflow: dict[str, Any] | None = comfy_fs.current_workflows_data
 

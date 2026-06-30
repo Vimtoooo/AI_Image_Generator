@@ -1,4 +1,9 @@
-requests
-python-dotenv
+packaging
 pillow
+pluggy
+pygments
+pytest
+python-dotenv
+requests
+urllib3
 websocket-client

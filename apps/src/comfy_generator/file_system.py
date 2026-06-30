@@ -53,7 +53,7 @@ class FileSystem:
     
     """Core Methods"""
 
-    def load_workflow_json(self, filename: str | None = None) -> None:
+    def load_workflow_json(self, filename: str) -> None:
         """
         <h3>Safely reads the ComfyUI's configuration map.</h3>
         <h3>Parameters:</h3>
@@ -70,9 +70,19 @@ class FileSystem:
         <h4>Throws:</h4>
 
         - **FileNotFoundError:** if the file name is not located.
+        - **ValueError:** For invalid data type insertion for the argument.
         """
 
-        target_file: str = filename if filename is not None else "comfyui_api.json"
+        if not filename:
+            raise FileNotFoundError("Missing arguments for 'filename'.")
+        
+        if not isinstance(filename, str):
+            raise ValueError(f"Invalid data type for the argument 'filename'. Given type: {type(filename)}")
+
+        target_file: str = filename
+
+        self.__path_to_workflows.mkdir(parents=True, exist_ok=True)
+
         file_path: Path = self.__path_to_workflows / target_file
 
         if not Path.exists(file_path):
@@ -98,7 +108,19 @@ class FileSystem:
         <h4>Throws:</h4>
 
         - **FileNotFoundError:** if the file name is not located.
+        - **ValueError:** For invalid data type insertion for the argument.
         """
+
+        if not script_filename:
+            raise ValueError(f"Missing arguments for 'script_filename'.")
+        
+        if not isinstance(script_filename, str):
+            raise ValueError(f"Invalid data type for argument 'script_filename'. Given type: {type(script_filename)}")
+        
+        if not isinstance(print_script, bool):
+            raise ValueError(f"Invalid data type for argument 'print_script'. Given type: {type(print_script)}")
+
+        self.__path_to_scripts.mkdir(parents=True, exist_ok=True)
 
         script_file_path: Path = self.__path_to_scripts / script_filename
 
@@ -144,6 +166,7 @@ class FileSystem:
     
     @property
     def path_to_assets(self) -> Path:
+        self.__path_to_assets.mkdir(parents=True, exist_ok=True)
         return self.__path_to_assets
     
     @path_to_assets.setter
@@ -166,14 +189,17 @@ class FileSystem:
     
     @property
     def path_to_workflows(self) -> Path:
+        self.__path_to_workflows.mkdir(parents=True, exist_ok=True)
         return self.__path_to_workflows
     
     @property
     def path_to_prompts(self) -> Path:
+        self.__path_to_prompts.mkdir(parents=True, exist_ok=True)
         return self.__path_to_prompts
     
     @property
     def path_to_scripts(self) -> Path:
+        self.__path_to_scripts.mkdir(parents=True, exist_ok=True)
         return self.__path_to_scripts
     
     @property
@@ -199,7 +225,7 @@ if __name__ == "__main__":
     try:
         fs = FileSystem()
         print("================================== Loading the workflow json ==================================\n")
-        fs.load_workflow_json()
+        fs.load_workflow_json("comfyui_api.json")
         # print(fs.current_workflows_data)
         print("\n================================== Loading the video script ==================================\n")
         script_list: list[str] = fs.load_video_script("my_script.txt")
