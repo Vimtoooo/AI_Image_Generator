@@ -65,7 +65,7 @@ def main() -> None:
                     .update_positive_prompt(full_positive_prompt)
                     .update_negative_prompt(MASTER_NEGATIVE)
                     .update_seed(new_seed)
-                    .update_resolution()
+                    .update_resolution(512, 512)
                     .current_payload
             )
 

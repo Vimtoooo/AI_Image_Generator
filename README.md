@@ -1,8 +1,6 @@
 # Autonomous Storyboard Pipeline: ComfyUI Image Generator
 
-<video controls>
-    <source src="assets/readme_assets/project_demonstration.mp4" type="video/mp4">
-</video>
+![Video Demonstration](assets/readme_assets/project_demonstration.gif)
 
 This directory contains the automated tools designed to simply the generation of images on the fly. The primary application is a **ComfyUI Image Generator** that interacts with a local AI instance to generate custom visual assets programmatically.
 
