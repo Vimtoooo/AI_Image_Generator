@@ -50,7 +50,7 @@ def main() -> None:
             "bad anatomy, text, signature, watermark, username"
         )
 
-        script_list: list[str] = comfy_fs.load_video_script("test_script.txt")
+        script_list: list[str] = comfy_fs.load_video_script() # ENTER THE NAME OF YOUR SCRIPT FILE HERE!
         for line in script_list:
 
             new_seed: int = random.randint(100000000000000, 999999999999999)
