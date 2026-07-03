@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 from typing import Final, Any
 
-from comfy_generator.exceptions import (
+from exceptions import (
     InvalidOperatingSystem,
     AssetsPathNotFoundError,
     RootProjectFolderNotFoundError,
@@ -53,57 +53,74 @@ class FileSystem:
     
     """Core Methods"""
 
-    def load_workflow_json(self, filename: str) -> None:
+    def load_workflow_json(self, filename: str | None = None) -> None:
         """
-        <h3>Safely reads the ComfyUI's configuration map.</h3>
-        <h3>Parameters:</h3>
-        <ul><li><b>filename:</b> The name of the file that you wish to load the API.</li></ul>
-        <h3>Breakdown of the process:</h3>
-        <ol>
-        <li>Combines the path to workflows with the optionally given filename variable to make an absolute path.</li>
-        <li>Verifies if the target file exists on the computer.</li>
-        <li>Reads the raw text.</li>
-        <li>Parses the raw JSON text to a working Python dictionary.</li>
-        <li>Saves the output directly into the current_workflow_data private attribute.</li>
-        </ol>
+        Safely reads the ComfyUI's configuration map.
 
+        <h3>Parameters:</h3>
+
+        - **filename:** The name of the file that you wish to load the API.
+        
+        <h3>Breakdown of the process:</h3>
+        
+        1. Combines the path to workflows with the optionally given filename variable to make an absolute path.
+        2. Verifies if the target file exists on the computer.
+        3. Reads the raw text.
+        4. Parses the raw JSON text to a working Python dictionary.
+        5. Saves the output directly into the current_workflow_data private attribute.
+        
         <h4>Throws:</h4>
 
         - **FileNotFoundError:** if the file name is not located.
         - **ValueError:** For invalid data type insertion for the argument.
         """
 
-        if not filename:
-            raise FileNotFoundError("Missing arguments for 'filename'.")
-        
-        if not isinstance(filename, str):
-            raise ValueError(f"Invalid data type for the argument 'filename'. Given type: {type(filename)}")
-
-        target_file: str = filename
-
         self.__path_to_workflows.mkdir(parents=True, exist_ok=True)
+        file_path: Path
 
-        file_path: Path = self.__path_to_workflows / target_file
+        if not isinstance(filename, (str, type(None))):
+            raise ValueError(f"Invalid data type for the argument 'filename'. Given type: {type(filename)}")
+        
+        target_file: str | None = filename
+        
+        if not target_file:
+            files_inside: list[Path] = list(self.__path_to_workflows.glob("*.json"))
+            number_of_files: int = len(files_inside)
 
-        if not Path.exists(file_path):
+            if number_of_files == 1:
+                file_path = files_inside[0]
+
+            elif number_of_files > 1:
+                raise FileNotFoundError(f"Unable to dynamically load the workflow json file. Thus, there are currently {number_of_files} present and the 'filename' argument is mandatory.")
+
+            else:
+                raise FileNotFoundError("There are no files present inside the workflows folder.")
+        
+        else:
+            file_path = self.__path_to_workflows / Path(filename)
+
+        if not file_path.exists():
             raise FileNotFoundError(f"The given file name does not exist: {filename}")
         
-        with open(file_path, 'r') as file:
+        with open(file_path, mode='r', encoding='utf-8') as file:
             parsed_api: dict[str, Any] = json.load(file)
             self.__current_workflow_data = parsed_api
 
-    def load_video_script(self, script_filename: str, print_script: bool = False) -> list[str]:
+    def load_video_script(self, script_filename: str | None = None, print_script: bool = False) -> list[str]:
         """
-        <h3>Reads the external prompts featuring timestamps.</h3>
+        Reads the external prompts featuring timestamps.
+
         <h3>Parameters:</h3>
-        <ul><li><b>script_filename:</b> The name of the file that you wish to load the script with dedicated timestamps.</li></ul>
+        
+        - **script_filename:** The name of the file that you wish to load the script with dedicated timestamps.
+        - **print_script:** Prints the formatted script lines into the console.
+        
         <h3>Breakdown of the process:</h3>
-        <ol>
-        <li>Locates the file inside the path_to_scripts folder.</li>
-        <li>Checks for physical existence on the hard drive.</li>
-        <li>Safely opens the file and reads its contents line-by-line using a file loop.</li>
-        <li>Displays each raw line inside the console, confirming the file-traveling mechanism work without errors.</li>
-        </ol>
+
+        1. Locates the file inside the path_to_scripts folder.
+        2. Checks for physical existence on the hard drive.
+        3. Safely opens the file and reads its contents line-by-line using a file loop.
+        4. Displays each raw line inside the console, confirming the file-traveling mechanism work without errors.
 
         <h4>Throws:</h4>
 
@@ -111,26 +128,39 @@ class FileSystem:
         - **ValueError:** For invalid data type insertion for the argument.
         """
 
-        if not script_filename:
-            raise ValueError(f"Missing arguments for 'script_filename'.")
-        
-        if not isinstance(script_filename, str):
+        self.__path_to_scripts.mkdir(parents=True, exist_ok=True)
+
+        if not isinstance(script_filename, (str, type(None))):
             raise ValueError(f"Invalid data type for argument 'script_filename'. Given type: {type(script_filename)}")
         
         if not isinstance(print_script, bool):
             raise ValueError(f"Invalid data type for argument 'print_script'. Given type: {type(print_script)}")
+        
+        script_file_path: Path
+        
+        if not script_filename:
+            files_inside: list[Path] = list(self.__path_to_scripts.glob("*.txt"))
+            number_of_files: int = len(files_inside)
 
-        self.__path_to_scripts.mkdir(parents=True, exist_ok=True)
+            if number_of_files == 1:
+                script_file_path = files_inside[0]
 
-        script_file_path: Path = self.__path_to_scripts / script_filename
+            elif number_of_files > 1:
+                raise ValueError(f"Unable to dynamically load the video script file. Thus, there are currently {number_of_files} present and the 'script_filename' argument is mandatory.")
+            
+            else:
+                raise ValueError(f"There are no files present inside the 'scripts' folder.")
 
-        if not Path.exists(script_file_path):
-            raise FileNotFoundError(f"The given filename does not exist? {script_filename}")
+        else:
+            script_file_path = self.__path_to_scripts / Path(script_filename)
+
+        if not script_file_path.exists():
+            raise FileNotFoundError(f"The given filename does not exist: {script_filename}")
         
         script_list: list[str] = []
         is_first_parenthese: bool = True
         
-        with open(script_file_path, 'r') as script_file:
+        with open(script_file_path, mode='r', encoding='utf-8') as script_file:
             formatted_timestamp_list: list[str] = []
 
             for line in script_file:
@@ -228,8 +258,8 @@ if __name__ == "__main__":
         fs.load_workflow_json("comfyui_api.json")
         # print(fs.current_workflows_data)
         print("\n================================== Loading the video script ==================================\n")
-        script_list: list[str] = fs.load_video_script("my_script.txt")
-        print(script_list)
+        script_list: list[str] = fs.load_video_script(script_filename="test_script.txt", print_script=True)
+        # print(script_list)
         print("\n================================== Printing attributes ==================================\n")
         print(f"Path to Assets: {fs.path_to_assets}")
         print(f"Path to Prompts: {fs.path_to_prompts}")
