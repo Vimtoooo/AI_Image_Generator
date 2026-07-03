@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 from typing import Final, Any
 
-from exceptions import (
+from comfy_generator.exceptions import (
     InvalidOperatingSystem,
     AssetsPathNotFoundError,
     RootProjectFolderNotFoundError,
@@ -164,7 +164,7 @@ class FileSystem:
             formatted_timestamp_list: list[str] = []
 
             for line in script_file:
-                words_list: list[str] = line.split(" ")
+                words_list: list[str] = line.strip().split(" ")
 
                 for word in words_list:
                     if "(" in word:
@@ -187,6 +187,61 @@ class FileSystem:
                 script_list.append(final_script_line)
             
         return script_list
+    
+    def load_prompts(self, positive_prompt_filename: str, negative_prompt_filename: str) -> tuple[str, str]:
+        """
+        Reads the inputted prompt text files into a tuple of strings in the
+        format `(positive_prompt, negative_prompt)`.
+
+        <h3>Parameters:</h3>
+
+        - **positive_prompt_filename**: A positive prompt that will apply all
+        given information for the result.
+        - **negative_prompt_filename**: A negative prompt that prevents certain
+        details to not be applicable for the result.
+
+        <h3>Breakdown of the process:</h3>
+
+        1. Locate both positive and negative prompt files inside the prompts folder.
+        2. Checks for physical existence on the hard drive.
+        3. Safely read its contents to parse it into a string.
+        4. Returns a tuple of strings with the parsed prompts.
+
+        <h4>Throws:</h4>
+
+        - **FileNotFoundError:** If the filename is not located.
+        - **ValueError:** For invalid data type or missing insertion for the arguments.
+        """
+
+        self.__path_to_prompts.mkdir(parents=True, exist_ok=True)
+
+        if not positive_prompt_filename:
+            raise ValueError(f"Missing arguments for 'positive_prompt_filename'.")
+        
+        if not negative_prompt_filename:
+            raise ValueError(f"Missing arguments for 'negative_prompt_filename'.")
+        
+        if not isinstance(positive_prompt_filename, str):
+            raise ValueError(f"Invalid data type for argument 'positive_prompt_filename'. Given type: {type(positive_prompt_filename)}")
+        
+        if not isinstance(negative_prompt_filename, str):
+            raise ValueError(f"Invalid data type for argument 'negative_prompt_filename'. Given type: {type(negative_prompt_filename)}")
+        
+        positive_prompt_path: Path = self.__path_to_prompts / Path(positive_prompt_filename)
+        negative_prompt_path: Path = self.__path_to_prompts / Path(negative_prompt_filename)
+
+        if not positive_prompt_path.exists():
+            raise FileNotFoundError(f"The given filename does not exist: {positive_prompt_filename}")
+        
+        if not negative_prompt_path.exists():
+            raise FileNotFoundError(f"The given filename does not exist: {negative_prompt_filename}")
+        
+        positive_prompt_str: str = positive_prompt_path.read_text(encoding='utf-8').strip()
+        negative_prompt_str: str = negative_prompt_path.read_text(encoding='utf-8').strip()
+
+        final_result: tuple[str, str] = (positive_prompt_str, negative_prompt_str)
+        
+        return final_result
 
     """Getter, setter and deleter methods"""
     
@@ -260,6 +315,10 @@ if __name__ == "__main__":
         print("\n================================== Loading the video script ==================================\n")
         script_list: list[str] = fs.load_video_script(script_filename="test_script.txt", print_script=True)
         # print(script_list)
+        print("\n================================== Loading Prompts ==================================\n")
+        positive_prompt, negative_prompt = fs.load_prompts("positive_prompt.txt", "negative_prompt.txt")
+        print(f"Positive Prompt: {positive_prompt}")
+        print(f"Negative Prompt: {negative_prompt}")
         print("\n================================== Printing attributes ==================================\n")
         print(f"Path to Assets: {fs.path_to_assets}")
         print(f"Path to Prompts: {fs.path_to_prompts}")

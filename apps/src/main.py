@@ -28,6 +28,7 @@ def main() -> None:
         comfy_fs.load_workflow_json() # ENTER THE NAME OF YOUR COMFYUI JSON FILE HERE!
 
         current_workflow: dict[str, Any] | None = comfy_fs.current_workflows_data
+        MASTER_STYLE, MASTER_NEGATIVE = comfy_fs.load_prompts("positive_prompt.txt", "negative_prompt.txt")
 
         if current_workflow is None:
             raise WorkflowNotDefinedError("The workflow cannot be of type 'None'")
@@ -36,19 +37,6 @@ def main() -> None:
 
         print("=================== 2. The Dynamic Loop Orchestration ===================")
 
-        MASTER_STYLE: Final[str] = (
-            "photorealistic documentary film still, crisp daylight photography, "
-            "broad volumetric daytime lighting, natural color grading, hyper-realistic environment art, "
-            "wide-angle lens, expansive horizon, clear composition layout, sharp focus, 8k resolution, National Geographic style"
-        )
-
-        # Forcefully ban all rendering, shadows, artistic styles, and complex geometry
-        MASTER_NEGATIVE: Final[str] = (
-            "dark fantasy, gothic illustration, abstract oil painting, severe shadows, high contrast shadows, "
-            "floating islands, impossible geometry, clipped top composition, cropped horizon, stylized digital painting, "
-            "glowing magical energy, lowres, bad quality, blurry, flat colors, cartoon, vector art, monochrome, "
-            "bad anatomy, text, signature, watermark, username"
-        )
 
         script_list: list[str] = comfy_fs.load_video_script() # ENTER THE NAME OF YOUR SCRIPT FILE HERE!
         for line in script_list:
