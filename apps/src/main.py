@@ -11,10 +11,10 @@ from comfy_generator.exceptions import (
     WorkflowNotDefinedError,
     WorkflowSubmissionFailedError,
 )
-import random
 from pathlib import Path
 from typing import Any, Final
 from traceback import format_exc
+from utils.utils import Utils
 
 def main() -> None:
     try:
@@ -45,12 +45,10 @@ def main() -> None:
         script_list: list[str] = comfy_fs.load_video_script() # ENTER THE NAME OF YOUR SCRIPT FILE HERE!
         for line in script_list:
 
-            new_seed: int = random.randint(100000000000000, 999999999999999)
-            closing_parenthesis_index: int = line.index(")")
-            
-            current_timestamp, scene_description = line[1 : closing_parenthesis_index].replace(":", "_"), line[closing_parenthesis_index + 2 : ]
+            new_seed: int = Utils.generate_random_seed()
+            current_timestamp, scene_description = Utils.format_timestamp_line(line)
 
-            full_positive_prompt: str = f"{MASTER_STYLE}, {scene_description}"
+            full_positive_prompt: str = f"{MASTER_STYLE}\nSCENE TO CREATE: {scene_description}"
 
             ready_graph = (
                 comfy_mgr.reset_payload()
@@ -58,7 +56,7 @@ def main() -> None:
                     .update_positive_prompt(full_positive_prompt)
                     .update_negative_prompt(MASTER_NEGATIVE)
                     .update_seed(new_seed)
-                    .update_resolution(512, 512)
+                    .update_resolution(1024, 1024)
                     .current_payload
             )
 
