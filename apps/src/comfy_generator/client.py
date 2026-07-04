@@ -291,8 +291,48 @@ class ComfyUIClient:
             return False
         
         except Exception as e:
-            print(f"Network asset download failed: {e}")#
+            print(f"Network asset download failed: {e}")
             return False
+        
+    def get_available_checkpoints(self) -> list[str]:
+        """
+        Queries ComfyUI's object registry to fetch all currently installed
+        checkpoint model filenames.
+
+        <h3>Breakdown of the process:</h3>
+
+        1. Sets up the target endpoint, where the `url` is ComfyUI's GET endpoint
+        called '/object_info' (for retrieving all available catalogs of every node,
+        its valid data inputs, and the list of all installed `.safetensors` files
+        sitting in the `models/checkpoints/` folder).
+        2. Execute a HTTP GET request to fetch the checkpoints.
+        3. Digs deep into the Checkpoint Loader definition fields.
+        4. Claims and returns the list of models (ComfyUI structures the file
+        dropdown options as the first element from a list).
+        """
+
+        if not self.__is_connected:
+            raise ServerOfflineException("Unable to view checkpoints, thus the server is offline.")
+        
+        url: str = f"{self.__base_http_url}/object_info"
+        try:
+            response = requests.get(url, timeout=self.REQUEST_TIMEOUT_SECONDS)
+            current_status_code: int = response.status_code
+
+            if current_status_code == 200:
+                data = response.json()
+
+                loader_info = data.get("CheckpointLoaderSimple", {})
+                input_info = loader_info.get("input", {})
+                required_info = input_info.get("required", {})
+
+                checkpoint_list: list[str] = required_info.get("ckpt_name", [[]])[0]
+                return checkpoint_list
+            return []
+        
+        except Exception as e:
+            print(f"Unable to sync model registry from server: {e}")
+            return []
 
     """Getter and Setter Methods"""
 

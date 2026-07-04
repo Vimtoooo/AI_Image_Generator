@@ -1,5 +1,5 @@
 import json
-import sys
+from sys import platform
 from pathlib import Path
 from typing import Final, Any
 
@@ -24,7 +24,7 @@ class FileSystem:
     ALLOWED_PLATFORMS: Final[tuple[str, str, str]] = ("win32", "darwin", "linux")
     
     def __init__(self):
-        current_system: str = sys.platform
+        current_system: str = platform
 
         if not any(current_system.startswith(p) for p in self.ALLOWED_PLATFORMS):
             raise InvalidOperatingSystem(f"Only PC operating systems are allowed. Not '{current_system}'")

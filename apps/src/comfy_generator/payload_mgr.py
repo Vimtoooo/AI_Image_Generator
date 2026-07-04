@@ -16,10 +16,11 @@ class PayloadManager:
     """
 
     # KEY CONSTANTS:
+    KSAMPLER_NODE: Final[str] = "3"
+    CHECKPOINT_MODEL_NODE: Final[str] = "4"
+    LATENT_IMAGE_NODE: Final[str] = "5"
     POSITIVE_PROMPT_NODE: Final[str] = "6"
     NEGATIVE_PROMPT_NODE: Final[str] = "7"
-    KSAMPLER_NODE: Final[str] = "3"
-    LATENT_IMAGE_NODE: Final[str] = "5"
     SAVE_IMAGE_NODE: Final[str] = "9"
 
     def __init__(self, template_workflow: dict[str, Any]) -> None:
@@ -59,7 +60,7 @@ class PayloadManager:
         `self.__current_payload[self.POSITIVE_PROMPT_NODE]["inputs"]["text"] =
         new_prompt`.
         2. Alters the information that is within that node's value.
-        3. Returning `self` (the object) whether or not the operation was
+        3. Returning `self` (the updated object) whether or not the operation was
         successful.
 
         <h3>Throws:</h3>
@@ -78,8 +79,8 @@ class PayloadManager:
             self.__current_payload[self.POSITIVE_PROMPT_NODE]["inputs"]["text"] = positive_prompt
             return self
 
-        except KeyError as e1:
-            print(f"One of the keys to the positive prompt path is missing! {e1}")
+        except KeyError as e:
+            print(f"One of the keys to the positive prompt path is missing! {e}")
             return self
         
         except Exception as e:
@@ -102,7 +103,7 @@ class PayloadManager:
         `self.__current_payload[self.NEGATIVE_PROMPT_NODE]["inputs"]["text"] =
         new_prompt`.
         2. Alters the information that is within that node's value.
-        3. Returning `self` (the object) whether or not the operation was
+        3. Returning `self` (the updated object) whether or not the operation was
         successful.
 
         <h3>Throws:</h3>
@@ -121,8 +122,8 @@ class PayloadManager:
             self.__current_payload[self.NEGATIVE_PROMPT_NODE]["inputs"]["text"] = negative_prompt
             return self
 
-        except KeyError as e1:
-            print(f"One of the keys to the negative prompt path is missing! {e1}")
+        except KeyError as e:
+            print(f"One of the keys to the negative prompt path is missing! {e}")
             return self
         
         except Exception as e:
@@ -138,7 +139,8 @@ class PayloadManager:
         1. Generates a random integer value with the fixed length of 15 digits.
         2. Attempts to alter the "seed" key-value by traveling through the nested
         dictionary.
-        3. Returns `self` (the object) whether or not the operation was successful.
+        3. Returns `self` (the updated object) whether or not the operation was
+        successful.
 
         <h3>Throws:</h3>
 
@@ -155,8 +157,8 @@ class PayloadManager:
             self.__current_payload[self.KSAMPLER_NODE]["inputs"]["seed"] = seed_value
             return self
 
-        except KeyError as e1:
-            print(f"One of the keys to the positive prompt path is missing! {e1}")
+        except KeyError as e:
+            print(f"One of the keys to the positive prompt path is missing! {e}")
             return self
         
         except Exception as e:
@@ -165,7 +167,7 @@ class PayloadManager:
         
     def update_resolution(self, width: int = 1216, height: int = 684) -> "PayloadManager":
         """
-        Updates the image resolution for SD 1.5 (multiples of 8).
+        Updates the image resolution for the current model (multiples of 8).
 
         <h3>Parameters:</h3>
 
@@ -176,7 +178,7 @@ class PayloadManager:
 
         1. Tries to access the keys to the `LATENT_IMAGE_NODE` (`5`) and traverse
         through `"inputs"` and access to `"width"` and `"height"` key-values.
-        2. Return `self` (the object) once the operation is complete.
+        2. Return `self` (the updated object) once the operation is complete.
         """
 
         try:
@@ -186,6 +188,54 @@ class PayloadManager:
 
         except KeyError as e:
             print(f"One of the keys for latent image node is missing! {e}")
+            return self
+        
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            return self
+    
+    def update_checkpoint_model(self, target_model: str, available_models: list[str]) -> "PayloadManager":
+        """
+        Updates the checkpoint name that will determine which model it'll be used.
+
+        <h3>Parameters:</h3>
+
+        - **target_model:** The chosen model to update to from the given list of
+        models.
+        - **available_models:** A list of all available models that originates
+        from the `get_available_checkpoints()` method (it's required to call this
+        method before updating the checkpoint model).
+
+        <h3>Breakdown of the process:</h3>
+
+        1. Verifies if `target_model` argument is present.
+        2. Validates whether `target_model` is located inside the `available_models`
+        list.
+        3. Attempts to process the key to the `CHECKPOINT_MODEL_NODE` (`4`) and
+        traverse through `"inputs"` and access the key-values of `"ckpt_name"`.
+        4. Returns `self` (the updated object) once the operation is complete.
+
+        <h4>Throws:</h4>
+
+        - **ValueError:** If the `target_model` is not present in the given argument
+        or in the hard drive.
+        """
+
+        if not target_model:
+            raise ValueError("Target model filename cannot be empty.")
+        
+        if target_model not in available_models:
+            raise ValueError(
+                f"❌ Model Allocation Failure: '{target_model}' is not installed on the ComfyUI server. "
+                f"Please download it or check your spelling."
+            )
+
+        try:
+            self.__current_payload[self.CHECKPOINT_MODEL_NODE]["inputs"]["ckpt_name"] = target_model
+            return self
+
+        except KeyError as e:
+            print(f"One of the keys for checkpoint name node is missing! {e}")
             return self
         
         except Exception as e:

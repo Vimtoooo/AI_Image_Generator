@@ -35,6 +35,10 @@ def main() -> None:
         
         comfy_mgr: PayloadManager = PayloadManager(current_workflow)
 
+        # Load the desired model
+        MODEL: Final[str] = "DreamShaper_8_pruned.safetensors"
+        available_checkpoints: list[str] = comfy_client.get_available_checkpoints()
+
         print("=================== 2. The Dynamic Loop Orchestration ===================")
 
 
@@ -50,6 +54,7 @@ def main() -> None:
 
             ready_graph = (
                 comfy_mgr.reset_payload()
+                    .update_checkpoint_model(MODEL, available_checkpoints)
                     .update_positive_prompt(full_positive_prompt)
                     .update_negative_prompt(MASTER_NEGATIVE)
                     .update_seed(new_seed)
