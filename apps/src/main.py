@@ -4,6 +4,7 @@ from comfy_generator.payload_mgr import PayloadManager
 from comfy_generator.exceptions import (
     AssetsPathNotFoundError,
     ConnectionError,
+    InvalidFileTypeError,
     InvalidOperatingSystem,
     RequestException,
     RootProjectFolderNotFoundError,
@@ -11,10 +12,13 @@ from comfy_generator.exceptions import (
     WorkflowNotDefinedError,
     WorkflowSubmissionFailedError,
 )
+from utils.media_utils import MediaUtils
+from utils.formatting_utils import FormattingUtils
+
 from pathlib import Path
 from typing import Any, Final
 from traceback import format_exc
-from utils.utils import Utils
+
 
 def main() -> None:
     try:
@@ -39,16 +43,31 @@ def main() -> None:
         MODEL: Final[str] = "DreamShaper_8_pruned.safetensors"
         available_checkpoints: list[str] = comfy_client.get_available_checkpoints()
 
-        print("=================== 2. The Dynamic Loop Orchestration ===================")
+        # Configure the desired resolutions
+        DESIRED_ASPECT_RATIO: Final[str] = MediaUtils.PERMITTED_ASPECT_RATIOS[0] # 0: 16:9, 1: 9:16, 2: custom
+        width: int | None = 720
+        height: int | None = 720 # ENTER RESOLUTION VALUES HERE TO YOUR LIKINGS! (OPTIONAL)
 
+        if DESIRED_ASPECT_RATIO == "16:9":
+            width, height = MediaUtils.calculate_landscape_dimensions(width, height)
+        
+        elif DESIRED_ASPECT_RATIO == "9:16":
+            width, height = MediaUtils.calculate_portrait_dimensions(width, height)
+
+        elif DESIRED_ASPECT_RATIO == "custom":
+            # Custom safety rail: Fall back to project defaults if fields were left empty
+            width = width if width is not None else MediaUtils.WIDTH
+            height = height if height is not None else MediaUtils.HEIGHT
+
+        print("=================== 2. The Dynamic Loop Orchestration ===================")
 
         script_list: list[str] = comfy_fs.load_video_script() # ENTER THE NAME OF YOUR SCRIPT FILE HERE!
         for line in script_list:
 
-            new_seed: int = Utils.generate_random_seed()
-            current_timestamp, scene_description = Utils.format_timestamp_line(line)
+            new_seed: int = MediaUtils.generate_random_seed()
+            current_timestamp, scene_description = FormattingUtils.format_timestamp_line(line)
 
-            full_positive_prompt: str = f"{MASTER_STYLE}\nSCENE TO CREATE: {scene_description}"
+            full_positive_prompt: str = FormattingUtils.format_positive_prompt(MASTER_STYLE, scene_description)
 
             ready_graph = (
                 comfy_mgr.reset_payload()
@@ -56,7 +75,7 @@ def main() -> None:
                     .update_positive_prompt(full_positive_prompt)
                     .update_negative_prompt(MASTER_NEGATIVE)
                     .update_seed(new_seed)
-                    .update_resolution(1024, 1024)
+                    .update_resolution(width, height)
                     .current_payload
             )
 
@@ -67,7 +86,11 @@ def main() -> None:
                 print(f"⚠️ Warning: Did not receive asset metadata for timestamp {current_timestamp}. Skipping download.")
                 continue
 
-            final_destination: Path = comfy_fs.path_to_assets / f"{current_timestamp}.png"
+            final_destination: Path = MediaUtils.define_filename_path(
+                path_to_folder=comfy_fs.path_to_assets,
+                filename=current_timestamp,
+                file_type=".png"
+            )
 
             comfy_client.download_image(
                 filename=output_data["filename"],
@@ -82,7 +105,10 @@ def main() -> None:
     except (
         AssetsPathNotFoundError,
         ConnectionError,
+        IndexError,
+        InvalidFileTypeError,
         InvalidOperatingSystem,
+        FileNotFoundError,
         RequestException,
         RootProjectFolderNotFoundError,
         ServerOfflineException,
