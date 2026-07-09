@@ -91,17 +91,26 @@ Newer generation models like **Flux.1 Shnell, Fluxed up and Persephone**, has an
 
 ### 📂 Project Structure
 
-- `main.py`: The entry point that coordinates the workflow loading, prompt injection, and API calls.
-- `__init__.py`: Initializing dependencies.
-- `client.py`: Handles all HTTP communication and error checking with the ComfyUI server.
-- `file_system.py`: Responsible for managing and maneuvering through files and folders in the hard drive.
-- `payload_mgr.py`: Logic for reading, traversing, and modifying the JSON workflow files.
-- `/workflows`: Storage for your exported ComfyUI API templates.
+- `__init__.py`: Initializing dependencies and validates the current python version that is being executed.
+
+* `comfy_generator`: Contains the backend logic for interacting and handling image generation and HTTP responses with the ComfyUI server.
+    - `client.py`: Handles all HTTP communication and error checking with the ComfyUI server.
+    - `file_system.py`: Responsible for managing and maneuvering through files and folders in the hard drive.
+    - `payload_mgr.py`: Logic for reading, traversing, and modifying the JSON workflow files.
+    - `exceptions.py` — custom exception classes used by the generator.
+
+* `/gui`: Contains all UI building components with the manipulation of `CustomTKinter` for building the user interface.
+    - `config_panel.py`: Handles file-path pickers, model sync dropdowns, seed parameters and user inputs.
+    - `log_panel.py`: Holds the real-time text terminal log output and progress bar.
+    - `thread_worker.py`: The critical background thread module to prevent the window from freezing.
+    - `main_window.py`: The orchestrator file that binds the components together.
+
+* `main.py`: The entry point that coordinates the workflow loading, prompt injection, and API calls.
+* `/workflows`: Storage for your exported ComfyUI API templates.
 
 Other notable files and folders:
 
 - `apps/src/comfy_generator/file_system.py` — handles project-relative paths and creates the `assets/generated_images` folder automatically; some setter validations and exception handling are implemented and unit tests are currently not included in the repo.
-- `apps/src/comfy_generator/exceptions.py` — custom exception classes used by the generator utilities.
 - `assets/generated_images/` — target directory for generated images (created automatically by the file system helper when the code runs).
 - `prompts/` and `scripts/` — contain prompt templates and timestamped script fragments referenced by the generator.
 
@@ -115,7 +124,7 @@ Testing and CI:
 * **Memory Sandbox Isolation:** `PayloadManager` utilizes deep memory copying (`copy.deepcopy()`) to prevent reference mutations across frames.
 * **Persistent WebSocket Streaming:** The client utilizes a blocking network listener thread to intercept downstream completion event packets without polling.
 
-### Current Tasks:
+### Previous Tasks:
 
 1. `file_system.py`:
     - [x] **Path Management**: Define where everything lives in the working directory, especially making it dynamical to locate the project's root folder and the `Assets` folder. Avoid hardcoding strings for defining paths, and use the built-in `pathlib` module and utilize the `__file__` variable to anchor paths relatively.
@@ -137,10 +146,26 @@ Testing and CI:
     - [x] **Dynamic Loop Orchestration:** The generations runner loop should step through the time-stamped files line by line, separating the timestamp data from the core scene description text and execute a chain mutation for every independent line item. Run the chain mutation sequence to prepare a distinct frame.
     - [x] **Execution and Handoff Routing:** Responsible for transferring the newly calculated `ready_graph` dictionary payload directly into your network submitter: `prompt_id = comfy_client.queue_workflow(ready_graph)`. Pass the active execution identifier token straight into the tracker block: `comfy_client.track_generation_progress(prompt_id)`. Once the websocket loop hits its exit condition and breaks, it'll mean that ComfyUI has successfully dropped your newly generated image directly into the user's computer output file space!
 
+### Current Tasks:
+
+1. `config_panel.py`: **(The Setting Sidebar/Tabs)**
+    - [ ] **Handle User Input:** Wrap components like `CTkButton` + `filedialog` to let users browse and click to select their script files or workflow paths.
+    - [ ] **View Checkpoints as a Dropdown:** Use the `CTKOptionMenu` to populate it with a dynamic list of models retrieved from your client's `get_available_checkpoints()` method.
+    - [ ] **Manual Inputs:** Utilize `CTKEntry` fields for setting manual prompt modifications, aspect rations or specific seeds.
+
+2. `log_panel.py`: **(The Feedback Terminal)**
+    - [ ] **Runtime Feedback:** Develop a slider which fills up in real-time (tracks the WebSocket nodes and pipe status strings to the text box). Have a class that houses a `CTKTextbox` that is configured as a read-only terminal wrapper, alongside a `CTKProgressBar`.
+
+3. `thread_worker.py`: **(The Processing Thread)**
+    - [ ] **Constant Window Interaction:** As the user clicks *Generate*, the `threading.Thread`intercepts that backend parameters, established the network connection and handles the `track_generation_progress()` loop in the background. This keeps the main window beautifully interactive and click-safe.
+
+4. `main_window.py`: **(The Window Shell)**
+    - [ ] **House the Main Application Class:** While inheriting from `customtkinter.CTk`, it'll initialize the primary window size, apply the global dark/light theme, manage the grid structure, instantiate smaller sub-panels and cats as the bridge connecting the GUI clicks straight to the `comfy_generator` backend.
+
 ## 📈 Future Roadmap
 
 - [x] **Polling Mechanism**: Implement real-time status checking to wait for generation completion.
 - [x] **Automatic Retrieval**: Automatically download and rename images based on script timestamps.
 - [x] **Utility Classes**: Simplify the code exhibition by separating what must be considered as an utility and helper action.
 - [x] **Addition to Flexibility**: Be able to optionally select files in folders, swapping models.
-- [ ] **Simple UI**: Easy to use UI for quickly configuring options and generating images.
+- [ ] **Simple UI**: Easy to use UI for quickly configuring options and generating images (using `CustomTKinter).
