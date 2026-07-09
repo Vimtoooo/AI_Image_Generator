@@ -1,3 +1,4 @@
+# Comfy Related Modules:
 from comfy_generator.file_system import FileSystem
 from comfy_generator.client import ComfyUIClient
 from comfy_generator.payload_mgr import PayloadManager
@@ -12,9 +13,21 @@ from comfy_generator.exceptions import (
     WorkflowNotDefinedError,
     WorkflowSubmissionFailedError,
 )
-from utils.media_utils import MediaUtils
-from utils.formatting_utils import FormattingUtils
 
+# Utility Methods:
+from utils.media_utils import (
+    WIDTH, HEIGHT, PERMITTED_ASPECT_RATIOS, PERMITTED_FILE_TYPES,
+    calculate_landscape_dimensions,
+    calculate_portrait_dimensions,
+    generate_random_seed,
+    define_filename_path,
+)
+from utils.formatting_utils import (
+    format_timestamp_line,
+    format_positive_prompt,
+)
+
+# External Modules:
 from pathlib import Path
 from typing import Any, Final
 from traceback import format_exc
@@ -40,19 +53,19 @@ def main() -> None:
         comfy_mgr: PayloadManager = PayloadManager(current_workflow)
 
         # Load the desired model
-        MODEL: Final[str] = "DreamShaper_8_pruned.safetensors"
+        MODEL: Final[str] = "DreamShaper_8_pruned.safetensors" # ENTER THE NAME OF YOUR MODEL FILENAME HERE!
         available_checkpoints: list[str] = comfy_client.get_available_checkpoints()
 
         # Configure the desired resolutions
-        DESIRED_ASPECT_RATIO: Final[str] = MediaUtils.PERMITTED_ASPECT_RATIOS[0] # 0: 16:9, 1: 9:16, 2: custom
+        DESIRED_ASPECT_RATIO: Final[str] = PERMITTED_ASPECT_RATIOS[0] # 0: 16:9, 1: 9:16, 2: custom
         width: int | None = 720
         height: int | None = 720 # ENTER RESOLUTION VALUES HERE TO YOUR LIKINGS! (OPTIONAL)
 
         if DESIRED_ASPECT_RATIO == "16:9":
-            width, height = MediaUtils.calculate_landscape_dimensions(width, height)
+            width, height = calculate_landscape_dimensions(width, height)
         
         elif DESIRED_ASPECT_RATIO == "9:16":
-            width, height = MediaUtils.calculate_portrait_dimensions(width, height)
+            width, height = calculate_portrait_dimensions(width, height)
 
         elif DESIRED_ASPECT_RATIO == "custom":
             # Custom safety rail: Fall back to project defaults if fields were left empty
@@ -64,10 +77,10 @@ def main() -> None:
         script_list: list[str] = comfy_fs.load_video_script() # ENTER THE NAME OF YOUR SCRIPT FILE HERE!
         for line in script_list:
 
-            new_seed: int = MediaUtils.generate_random_seed()
-            current_timestamp, scene_description = FormattingUtils.format_timestamp_line(line)
+            new_seed: int = generate_random_seed()
+            current_timestamp, scene_description = format_timestamp_line(line)
 
-            full_positive_prompt: str = FormattingUtils.format_positive_prompt(MASTER_STYLE, scene_description)
+            full_positive_prompt: str = format_positive_prompt(MASTER_STYLE, scene_description)
 
             ready_graph = (
                 comfy_mgr.reset_payload()
@@ -86,7 +99,7 @@ def main() -> None:
                 print(f"⚠️ Warning: Did not receive asset metadata for timestamp {current_timestamp}. Skipping download.")
                 continue
 
-            final_destination: Path = MediaUtils.define_filename_path(
+            final_destination: Path = define_filename_path(
                 path_to_folder=comfy_fs.path_to_assets,
                 filename=current_timestamp,
                 file_type=".png"

@@ -141,5 +141,6 @@ Testing and CI:
 
 - [x] **Polling Mechanism**: Implement real-time status checking to wait for generation completion.
 - [x] **Automatic Retrieval**: Automatically download and rename images based on script timestamps.
-- [ ] **Addition to Flexibility**: Be able to optionally select files in folders, swapping models.
+- [x] **Utility Classes**: Simplify the code exhibition by separating what must be considered as an utility and helper action.
+- [x] **Addition to Flexibility**: Be able to optionally select files in folders, swapping models.
 - [ ] **Simple UI**: Easy to use UI for quickly configuring options and generating images.
