@@ -45,7 +45,9 @@ def main() -> None:
         comfy_fs.load_workflow_json() # ENTER THE NAME OF YOUR COMFYUI JSON FILE HERE!
 
         current_workflow: dict[str, Any] | None = comfy_fs.current_workflows_data
-        MASTER_STYLE, MASTER_NEGATIVE = comfy_fs.load_prompts("positive_prompt.txt", "negative_prompt.txt")
+
+        script_list: list[str] = comfy_fs.load_video_script() # ENTER THE NAME OF YOUR SCRIPT FILE HERE!
+        MASTER_STYLE, MASTER_NEGATIVE = comfy_fs.load_prompts("positive_prompt.txt", "negative_prompt.txt") # ENTER THE POSITIVE AND NEGATIVE PROMPT FILES HERE!
 
         if current_workflow is None:
             raise WorkflowNotDefinedError("The workflow cannot be of type 'None'")
@@ -72,14 +74,17 @@ def main() -> None:
             width = width if width is not None else MediaUtils.WIDTH
             height = height if height is not None else MediaUtils.HEIGHT
 
+        steps: int = 20 # ENTER THE STEPS VALUE HERE!
+        cfg: float = 8 # ENTER THE CFG VALUE HERE!
+        seed: int = -1 # ENTER THE SEED VALUE HERE!
+
+        if seed == -1:
+            seed = generate_random_seed()
+
         print("=================== 2. The Dynamic Loop Orchestration ===================")
 
-        script_list: list[str] = comfy_fs.load_video_script() # ENTER THE NAME OF YOUR SCRIPT FILE HERE!
         for line in script_list:
-
-            new_seed: int = generate_random_seed()
             current_timestamp, scene_description = format_timestamp_line(line)
-
             full_positive_prompt: str = format_positive_prompt(MASTER_STYLE, scene_description)
 
             ready_graph = (
@@ -87,7 +92,9 @@ def main() -> None:
                     .update_checkpoint_model(MODEL, available_checkpoints)
                     .update_positive_prompt(full_positive_prompt)
                     .update_negative_prompt(MASTER_NEGATIVE)
-                    .update_seed(new_seed)
+                    .update_seed(seed)
+                    .update_steps(steps)
+                    .update_cfg(cfg)
                     .update_resolution(width, height)
                     .current_payload
             )

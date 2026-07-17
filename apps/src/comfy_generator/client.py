@@ -333,6 +333,9 @@ class ComfyUIClient:
         except Exception as e:
             print(f"Unable to sync model registry from server: {e}")
             return []
+    
+    def get_available_sampler_names(self):
+        pass
 
     """Getter and Setter Methods"""
 
