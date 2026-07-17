@@ -1,6 +1,6 @@
 from __future__ import annotations
 import copy
-from typing import Any, Final, Literal
+from typing import Any, Final
 
 class PayloadManager:
     """
@@ -233,6 +233,9 @@ class PayloadManager:
         or in the hard drive.
         """
 
+        if not isinstance(target_model, str):
+            raise ValueError(f"Invalid data type for the 'target_model' value. Expected the type 'int', but got {type(target_model)}")
+
         if not target_model:
             raise ValueError("Target model filename cannot be empty.")
         
@@ -358,7 +361,7 @@ class PayloadManager:
             print(f"An unexpected error occurred: {e}")
             return self
         
-    # def update_sampler(self, sampler_value: Literal["euler", "ddim", "heun", "dpmpp_2m_karras"]) -> "PayloadManager":
+    def update_sampler(self, target_sampler: str, available_samplers: list[str]) -> "PayloadManager":
         """
         Updates the specific mathematical algorithm used to calculate *how* noise
         is stripped away at every step.
@@ -376,21 +379,45 @@ class PayloadManager:
         
         <h3>Parameters:</h3>
 
-        - **sampler_value:** The new sampler value which will be inserted to the
+        - **target_sampler:** The new sampler value which will be inserted to the
         newest workflows API.
 
         <h4>Breakdown of the process:</h4>
 
-        1. Validate if the `sampler_value` is valid.
-        2. Attempts to alter the "sampler_value" key-value by traveling through
+        1. Validate if `target_sampler` and `available_samplers` are valid.
+        2. Attempts to alter the "sampler_name" key-value by traveling through
         the nested dictionary.
         3. Returns `self` (the updated object) whether or not the operation was
         successful.
 
         <h3>Throws:</h3>
 
-        - **ValueError:** If the given `sampler_value` is invalid.
+        - **ValueError:** If the given `target_sampler` is invalid.
         """
+
+        if not target_sampler:
+            raise ValueError("Target sampler filename cannot be empty.")
+
+        if not isinstance(target_sampler, str):
+            raise ValueError(f"Invalid data type for the 'sampler_name' value. Expected the type 'int', but got {type(target_sampler)}")
+        
+        if target_sampler not in available_samplers:
+            raise ValueError(
+                f"❌ Sampler Allocation Failure: '{target_sampler}' is not supported by your local ComfyUI version."
+                f"Please select a different sampler or check your spelling."
+            )
+
+        try:
+            self.__current_payload[self.CHECKPOINT_MODEL_NODE]["inputs"]["sampler_name"] = target_sampler
+            return self
+
+        except KeyError as e:
+            print(f"One of the keys for sampler name node is missing! {e}")
+            return self
+        
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            return self
 
     """Getter Methods"""
 

@@ -309,6 +309,10 @@ class ComfyUIClient:
         3. Digs deep into the Checkpoint Loader definition fields.
         4. Claims and returns the list of models (ComfyUI structures the file
         dropdown options as the first element from a list).
+
+        <h3>Throws:</h3>
+
+        - **ServerOfflineException:** If the server connection if off.
         """
 
         if not self.__is_connected:
@@ -320,7 +324,7 @@ class ComfyUIClient:
             current_status_code: int = response.status_code
 
             if current_status_code == 200:
-                data = response.json()
+                data: dict[str, dict] = response.json()
 
                 loader_info = data.get("CheckpointLoaderSimple", {})
                 input_info = loader_info.get("input", {})
@@ -334,8 +338,47 @@ class ComfyUIClient:
             print(f"Unable to sync model registry from server: {e}")
             return []
     
-    def get_available_sampler_names(self):
-        pass
+    def get_available_sampler_names(self) -> list[str]:
+        """
+        Queries ComfyUI's object registry to fetch all of the available sampler
+        names with the particular model.
+
+        <h4>Breakdown of the process</h4>
+
+        1. Sets up the target endpoint, where the `url` is ComfyUI's GET endpoint
+        called '/object_info' (for retrieving all available catalogs of every node,
+        its valid data inputs, and the list of all installed `.safetensors` files.
+        2. Execute a HTTP GET request to fetch the sampler names.
+        3. Digs deep into the KSampler node definition fields.
+        4. Claims and returns the list of sampler names.
+
+        <h3>Throws:</h3>
+
+        - **ServerOfflineException:** If the server connection if off.
+        """
+
+        if not self.__is_connected:
+            raise ServerOfflineException(f"Unable to view checkpoints, thus the server is offline.")
+        
+        url: str = f"{self.__base_http_url}/object_info"
+        try:
+            response = requests.get(url, timeout=self.REQUEST_TIMEOUT_SECONDS)
+            current_status_code: int = response.status_code
+
+            if current_status_code == 200:
+                data: dict[str, dict] = response.json()
+
+                ksampler_info = data.get("KSampler", {})
+                input_info = ksampler_info.get("input", {})
+                required_info = input_info.get("required", {})
+
+                sampler_list: list[str] = required_info.get("sampler_name", [[]])[0]
+
+            return []
+
+        except Exception as e:
+            print(f"Unable to sync model registry from server: {e}")
+            return []
 
     """Getter and Setter Methods"""
 
