@@ -4,7 +4,7 @@
 
 This directory contains the automated tools designed to simply the generation of images on the fly. The primary application is a **ComfyUI Image Generator** that interacts with a local AI instance to generate custom visual assets programmatically.
 
-**Status:** Completed & Stable (Production ready)
+**Status:** Backend implemented; desktop UI pending. Repository governance foundation is under review (2026-10-20). End-to-end GUI readiness has not been demonstrated.
 
 **License:** This repository is licensed under the GNU General Public License v3 (GPLv3). See the [License](License) file for the full text.
 
@@ -116,7 +116,24 @@ Other notable files and folders:
 
 Testing and CI:
 
-- There are no automated tests or CI configuration included yet. Adding `pytest` tests for error paths (file not found, invalid platform, setters) is recommended.
+- Automated test files exist, including local changes awaiting their own review. Some client tests require a running ComfyUI server; they are not an offline suite. No CI configuration is included yet. Test coverage and isolation remain work items.
+
+### 🧭 Work Management
+
+**Work follows documented requirements, small tasks, verification, and independent review.** Start with [AGENTS.md](AGENTS.md), [project state](docs/estado.md), and the [task board](docs/tarefas.md).
+
+| Phase | Deliverable | Current status |
+| :--- | :--- | :--- |
+| A — Foundation | Codex instructions, agent roles, skills, memory, PR tooling | Under review |
+| B — Specification | GUI acceptance criteria, decisions, technical plan | Not opened |
+| C — Implementation | Approved tasks, tests, independent review | Not opened |
+| D — Verification | Demonstrated local ComfyUI workflow | Not opened |
+
+- `docs/` contains reviewed project memory and decisions; `documents/` remains local and ignored.
+- `.codex/agents/` defines five roles; `.agents/skills/` contains project procedures. Agent scratch memory is ignored by Git.
+- Commits, branch pushes and PR creation follow verification and independent review. The repository owner performs merges.
+- Python requirements currently differ: this README states 3.10+, while `apps/pyproject.toml` requires 3.14+. Resolving compatibility and adding the GUI dependency are specification work items.
+- The four GUI module files exist but are empty. The current tasks below remain pending.
 
 ### Architecture & Design Patters:
 
