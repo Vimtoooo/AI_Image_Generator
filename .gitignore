@@ -60,3 +60,11 @@ pip-wheel-metadata/
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Agent scratch memory and optional repository map
+.codex/agent-memory/
+graphify-out/
+
+# Local model weights
+*.safetensors
+*.ckpt
