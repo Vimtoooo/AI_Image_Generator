@@ -31,5 +31,12 @@ interface desktop ou CI. Não há evidência de conclusão dos critérios futuro
 ## Publicação isolada
 
 A main local inclui 620feea, ainda ausente da main remota 4dd9187, conferida com
-`git ls-remote`. A publicação usará worktree temporário baseado em origin/main e
-receberá somente commits da fundação, preservando a árvore original e o commit anterior.
+`git ls-remote`. A publicação usou worktree temporário baseado em origin/main e
+recebeu somente commits da fundação, preservando a árvore original e o commit anterior.
+
+Revisor confirmou `git range-diff` equivalente para os dois commits revisados,
+ausência de 620feea na ancestralidade e diff vazio em apps/ e assets/. Push concluído;
+[PR #1](https://github.com/Vimtoooo/AI_Image_Generator/pull/1) criado pelo agente.
+Durante o encerramento, `gh pr view` confirmou merge pelo responsável em
+2026-10-20T20:49:33Z, commit 8e6115baa27b61ae55da240572b898dd82751a07.
+O agente não realizou merge; a fase B continua aguardando instrução.
