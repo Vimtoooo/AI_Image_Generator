@@ -1,56 +1,63 @@
-# Produto: geração local de imagens
+# Product: local image generation
 
-Status: fundação em revisão, 2026-10-20. Origem: [pedido aprovado](origem.md) e seções **Current Tasks** e **Future Roadmap** do [README](../README.md). Este PRD registra intenção; não substitui as especificações da Fase B.
+Status: foundation merged; Phase B authorized on 2026-10-20. Sources: [approved request](origin.md) and **Current Tasks** and **Future Roadmap** in the [README](../README.md). This PRD records product intent; Phase B specifications define its detailed behavior.
 
-## Problema e objetivo
+Translation and naming update, 2026-10-21: English documentation and filenames were requested by the user. Historical decisions and dates are preserved.
 
-Quem prepara imagens para roteiros precisa configurar arquivos e parâmetros, acompanhar a execução e identificar falhas sem conduzir manualmente cada geração. A automação existente oferece a base desse fluxo; a interface descrita nas pendências ainda precisa ser especificada e implementada.
+## Problem and objective
 
-O objetivo é permitir configurar a geração e acompanhar seu resultado em uma janela responsiva, usando os recursos locais do computador. Critério de pronto do produto: a pessoa seleciona os arquivos e o modelo, inicia a geração, acompanha progresso e mensagens e obtém as imagens correspondentes, mantendo a janela utilizável.
+People preparing images for scripts need to configure files and parameters, follow execution and identify failures without manually managing every generation. Existing automation provides the foundation for this flow; the pending interface still needs implementation.
 
-## Público e visibilidade
+The objective is to configure generation and follow its results in a responsive window using the computer's local resources. Product completion means the operator selects files and a model, starts generation, follows progress and messages, and obtains the corresponding images while the window remains usable.
 
-O papel previsto é o de operador local, responsável pelo roteiro, pela escolha do modelo e pelas imagens geradas. Ele vê a configuração da execução, seu andamento e seus erros. Não há requisito de compartilhamento, múltiplos perfis ou painel remoto.
+## Audience and visibility
 
-## Escopo e fontes
+The intended role is a local operator responsible for the script, model selection and generated images. The operator sees execution settings, progress and errors. There is no requirement for sharing, multiple access roles or a remote dashboard.
 
-| Capacidade | Fonte |
+## Scope and sources
+
+| Capability | Source |
 |---|---|
-| Selecionar arquivos de roteiro e configuração da geração | README, Current Tasks, painel de configuração |
-| Escolher entre os modelos disponíveis localmente | README, Current Tasks, lista de checkpoints |
-| Informar ajustes manuais de prompt, proporção e semente | README, Current Tasks, entradas manuais |
-| Ver mensagens e progresso durante a execução | README, Current Tasks, painel de logs |
-| Interagir com a janela enquanto a geração ocorre | README, Current Tasks, processamento em segundo plano |
-| Integrar os painéis em uma janela principal | README, Current Tasks, janela principal |
+| Select script files and generation configuration | README, Current Tasks, configuration panel |
+| Choose among locally available models | README, Current Tasks, checkpoint dropdown |
+| Enter manual prompt, aspect-ratio and seed adjustments | README, Current Tasks, manual inputs |
+| Read messages and progress during execution | README, Current Tasks, log panel |
+| Interact with the window while generation runs | README, Current Tasks, background processing |
+| Combine the panels in a main window | README, Current Tasks, window shell |
 
-Não fazem parte desta entrega de fundação: implementação dessas capacidades, treinamento ou download de modelos, serviço hospedado, banco de dados, login, publicação de imagens e alteração de documentos pessoais. A documentação de gestão é em português; o README conserva seu idioma e conteúdo, com correções pontuais de estado.
+The foundation delivery excludes implementation of these capabilities, model training or downloads, hosted services, databases, login, image publication and changes to personal documents. Management documentation was originally specified in Portuguese; the user replaced that language choice with English in an instruction received 2026-10-20 and applied 2026-10-21. The README remains in English, with targeted corrections.
 
-## Sucesso e evidências
+## Success and evidence
 
-Na Fase A, sucesso significa ter instruções, perfis, skills, memória, decisões e rotina de revisão coerentes, com verificações registradas e revisão independente antes da publicação da branch. A aprovação humana da estrutura encerra a fase.
+Phase A success requires coherent instructions, profiles, skills, memory, decisions and review procedures, with recorded checks and independent review before branch publication. Human approval of the structure closes that phase.
 
-Para o produto, a Fase B deve converter cada capacidade da tabela em critérios observáveis `CA-NN.M`, cobrindo sucesso, falha e responsividade. A Fase D deve demonstrar o fluxo completo local e registrar evidência por critério. Nenhum critério do produto está declarado atendido por este documento; tempos e limites quantitativos serão definidos na especificação.
+Phase B converts each capability into observable `CA-NN.M` criteria covering success, failure and responsiveness. Phase D must demonstrate the complete local flow and record evidence for each criterion. This document does not declare any product criterion implemented; quantitative limits belong in the specifications.
 
-## Dados e restrições
+## Data and constraints
 
-Exemplos e testes novos usam dados fictícios. Não versionar segredos, documentos pessoais, checkpoints ou imagens geradas. Não ler arquivos de ambiente ou conteúdo sensível para completar a documentação. A execução local não elimina o cuidado com nomes e conteúdo de roteiros, logs e imagens; a fundação não é uma certificação de conformidade com a LGPD.
+New examples and tests use fictional data. Do not version secrets, personal documents, checkpoints or generated images. Do not read environment files or sensitive content to complete documentation. Local execution still requires care with names and script, log and image content; the foundation does not certify compliance with Brazil's LGPD.
 
-## Riscos
+## Risks
 
-| Risco observado | Consequência | Resposta |
+| Observed risk | Consequence | Response |
 |---|---|---|
-| README apresenta estado mais completo que os arquivos da interface | Planejamento baseado em funcionalidade inexistente | Corrigir a descrição e manter backlog explícito |
-| Requisitos de instalação divergem | Ambiente difícil de reproduzir | Avaliar versões e dependências na Fase B |
-| Parte dos testes depende de serviço local | Resultado variável ou execução bloqueada | Separar evidência isolada de integração, sem alegar aprovação não observada |
-| Memória auxiliar contém decisões sem revisão | Continuidade incorreta | Promover decisões duráveis para documentação revisada |
+| README describes a more complete product than the interface files provide | Planning around unavailable functionality | Correct the description and keep the backlog explicit |
+| Installation requirements differ | Environment is hard to reproduce | Evaluate versions and dependencies in Phase B |
+| Some tests depend on a local service | Variable results or blocked execution | Separate isolated checks from integration evidence; never claim an unobserved pass |
+| Auxiliary memory contains unreviewed decisions | Incorrect continuity | Promote durable decisions to reviewed documentation |
 
-## Perguntas abertas
+## Questions and recorded answers
 
-1. Quais valores, validações e limites devem existir nas entradas manuais? Responsável: responsável pelo produto, durante a Fase B, após proposta fundamentada no fluxo atual.
-2. Como a interface deve comunicar indisponibilidade, interrupção e falha de geração? Responsável: responsável pelo produto, durante a Fase B.
+1. What values, validation rules and limits should manual inputs have? Owner: product owner during Phase B, after a proposal grounded in the current flow.
 
-Essas questões não bloqueiam a fundação. Quando houver alternativas concretas, registrar os blocos em [ratificações](ratificacoes.md), mantendo as perguntas e acrescentando respostas datadas.
+   Answer recorded by the principal from explicit user choices on 2026-10-20: R-B.4 defines a global positive prompt combined with the scene description and a global negative prompt; R-B.7 defines a new random seed for each scene when the value is -1, or the same fixed seed for every scene; R-B.8 defines UTF-8 TXT scripts with timestamps and multiline descriptions. These decisions are reflected in [configuration specification](specs/01-configuration.md) and [execution specification](specs/02-execution.md). Other numerical limits and presentation choices remain subject to the corresponding specifications and ratifications; these answers do not imply approval of every input constraint.
 
-## O que precisa ir para a fonte
+2. How should the interface communicate unavailability, interruption and generation failures? Owner: product owner during Phase B.
 
-Não há alteração solicitada aos três prompts externos. Adaptações locais ficam no ADR-0002. Novos requisitos de produto devem voltar ao README e às especificações após aprovação, sem editar silenciosamente a origem histórica.
+   Answer recorded by the principal from explicit user choices on 2026-10-20: R-B.3 stops after completing and saving the current scene without a global server interrupt. R-B.6 stops the batch at its first failure, identifies the scene and cause, preserves saved files, and does not automatically resubmit or announce batch completion. R-B.5 places results in a selected folder with a unique batch subfolder, avoiding overwrites. See [execution](specs/02-execution.md), [interface feedback](specs/03-interface-feedback.md) and the [ratification record](ratifications.md). Wait limits and detailed presentation require their own decisions.
+
+These questions did not block the foundation. Preserve them and their dated answers; record concrete remaining alternatives in [ratifications](ratifications.md).
+
+## What needs to return to the source
+
+No changes have been requested to the three external prompts. Local adaptations belong in ADR-0002. Approved product requirements must be reflected in the README and specifications without silently rewriting the historical origin.

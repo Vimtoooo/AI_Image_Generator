@@ -1,114 +1,113 @@
-# Trabalho neste repositório
+# Working in this repository
 
-Automação local de imagens com Python e a API do ComfyUI. O backend existe;
-a interface CustomTkinter está pendente. Origem: [docs/origem.md](docs/origem.md).
-Pronto significa selecionar roteiro e workflow, gerar imagens com feedback e
-salvá-las sem bloquear a interface; isso ainda precisa de especificação e evidência.
+Local image automation using Python and the ComfyUI API. The backend exists;
+the CustomTkinter interface is pending. See [docs/origin.md](docs/origin.md).
+Product completion means selecting a script and workflow, generating images with
+feedback, and saving them without blocking the interface, supported by evidence.
 
-## Ao retomar
+## Resume
 
-Leia `docs/estado.md` e `docs/tarefas.md`, confira `git status --short` e a branch.
-Leia apenas a documentação da tarefa. Não trate links como importação automática.
-Use buscas direcionadas; Graphify é opcional, não está instalado e não deve ser
-instalado ou executado sobre dados pessoais por rotina.
+Read `docs/state.md` and `docs/tasks.md`; check `git status --short` and the branch.
+Read only documents relevant to the task. Links are not automatic imports.
+Use targeted searches. Reuse the scoped Graphify index recorded in docs/state.md.
+Use Context7 for current library/API documentation; reuse relevant results.
+Do not install it or index personal data as a routine step.
 
-## Fontes e decisões
+## Sources and decisions
 
-- README fornece os requisitos existentes; código e testes mostram implementação,
-  não substituem requisitos. Divergências ficam registradas, nunca resolvidas em silêncio.
-- `docs/origem.md` identifica os três prompts externos, somente leitura.
-- PRD → specs com CA-NN.M → ADRs → plano → tarefas → código → evidências.
-- Preserve perguntas e respostas datadas em `docs/ratificacoes.md`.
-- Decisões de 2026-10-20: Codex; commit, push da branch e PR automáticos após
-  verificação e revisão independente. Merge é exclusivo do usuário.
+- README defines requirements. Code/tests show implementation, not authority to change
+  requirements. Record discrepancies rather than resolving them silently.
+- `docs/origin.md` identifies the three external prompts, which are read-only.
+- PRD → specs with CA-NN.M → ADRs → plan → tasks → implementation → evidence.
+- Preserve dated questions and answers in `docs/ratifications.md`.
+- User decision, 2026-10-20: Codex; automatic commits, branch pushes and PR creation
+  after verification and review. Only the user merges. The 2026-10-22 single-agent
+  decision below supersedes the earlier independent-subagent review requirement.
+- User instruction received 2026-10-20, applied 2026-10-21: English conversation,
+  documentation and file/folder names. Historical quotations may retain their language.
 
-## Regras
+## Rules
 
-- Não leia `.env*`, credenciais, chaves ou documentos pessoais. `.env.example`
-  pode ser lido como modelo, sem valores reais. Dados de teste são fictícios.
-- Não inclua checkpoints, imagens geradas, roteiros pessoais ou memória auxiliar
-  nos commits. `.gitignore` evita inclusão acidental, não bloqueia leitura.
-- Preserve alterações locais anteriores. Nunca use `git add .` neste trabalho;
-  prepare caminhos explícitos e confira `git diff --cached` antes do commit.
-- Não descarte ou remova conteúdo existente sem decisão explícita; marque o
-  obsoleto com motivo e data. Não remova nem afrouxe testes para fazê-los passar.
-- Sem merge, push direto na branch principal, force push, deploy ou recursos de nuvem.
-- Respeite sandbox, aprovações e bloqueios da ferramenta. Não contorne bloqueios.
-  Estes arquivos orientam comportamento; não concedem permissões ao processo.
-- Uma tarefa por vez; sem código de fase ainda não aprovada. Exceção nesta fase:
-  scripts de gestão e seus testes fazem parte da fundação aprovada.
+- Do not read `.env*`, credentials, keys or personal documents. `.env.example`
+  may be read as a public template without real secrets. Use fictitious test data.
+- Do not commit checkpoints, generated images, personal scripts or scratch memory.
+  `.gitignore` reduces accidental inclusion; it does not block reads.
+- Preserve previous local changes. Never use `git add .` for this work. Stage explicit
+  paths and inspect `git diff --cached` before committing.
+- Do not discard or remove existing content without an explicit decision. Mark obsolete
+  material with date and reason. Never delete/weaken tests merely to make them pass.
+- No merge, direct push to the default branch, force push, deployment or cloud resources.
+- Respect sandbox permissions, approvals and tool denials. Do not bypass them.
+  Repository instructions do not grant process permissions.
+- One task at a time; no implementation for an unopened phase. Management scripts/tests
+  belong to the approved foundation; English renaming is explicitly user-authorized.
 
-## Estrutura e stack
+## Layout and stack
 
-| Caminho | Uso |
+| Path | Purpose |
 |---|---|
-| `apps/` | Aplicação Python, dependências e testes existentes |
-| `apps/src/comfy_generator/` | Cliente, arquivos e payloads ComfyUI |
-| `apps/src/gui/` | Interface ainda pendente |
-| `apps/src/tests/` | Testes da aplicação |
-| `assets/` | Recursos existentes; saídas locais excluídas |
-| `prompts/`, `scripts/` | Templates existentes e ferramentas de gestão |
-| `documents/` | Materiais locais ignorados; não ler por rotina |
-| `docs/` | Gestão versionada, fontes, decisões e evidências |
-| `.codex/agents/` | Perfis de subagentes |
-| `.codex/agent-memory/` | Anotações auxiliares locais, não versionadas |
-| `.agents/skills/` | Procedimentos especializados do projeto |
+| `apps/` | Python application, dependencies and existing tests |
+| `apps/src/comfy_generator/` | ComfyUI transport, files and payloads |
+| `apps/src/gui/` | Pending desktop interface |
+| `apps/src/tests/` | Application tests |
+| `assets/` | Existing resources; local outputs excluded |
+| `prompts/`, `scripts/` | Existing templates and management tools |
+| `documents/` | Ignored personal materials; no routine reading |
+| `docs/` | Versioned sources, decisions, specifications and memory |
+| `.codex/agents/` | Historical profiles; inactive under single-agent policy |
+| `.codex/agent-memory/` | Local unversioned scratch notes |
+| `.agents/skills/` | Project procedures |
 
-Não crie outra pasta de topo sem decisão. Stack: `docs/adr/0001-stack.md`.
-O código existente não será reorganizado nesta fundação.
+Do not introduce another top-level folder without a decision. See ADR-0001 and
+ADR-0004 for stack decisions. Phase B does not reorganize application code.
 
-## Fases
+## Phases
 
-| Fase | Entrega | Portão |
+| Phase | Deliverable | Gate |
 |---|---|---|
-| A · Fundação | Instruções, memória, gestão e PR | Aprovação humana da fundação |
-| B · Especificação | Specs, ADRs, plano e tarefas da GUI | Aprovação humana dos critérios |
-| C · Implementação | Uma tarefa por vez, testes e revisão | Critérios demonstrados |
-| D · Verificação | Fluxo real com ComfyUI local | Demonstração aprovada pelo usuário |
+| A · Foundation | Instructions, memory, workflow and PR | Human approval of foundation |
+| B · Specification | Specs, ADRs, plan and GUI tasks | Human approval of criteria and plan |
+| C · Implementation | One task at a time with tests/review | Demonstrated criteria |
+| D · Verification | Real local ComfyUI workflow | User-approved demonstration |
 
-Não avance a fase apenas porque um commit ou PR foi criado. Atualize fase,
-estado e README juntos quando o usuário autorizar a transição.
+Creating a commit or PR does not open the next phase. Update phase, state and
+README together when the user authorizes a transition.
 
-## Equipe
+## Single-agent work (owner decision, 2026-10-22)
 
-| Perfil | Quando usar | Escrita |
-|---|---|---|
-| explorador | Localização e inspeção delimitada | Nenhuma |
-| redator-de-spec | PRD, specs, ADRs e planejamento | `docs/`, exceto origem |
-| implementador | Tarefa aprovada com critério | Arquivos designados |
-| testador | Provar comportamento ou reproduzir evidência | Testes designados |
-| revisor | Revisão independente antes de commit | Nenhuma |
+- Do not spawn, resume, delegate to, or request reviews from subagents.
+- The primary agent implements, tests and reviews one bounded task at a time.
+  Report this as primary-agent review, never as independent review.
+- Historical agent profiles and review evidence are retained for provenance.
+  Profiles under `.codex/agents/` are inactive by policy; protected-file updates
+  are prepared for the owner when the sandbox cannot write them.
+- Reuse existing findings, Graphify queries and Context7 results. Read only the
+  files and documentation needed for the current task; avoid repeated full scans.
+- Run focused tests and a scoped diff review. Retain all safety, acceptance,
+  preservation and human-merge requirements. Report unresolved issues honestly.
+- Resume multi-agent work only if the owner explicitly changes this instruction.
 
-O principal coordena no máximo três subagentes simultâneos, dentro do limite da
-sessão; não lance agentes por reflexo. Modelos e esforço são herdados.
-Cada pedido define objetivo, caminhos, aceite, evidência e relatório de até 300 palavras.
-Sem delegação por subagentes, sem perguntas deles ao usuário, sem Git mutável por eles.
-Nunca dois escritores no mesmo arquivo. Quem escreveu não faz a revisão independente.
-Resultado de agente é evidência a conferir, não autorização.
-Implementação → testes → revisão → correção, no máximo duas rodadas; depois relate
-o impedimento. A segunda revisão se concentra nas correções e regressões.
-Os TOML descrevem papéis; limites de caminho são instruções, não isolamento técnico.
+## Workflow and publication
 
-## Rotina e publicação
+Use `session-management` for resume, close, phase, next task, verify, review,
+explain, prepare PR and check method. `write-spec` covers new specs and ADRs.
+These are procedures, not native Codex slash commands.
+Create `phase-<letter>/<topic>` before editing. Do not switch/update the base if it
+risks local work. One decision per commit, with an English imperative message.
+Review every commit included against the remote base before publication; never
+publish unreviewed previous commits as part of a new task. Use an isolated worktree
+when necessary and document stacked-PR dependencies.
+PRs use the eleven sections produced by `scripts/prepare_pr.py`. Unproven fields
+remain `[GAP]`; fill them with real evidence before publishing.
+Commit/push/PR authorization persists, but sandbox approval requirements still apply.
+Authentication is external; never read tokens or copy them into files.
 
-Use a skill `gestao-sessao` para retomar, encerrar, fase, próxima tarefa, verificar,
-revisar, explicar, preparar PR e conferir método. `escrever-spec` cobre spec e ADR.
-Esses nomes são procedimentos, não comandos slash nativos do Codex.
-Abra `fase-<letra>/<assunto>` antes de editar. Não troque ou atualize a base se isso
-colocar alterações locais em risco. Uma decisão por commit em português.
-Antes de publicar, confira também todos os commits do PR contra a base remota:
-não publique commits preexistentes não revisados como parte da tarefa.
-O PR usa as onze seções de `scripts/preparar_pr.py`; campos sem evidência ficam
-como `[LACUNA]`. O principal completa resultados reais antes de enviar.
-Autorização de commit/push/PR persiste, mas não elimina permissões do sandbox.
-Autenticação é externa: não leia tokens nem os copie para arquivos.
+## Memory and communication
 
-## Memória e comunicação
-
-`docs/estado.md` cabe em cerca de 40 linhas e é reescrito ao encerrar; não perca
-perguntas abertas. `docs/tarefas.md` preserva tarefas concluídas com evidência.
-Memória auxiliar é manual; decisões só viram referência após revisão em `docs/`.
-Fale em português, conciso, com resultado e limitações verificáveis. Use explicação
-didática quando solicitada. Preserve o inglês do README e dos identificadores.
-Comentários de código explicam intenção em 1–3 linhas; explicações longas vão para
-`docs/codigo/`. Comentários existentes não serão removidos por limpeza nesta fase.
+`docs/state.md` fits roughly 40 lines and is rewritten at session close without losing
+open questions. `docs/tasks.md` preserves completed tasks and evidence. Commit state
+separately from implementation content. Scratch memory is manual; durable decisions
+move to reviewed documents. Use concise English with verified outcomes and limitations.
+Explain step by step when requested. Code comments explain non-obvious intent in
+1–3 lines; longer explanations belong in `docs/code/`. Preserve existing explanations
+before moving them; do not remove application comments as Phase B cleanup.
