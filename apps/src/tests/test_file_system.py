@@ -1,15 +1,14 @@
 
 # BUG: Workspace for testing & debugging 🧪
 
-import sys
+import comfy_generator.file_system as file_system
 import pytest
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from comfy_generator.file_system import FileSystem
-from comfy_generator.exceptions import *
+from comfy_generator.exceptions import InvalidOperatingSystem
 
 def test_invalid_operating_system(monkeypatch):
-    monkeypatch.setattr(sys, "platform", "sunos")
+    monkeypatch.setattr(file_system, "platform", "sunos")
     with pytest.raises(InvalidOperatingSystem):
         FileSystem()
 
@@ -28,7 +27,7 @@ def test_load_video_script_file_not_found(tmp_path):
 
 def test_system_setter_raises():
     fs = FileSystem()
-    with pytest.raises(ValueError):
+    with pytest.raises(AttributeError):
         fs.system = "win32" # type: ignore
 
 def test_current_workflows_data_setter_type_check():
