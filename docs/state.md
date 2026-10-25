@@ -3,19 +3,19 @@ Updated: 2026-10-24. Sources and prompt hashes: docs/origin.md.
 
 ## Current position
 - Phase B approved; Phase C authorized 2026-10-21. Phase D remains closed.
-- T01-T10 complete. T10 primary-agent review passed; no subagents.
-- Branch: phase-c/log-panel, based on origin/main 604a426; clean initial tree.
+- T01-T11 complete. T11 primary-agent review passed; no subagents.
+- Branch: phase-c/window-launch; T11 3782269 on reviewed T10 6f0c6bd.
 - T09 e070fba verified in main via PR #10; older merge-target warnings resolved.
-- T10 evidence: docs/code/configuration/t10-feedback-validation.md.
-- Final focused suite: 25 passed; earlier combined suite: 248 passed.
+- T11 evidence: docs/code/configuration/t11-window-validation.md.
+- T11: 16 window tests and 6 CLI tests passed; T10 evidence retained.
 - Combined Tk timer warnings recorded; focused fresh-process run clean.
-- Stop after T10. T11 starts in a NEW chat, one completed task per chat.
+- Owner authorized T11-T13 in this chat; update state after each task.
 
 ## Next-session handoff
-- Check status/branch and fetch origin; verify T10 ancestry before choosing a base.
-- Read T11 plan entry, SPEC-03, T08/T09/T10 integration contracts and relevant skills.
-- T11 owns main_window.py, gui/__init__.py, main.py and entrypoint/window tests.
-- Assemble configuration, feedback, controls and catalog; preserve existing CLI.
+- PR #11 (T10) remains a dependency; main is 604a426. Owner merges only.
+- Read T12 plan entry and specs; T08-T11 evidence records integration contracts.
+- T12 next: offline full-window/worker integration, races and visible GUI checks.
+- Window assembled; launch via python src/main.py --gui; no args retains CLI.
 - After controller.start(config) returns ID, call panel.start_run(id, scene count).
 - Route on_event to panel.on_event; on_error to panel.show_error.
 - Call panel.show_stopping on first acknowledged Stop; host owns window states.
@@ -24,7 +24,7 @@ Updated: 2026-10-24. Sources and prompt hashes: docs/origin.md.
 - Bind request_catalog(id, url, deliver); monotonic IDs, Tk-thread delivery.
 - close(on_closed) keeps draining; destroy Tk only in on_closed. No UI-thread join.
 - Queue defaults: 256 envelopes, 64 events/tick, 20ms poll; overflow gets a notice.
-- Later: T12 integration/GUI, T13 delivery; Phase D requires authorization.
+- After T12, record state then T13 delivery; Phase D requires authorization.
 
 ## Publication and working policy
 - Automatic reviewed commits, feature-branch pushes and PR creation authorized.
@@ -42,5 +42,5 @@ Updated: 2026-10-24. Sources and prompt hashes: docs/origin.md.
 - Endpoint http://127.0.0.1:8188/; C:\AI\ComfyUI_windows_portable\run_nvidia_gpu.bat.
 - Last 2026-10-22 startup met connection refusal; live T04 catalog unverified.
 - Shutdown is cooperative with finite transport waits, not hard I/O cancellation.
-- CLI MediaUtils binding remains T11; manual server tests are not acceptance evidence.
+- CLI MediaUtils binding fixed; manual server tests are not acceptance evidence.
 - Visible layout/dialogs/SVG, feedback flood throughput and real generation unverified.
