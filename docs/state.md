@@ -4,14 +4,15 @@ Updated: 2026-10-24. Sources and prompt hashes: docs/origin.md.
 ## Current position
 - Phase B approved; Phase C authorized by owner on 2026-10-21. Phase D remains closed.
 - T01-T09 complete. T09 primary-agent review passed; no subagents.
-- Branch: phase-c/worker-lifecycle-implementation, based on complete stack df0ed2d.
+- Handoff branch: phase-c/t09-handoff; T09 implementation e070fba, previous handoff 83f3578.
 - Evidence: 226 offline application tests (20 T09) and 7 management tests passed.
 - Real withdrawn Tk heartbeat: 50 samples / 5s, max 0.103s with simulated batch/catalog I/O.
 - Stop after T09; T10 starts in a NEW chat under one-completed-task-per-chat policy.
 
 ## Next-session handoff
-- Read AGENTS.md, state/tasks, T10 plan entry, SPEC-03 and T09 worker evidence.
-- T10 owns gui/log_panel.py and tests/test_log_panel.py: read-only logs, real progress, summaries.
+- First check git status/branch, fetch origin, and verify T09 reached main before choosing the T10 base; preserve local changes.
+- Read AGENTS.md, state/tasks, T10 plan entry, SPEC-03 and T09 worker evidence; use build-interface/session-management skills.
+- T10 owns apps/src/gui/log_panel.py and apps/src/tests/test_log_panel.py: read-only logs, 2,000-line limit, preserved summaries and real progress.
 - WorkerController(root, on_event, on_error=...); start(config) returns ID or None when busy/closing.
 - busy clears only after terminal delivery AND observed exit; runner alone emits terminal.
 - Bind request_catalog(id, url, deliver) to panel; monotonic IDs per controller, delivery on Tk thread.
@@ -21,11 +22,11 @@ Updated: 2026-10-24. Sources and prompt hashes: docs/origin.md.
 - Contracts/limits: docs/code/configuration/t09-worker-validation.md; T07 retains runner races.
 
 ## Publication and working policy
-- PRs #3-#7 are merged, but #4-#7 targeted predecessor branches; main is still 5572042 (#3).
-- Recovery PR #8: https://github.com/Vimtoooo/AI_Image_Generator/pull/8 targets main.
-- Merge #8 first; then retarget the T09 PR from phase-c/configuration-publication to main.
+- Verified: PR #8 merged into main at 8f90ae3; T01-T08 and preserved earlier work now reached main.
+- PR #9 is merged into phase-c/configuration-publication, NOT main; T09 commits e070fba/83f3578 are still absent from main.
+- Owner must merge the phase-c/t09-handoff PR targeting main to deliver T09 and this correction; verify ancestry, not just the merged badge.
 - Owner merges only. No force-push/default-branch push; original local branches remain intact.
-- T09 PR #9: https://github.com/Vimtoooo/AI_Image_Generator/pull/9; prior PR-open statements are historical.
+- Prior PRs: https://github.com/Vimtoooo/AI_Image_Generator/pull/8 and /pull/9. Older open/merge-order notes in tasks/evidence are historical.
 - Automatic reviewed commits/pushes/PRs authorized; sandbox approvals still apply.
 - English names/docs/conversation; primary-agent review only (owner decision 2026-10-22).
 - Five .codex/agents profiles archived as .toml.disabled; ignored skill backups retained.
