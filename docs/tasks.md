@@ -1,5 +1,10 @@
 # Task board
 
+Latest update, 2026-10-25 (T12): 287 offline application tests and 7 management
+tests pass. Full-window integration found and corrected a timer-teardown issue.
+All 53 criteria have an evidence mapping. Visible/native GUI verification remains
+blocked by the unavailable desktop-control helper; T12 and T13 are not complete.
+
 Latest update, 2026-10-24 (T11): window assembly and CLI-compatible launch complete.
 Owner authorized completing remaining Phase C tasks in this chat, updating state
 after each task; earlier new-chat requirements are superseded. T12 is next.
@@ -67,7 +72,7 @@ The status table below distinguishes completed implementation from planned work.
 | T09 | T08 | Workers, queues, stale-event control and shutdown | done - [T09 evidence](code/configuration/t09-worker-validation.md); 20 worker / 226 combined tests, primary-agent review passed |
 | T10 | T09 | Read-only logs, real progress and summaries | done - [T10 evidence](code/configuration/t10-feedback-validation.md); 25 focused tests, primary-agent review passed |
 | T11 | T10 | Main window, catalog wiring and CLI-compatible launch | done - [T11 evidence](code/configuration/t11-window-validation.md); 16 window / 6 CLI tests, primary-agent review passed |
-| T12 | T11 | Offline integration, races and real GUI interaction checks | todo |
+| T12 | T11 | Offline integration, races and real GUI interaction checks | in progress - [T12 evidence](code/configuration/t12-integration-validation.md); 287 offline tests passed; native desktop connection blocks visible checks |
 | T13 | T12 | Evidence review, documentation and delivery PR | todo |
 
 The owner approved Phase B and authorized Phase C on 2026-10-21, then created

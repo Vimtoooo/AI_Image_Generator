@@ -135,6 +135,11 @@ class MainWindow(ctk.CTk):
         if self._sync_id is not None:
             self.after_cancel(self._sync_id)
             self._sync_id = None
+        # This root owns its interpreter and both workers have exited. Cancel
+        # pending CTk timers without deleting commands owned by child widgets;
+        # their destroy methods still own command cleanup.
+        for timer in self.after_info():
+            self.tk.call("after", "cancel", timer)
         self.destroy()
 
 
