@@ -1,5 +1,11 @@
 # Task board
 
+Latest update, 2026-10-24 (T10): feedback panel complete; 25 focused tests pass.
+Combined run passed 248 tests before three additional runner-stream checks passed
+in the focused suite. See [T10 evidence](code/configuration/t10-feedback-validation.md).
+PR #10 delivered T09 to main (604a426); older merge warnings below are historical.
+T11 is next in a new chat. Phase D remains closed.
+
 Update, 2026-10-24 (T09): worker lifecycle is complete; 20 focused worker tests
 and 226 combined offline application tests passed. Seven management tests passed.
 See [T09 evidence](code/configuration/t09-worker-validation.md). T10 is next in a
@@ -55,7 +61,7 @@ The status table below distinguishes completed implementation from planned work.
 | T07 | T06 | Serial runner, per-scene seeds and cooperative Stop | done - [T07 evidence](code/configuration/t07-runner-validation.md); 174 combined tests, primary-agent review passed |
 | T08 | T07 | Configuration panel and testable catalog boundary | done - [T08 evidence](code/configuration/t08-panel-validation.md); 201 combined tests, primary-agent review passed |
 | T09 | T08 | Workers, queues, stale-event control and shutdown | done - [T09 evidence](code/configuration/t09-worker-validation.md); 20 worker / 226 combined tests, primary-agent review passed |
-| T10 | T09 | Read-only logs, real progress and summaries | todo |
+| T10 | T09 | Read-only logs, real progress and summaries | done - [T10 evidence](code/configuration/t10-feedback-validation.md); 25 focused tests, primary-agent review passed |
 | T11 | T10 | Main window, catalog wiring and CLI-compatible launch | todo |
 | T12 | T11 | Offline integration, races and real GUI interaction checks | todo |
 | T13 | T12 | Evidence review, documentation and delivery PR | todo |
