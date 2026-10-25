@@ -1,5 +1,9 @@
 # Task board
 
+Latest update, 2026-10-24 (T11): window assembly and CLI-compatible launch complete.
+Owner authorized completing remaining Phase C tasks in this chat, updating state
+after each task; earlier new-chat requirements are superseded. T12 is next.
+
 Latest update, 2026-10-24 (T10): feedback panel complete; 25 focused tests pass.
 Combined run passed 248 tests before three additional runner-stream checks passed
 in the focused suite. See [T10 evidence](code/configuration/t10-feedback-validation.md).
@@ -62,7 +66,7 @@ The status table below distinguishes completed implementation from planned work.
 | T08 | T07 | Configuration panel and testable catalog boundary | done - [T08 evidence](code/configuration/t08-panel-validation.md); 201 combined tests, primary-agent review passed |
 | T09 | T08 | Workers, queues, stale-event control and shutdown | done - [T09 evidence](code/configuration/t09-worker-validation.md); 20 worker / 226 combined tests, primary-agent review passed |
 | T10 | T09 | Read-only logs, real progress and summaries | done - [T10 evidence](code/configuration/t10-feedback-validation.md); 25 focused tests, primary-agent review passed |
-| T11 | T10 | Main window, catalog wiring and CLI-compatible launch | todo |
+| T11 | T10 | Main window, catalog wiring and CLI-compatible launch | done - [T11 evidence](code/configuration/t11-window-validation.md); 16 window / 6 CLI tests, primary-agent review passed |
 | T12 | T11 | Offline integration, races and real GUI interaction checks | todo |
 | T13 | T12 | Evidence review, documentation and delivery PR | todo |
 
