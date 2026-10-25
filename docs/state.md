@@ -3,11 +3,11 @@ Updated: 2026-10-25. Sources and prompt hashes: docs/origin.md.
 
 ## Current position
 - Phase B approved; Phase C authorized 2026-10-21. Phase D remains closed.
-- T01-T11 complete. T11 primary-agent review passed; no subagents.
+- T01-T12 complete. T12 primary-agent review passed; no subagents.
 - Branch: phase-c/window-launch; T11 3782269 on reviewed T10 6f0c6bd.
 - T09 e070fba verified in main via PR #10; older merge-target warnings resolved.
 - T11 evidence: docs/code/configuration/t11-window-validation.md.
-- T12 automated work committed at a120472; visible checks still pending.
+- T12 automated work at a120472 plus all 13 owner-reported manual checks passed.
 - Final T12 verification: 287 application tests and 7 management tests passed.
 - Each module ran in isolation with no stderr; full-window heartbeat max 0.102s.
 - Owner authorized T11-T13 in this chat; update state after each task.
@@ -15,8 +15,9 @@ Updated: 2026-10-25. Sources and prompt hashes: docs/origin.md.
 ## Next-session handoff
 - Draft PR #12 targets main, includes PR #11 dependency; last verified main 604a426.
 - Read T12 plan entry and specs; T08-T11 evidence records integration contracts.
-- T12 manual checks 1-4 passed (owner-reported): resize, scroll, canceled selections.
-- Next: checks 5-13, prompt replacement, Reset, validation, completion, Stop and close.
+- T12 manual checks 1-13 passed (owner-reported), including cancel/confirm close.
+- Next: T13 final evidence/documentation review and ready delivery PR.
+- Offline PNG-named files contain fictional bytes; inability to open them is expected.
 - Desktop helper unavailable here; owner chose guided manual testing.
 - Evidence/matrix: docs/code/configuration/t12-integration-validation.md (53 criteria).
 - Window assembled; launch via python src/main.py --gui; no args retains CLI.
@@ -28,7 +29,7 @@ Updated: 2026-10-25. Sources and prompt hashes: docs/origin.md.
 - Bind request_catalog(id, url, deliver); monotonic IDs, Tk-thread delivery.
 - close(on_closed) keeps draining; destroy Tk only in on_closed. No UI-thread join.
 - Queue defaults: 256 envelopes, 64 events/tick, 20ms poll; overflow gets a notice.
-- Do not mark T12 complete yet. After visual checks, update state then T13 delivery.
+- T12 complete; this state update precedes T13. Phase D remains closed.
 
 ## Publication and working policy
 - Automatic reviewed commits, feature-branch pushes and PR creation authorized.
