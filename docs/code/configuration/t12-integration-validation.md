@@ -139,3 +139,54 @@ Test names are within apps/src/tests/. Earlier detailed evidence remains in T02-
 | CA-03.14 | log_panel summaries/partial files; desktop success/failure/Stop |
 | CA-03.15 | main_window validation/start errors; desktop unavailable catalog; structured runner errors |
 | CA-03.16 | log_panel physical-line eviction and summary; desktop 12,000-event bounded flood |
+
+## Owner manual verification - 2026-10-25 (in progress)
+
+The owner chose guided manual checks after desktop control remained unavailable
+in this session. Fresh offline preview uses fictional inputs and no real ComfyUI.
+Owner reported manual checks 1-4 passed:
+
+- Resizing smaller keeps Generate, Stop, logs and progress visible.
+- Configuration scrolling reaches both prompt fields and Reset.
+- Canceling the Script TXT native dialog retains the selected script.
+- Canceling workflow and destination dialogs retains both selections.
+
+These are owner-reported manual results, not agent-observed screenshots.
+Prompt replacement confirmation, Reset, running/Stop and close checks remain.
+Current fixture directory: %TEMP%/comfy-t12-manual-29cdac5084d54df9934c9a8d682cff7e.
+It includes positive.txt containing "A fictional watercolor style".
+Earlier statements that no native interaction evidence existed describe the
+pre-manual-check stopping point; the results above supersede those specific gaps.
+
+## Run the manual offline preview
+
+From the repository root in PowerShell, run the block below. It creates a fresh
+fictional fixture folder, prints its path, and opens the test window. It requires
+the existing development environment (including pytest) because the harness
+reuses test fixtures. No ComfyUI service or GPU is needed.
+
+```powershell
+@'
+import sys
+import tempfile
+from pathlib import Path
+sys.path[:0] = ['apps/src', 'apps/src/tests']
+from test_desktop_integration import preview
+folder = Path(tempfile.mkdtemp(prefix='comfy-manual-'))
+(folder / 'positive.txt').write_text('A fictional watercolor style', encoding='utf-8')
+(folder / 'negative.txt').write_text('blur, low detail', encoding='utf-8')
+print(f'Test files: {folder}', flush=True)
+preview(folder)
+'@ | .\apps\.venv\Scripts\python.exe -
+```
+
+The harness also creates fictional.txt and fictional.json in that folder and
+preselects them. The simulated runner waits eight seconds per scene and writes
+fictional bytes, not viewable generated images. Complete tests 5-13 from the
+conversation checklist; 1-4 already have owner-reported passes.
+
+The real GUI launches from the repository root with
+`.\apps\.venv\Scripts\python.exe .\apps\src\main.py --gui`.
+It uses the actual local ComfyUI endpoint, so it is not the offline test harness.
+Omitting --gui starts the legacy CLI; it is not the manual GUI testing command.
+Phase D real-generation demonstration remains unopened.
