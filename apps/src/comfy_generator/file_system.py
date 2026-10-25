@@ -1,13 +1,101 @@
 import json
+import os
+import re
+from datetime import datetime, timezone
+from uuid import uuid4
 from sys import platform
 from pathlib import Path
 from typing import Final, Any
+
+from comfy_generator.models import Scene
+from utils.formatting_utils import parse_script
 
 from comfy_generator.exceptions import (
     InvalidOperatingSystem,
     AssetsPathNotFoundError,
     RootProjectFolderNotFoundError,
 )
+
+def create_batch_directory(destination: Path) -> Path:
+    """Create an exclusive, writable batch folder before submitting any scene."""
+    destination = Path(destination)
+    destination.mkdir(parents=True, exist_ok=True)
+    for _ in range(100):
+        batch = destination / f"batch_{datetime.now(timezone.utc):%Y%m%d_%H%M%S}_{uuid4().hex}"
+        try:
+            batch.mkdir()
+        except FileExistsError:
+            continue
+        probe = batch / ".write-probe"
+        owned = False
+        try:
+            with probe.open("xb") as stream:
+                owned = True
+                stream.write(b"probe")
+                stream.flush()
+                os.fsync(stream.fileno())
+            probe.unlink()
+            return batch
+        except OSError:
+            if owned:
+                probe.unlink(missing_ok=True)
+            try:
+                batch.rmdir()  # Only our empty directory; never remove other files.
+            except OSError:
+                pass
+            raise
+    raise FileExistsError("Unable to allocate an exclusive batch folder")
+
+
+def image_output_path(batch: Path, scene_index: int, timestamp: str,
+                      image_index: int, server_filename: str) -> Path:
+    """Use server metadata only for the extension, never for a local path."""
+    if any(type(index) is not int or index < 1 for index in (scene_index, image_index)):
+        raise ValueError("Scene and image indices must be positive integers")
+    stamp = re.sub(r"[^0-9A-Za-z_-]", "_", timestamp)[:64] or "scene"
+    extension = re.search(r"\.[A-Za-z0-9]{1,10}$", server_filename)
+    if extension is None:
+        raise ValueError("Image filename has no safe file extension")
+    return Path(batch) / f"scene_{scene_index:04d}_{stamp}_image_{image_index:03d}{extension.group()}"
+
+
+def write_chunks_atomic(target: Path, chunks, *, expected_size=None,
+                        before_publish=None, collision_suffix=False) -> Path:
+    """Publish complete bytes exclusively on the same volume; never replace files."""
+    target = Path(target)
+    temporary = target.parent / f".{uuid4().hex}.part"
+    owned = False
+    try:
+        with temporary.open("xb") as stream:
+            owned = True
+            size = 0
+            for chunk in chunks:
+                if chunk:
+                    stream.write(chunk)
+                    size += len(chunk)
+            if size == 0 or (expected_size is not None and size != expected_size):
+                raise ValueError("Empty or incomplete image download")
+            stream.flush()
+            os.fsync(stream.fileno())
+        for suffix in range(10000):
+            candidate = target if suffix == 0 else target.with_name(f"{target.stem}_{suffix}{target.suffix}")
+            if before_publish:
+                before_publish()
+            try:
+                # Windows rename refuses existing targets; POSIX rename overwrites.
+                if os.name == "nt":
+                    os.rename(temporary, candidate)
+                else:
+                    os.link(temporary, candidate)
+                return candidate
+            except FileExistsError:
+                if not collision_suffix:
+                    raise
+        raise FileExistsError("Unable to allocate an exclusive image filename")
+    finally:
+        if owned:
+            temporary.unlink(missing_ok=True)
+
 
 class FileSystem:
     """
@@ -106,6 +194,13 @@ class FileSystem:
             parsed_api: dict[str, Any] = json.load(file)
             self.__current_workflow_data = parsed_api
 
+    @staticmethod
+    def load_scenes(path: str | Path) -> tuple[Scene, ...]:
+        """Read an explicit UTF-8/BOM path without changing selections or directories."""
+        if not isinstance(path, (str, Path)):
+            raise ValueError("Script path must be a string or Path")
+        return parse_script(Path(path).read_text(encoding="utf-8-sig"))
+
     def load_video_script(self, script_filename: str | None = None, print_script: bool = False) -> list[str]:
         """
         Reads the external prompts featuring timestamps.
@@ -127,8 +222,6 @@ class FileSystem:
         - **FileNotFoundError:** if the file name is not located.
         - **ValueError:** For invalid data type insertion for the argument.
         """
-
-        self.__path_to_scripts.mkdir(parents=True, exist_ok=True)
 
         if not isinstance(script_filename, (str, type(None))):
             raise ValueError(f"Invalid data type for argument 'script_filename'. Given type: {type(script_filename)}")
@@ -157,35 +250,12 @@ class FileSystem:
         if not script_file_path.exists():
             raise FileNotFoundError(f"The given filename does not exist: {script_filename}")
         
-        script_list: list[str] = []
-        is_first_parenthese: bool = True
-        
-        with open(script_file_path, mode='r', encoding='utf-8') as script_file:
-            formatted_timestamp_list: list[str] = []
-
-            for line in script_file:
-                words_list: list[str] = line.strip().split(" ")
-
-                for word in words_list:
-                    if "(" in word:
-                        
-                        if is_first_parenthese:
-                            is_first_parenthese = False
-
-                        else:
-                            formatted_line = str.join(" ", formatted_timestamp_list)
-                            script_list.append(formatted_line)
-                            formatted_timestamp_list.clear()
-
-                            if print_script:
-                                print(formatted_line)
-
-                    formatted_timestamp_list.append(word.replace("\n", ""))
-            
-            if len(formatted_timestamp_list) > 0:
-                final_script_line: str = str.join(" ", formatted_timestamp_list)
-                script_list.append(final_script_line)
-            
+        # Keep the legacy list-of-strings API while sharing strict scene validation.
+        scenes = self.load_scenes(script_file_path)
+        script_list = [f"({scene.timestamp}) {scene.description}" for scene in scenes]
+        if print_script:
+            for line in script_list:
+                print(line)
         return script_list
     
     def load_prompts(self, positive_prompt_filename: str, negative_prompt_filename: str) -> tuple[str, str]:
