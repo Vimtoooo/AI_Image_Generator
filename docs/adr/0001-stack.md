@@ -1,30 +1,34 @@
-# ADR-0001: preservar a stack existente na fundação
+# ADR-0001: preserve the existing stack during the foundation
 
-Data: 2026-10-20. Status: aceito no plano da fundação pelo responsável; registra preservação, não aprovação de novas versões.
+Date: 2026-10-20. Status: accepted by the owner through the foundation plan; this records preservation, not approval of new versions.
 
-## Contexto
+Translation note, 2026-10-21: English documentation and filenames were requested by the user; historical scope and findings are preserved.
 
-O [README](../../README.md) descreve geração local por ComfyUI e uma interface planejada com CustomTkinter. O projeto Python já existe em `apps/`. A Fase A organiza o trabalho sem mudar a aplicação ou absorver alterações locais anteriores.
+## Context
 
-## Decisão
+The [README](../../README.md) describes local generation through ComfyUI and a planned CustomTkinter interface. The Python project already exists in `apps/`. Phase A organizes work without changing the application or absorbing earlier local changes.
 
-| Camada | Escolha nesta fase |
+## Decision
+
+| Layer | Choice for this phase |
 |---|---|
-| Aplicação | Preservar Python e a estrutura `apps/src/` |
-| Geração | Preservar integração com ComfyUI local e workflows em formato de API |
-| Comunicação | Preservar dependências HTTP e WebSocket declaradas |
-| Interface | Manter CustomTkinter como intenção do README; implementação pendente |
-| Gestão | Documentos Markdown e gerador de descrição de PR em Python |
-| Persistência e acesso | Não introduzir banco, login ou infraestrutura de nuvem |
+| Application | Preserve Python and the `apps/src/` structure |
+| Generation | Preserve integration with local ComfyUI and API-format workflows |
+| Communication | Preserve declared HTTP and WebSocket dependencies |
+| Interface | Retain CustomTkinter as the README's intended choice; implementation pending |
+| Management | Markdown documents and a Python PR-description generator |
+| Persistence and access | Do not introduce a database, login or cloud infrastructure |
 
-Inspeção em 2026-10-20: `apps/pyproject.toml` declara Python `>=3.14`, enquanto o README informa `3.10+`; CustomTkinter não consta no manifesto nem em `apps/requirements.txt`. Os quatro módulos da interface estão vazios. Existem testes no estado local de trabalho; parte depende de rede. Esses fatos geram investigação na Fase B, não correções de dependências nesta fase.
+Inspection on 2026-10-20: `apps/pyproject.toml` declares Python `>=3.14`, while the README states `3.10+`; CustomTkinter is absent from both the manifest and `apps/requirements.txt`. The four interface modules are empty. Tests exist in the local working tree; some require network access. These findings call for investigation in Phase B, not dependency changes in Phase A.
 
-## Alternativas e consequências
+## Alternatives and consequences
 
-Migrar a stack ou adicionar serviços agora ampliaria o escopo sem requisito. Introduzir Node apenas para copiar o gerador do método adicionaria uma ferramenta desnecessária; Python atende a automação de gestão.
+Migrating the stack or adding services now would expand scope without a requirement. Adding Node solely to copy the method's generator would introduce an unnecessary tool; Python supports the management automation.
 
-Preservar a stack reduz o risco de regressão e mantém o trabalho local. Aceita-se que a instalação e os testes completos da aplicação ainda não estejam validados pela fundação. A compatibilidade entre versão de Python, biblioteca de interface e ambiente local deve ser verificada antes da implementação.
+Preserving the stack reduces regression risk and protects local work. The foundation does not validate the complete application installation or test suite. Compatibility between Python, the interface library and the local environment must be checked before implementation.
 
-## Quando revisar
+## When to revisit
 
-Na Fase B, antes de aprovar o plano técnico, ou quando um requisito demonstrar necessidade de nova dependência. Mudanças de versão ou arquitetura devem ter evidência e decisão explícita, sem tratar este ADR como autorização para atualização automática.
+Revisit during Phase B before approving the technical plan, or when a requirement demonstrates the need for a new dependency. Version or architecture changes need evidence and an explicit decision; this ADR does not authorize automatic upgrades.
+
+Follow-up recorded on 2026-10-21: [ADR-0004](0004-python-environment.md) records the Phase B environment decision accepted through R-A4.1 on 2026-10-20. It resolves the environment question for future implementation without changing this ADR's historical Phase A preservation decision.
