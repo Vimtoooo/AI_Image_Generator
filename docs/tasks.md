@@ -3,7 +3,8 @@
 Current update, 2026-10-24: the owner authorized committing all pending repository
 work. Phase B and T01-T08 files are recorded in scoped local commits;
 older statements below about read-only Git and uncommitted dependencies are
-historical. Publication still needs remote-base/ancestry review excluding 620feea.
+historical. Publication review completed; PRs #3-#7 are open in order. See
+[publication and merge order](code/configuration/publication-validation.md).
 Review evidence: [pending-work validation](code/configuration/pending-work-validation.md).
 T09 remains next in a new chat; no new implementation task was opened.
 

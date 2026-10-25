@@ -7,11 +7,11 @@ separate stacked PRs with documented merge order. Primary-agent review; no subag
 
 | Order | Publication branch | Base | Work represented |
 |---|---|---|---|
-| 1 | phase-b/specifications-publication | main | Phase B specifications, English migration and governance |
-| 2 | phase-c/dependencies-publication | phase-b/specifications-publication | T01 environment and T02-T06 backend dependencies |
-| 3 | phase-c/runner-publication | phase-c/dependencies-publication | T07 runner |
-| 4 | phase-c/configuration-publication | phase-c/runner-publication | T08 configuration panel |
-| 5 | phase-c/pending-work-publication | phase-c/configuration-publication | Preserved earlier work, cleanup and publication handoff |
+| [1 / PR #3](https://github.com/Vimtoooo/AI_Image_Generator/pull/3) | phase-b/specifications-publication | main | Phase B specifications, English migration and governance |
+| [2 / PR #4](https://github.com/Vimtoooo/AI_Image_Generator/pull/4) | phase-c/dependencies-publication | phase-b/specifications-publication | T01 environment and T02-T06 backend dependencies |
+| [3 / PR #5](https://github.com/Vimtoooo/AI_Image_Generator/pull/5) | phase-c/runner-publication | phase-c/dependencies-publication | T07 runner |
+| [4 / PR #6](https://github.com/Vimtoooo/AI_Image_Generator/pull/6) | phase-c/configuration-publication | phase-c/runner-publication | T08 configuration panel |
+| [5 / PR #7](https://github.com/Vimtoooo/AI_Image_Generator/pull/7) | phase-c/pending-work-publication | phase-c/configuration-publication | Preserved earlier work, cleanup and publication handoff |
 
 Merge in order. Each PR targets the preceding branch so its diff stays scoped.
 After merging a predecessor into main, confirm or change the next PR's base to
