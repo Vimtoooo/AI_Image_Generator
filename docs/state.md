@@ -3,7 +3,7 @@ Updated: 2026-10-24. Sources and prompt hashes: docs/origin.md.
 
 ## Current position
 - Phase B package approved; Phase C authorized by owner on 2026-10-21.
-- Local branch: phase-c/commit-pending-work; owner-authorized pending work committed.
+- Active publication branch: phase-c/pending-work-publication; original local branches preserved.
 - T01-T02 complete with historical independent review; T03-T08 primary-agent review passed.
 - Offline evidence: 206 application tests and 7 management tests passed; includes 27 panel tests.
 - Session stopped after T08. T09 workers starts in a NEW chat; one completed task per chat.
@@ -22,9 +22,10 @@ Updated: 2026-10-24. Sources and prompt hashes: docs/origin.md.
 - Five .codex/agents profiles archived as .toml.disabled by owner; two skills updated and verified.
 - English names, documentation, conversation, branches and new commit messages.
 - Reuse scoped Graphify index and Context7 documentation; avoid repeated broad reads.
-- Pending-work commits: ecbc631 (docs/policy), 994ebe8 (environment), 90147e4 (backend), add474b (earlier work).
-- PR #1 merged; PR #2 was last known open. Recheck before publication.
-- Dependencies are committed locally. No push/PR; review remote ancestry and exclude 620feea before publication.
+- Owner instruction, 2026-10-24: publish a reviewed PR per substantive branch; report URL or exact blocker at close.
+- Foundation PRs #1/#2 merged. Stacked PRs #3-#7 open; merge order 3 -> 4 -> 5 -> 6 -> 7, owner only.
+- Publication starts from main 1b324ab, excludes 620feea ancestry; reviewed sampler behavior retained. No force-push.
+- See docs/code/configuration/publication-validation.md for PR links, branch mapping and retarget instructions.
 
 ## Runtime and evidence
 - Desktop: Python 3.14.3, CustomTkinter 6.0.0, Tk 8.6.15; uv sync --frozen restored missing GUI dependency.
