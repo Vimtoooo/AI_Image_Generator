@@ -4,7 +4,7 @@
 
 This directory contains the automated tools designed to simply the generation of images on the fly. The primary application is a **ComfyUI Image Generator** that interacts with a local AI instance to generate custom visual assets programmatically.
 
-**Status:** Phase C implementation is in progress; T01-T10 are complete. Configuration, worker lifecycle and feedback panels are implemented; full-window integration remains pending. End-to-end GUI readiness has not been demonstrated.
+**Status:** Phase C tasks T01-T13 are complete on the delivery branch. Verification: 287 offline application tests, 7 management tests, and 13 owner-reported manual GUI checks passed. [Delivery PR #12](https://github.com/Vimtoooo/AI_Image_Generator/pull/12) awaits owner review/merge. Phase D remains closed; real ComfyUI generation has not been demonstrated. See [delivery evidence](docs/code/configuration/t13-delivery-validation.md).
 
 **License:** This repository is licensed under the GNU General Public License v3 (GPLv3). See the [License](License) file for the full text.
 
@@ -93,6 +93,26 @@ Newer generation models like **Flux.1 Shnell, Fluxed up and Persephone**, has an
     uv run src/main.py
     ```
 
+### Desktop launch and manual testing
+
+From the repository root in PowerShell, launch the real desktop application:
+
+```powershell
+.\apps\.venv\Scripts\python.exe .\apps\src\main.py --gui
+```
+
+The desktop uses local ComfyUI at `http://127.0.0.1:8188`. Select a timestamped
+TXT script, exported API workflow and destination; refresh the catalog, review
+parameters, then Generate. Stop finishes the current submitted scene and prevents
+the next. Closing during a batch offers returning or waiting for cooperative Stop.
+The scene deadline defaults to 30 minutes and can be edited before a batch.
+
+For the current offline/manual checks, use the [offline preview command](docs/code/configuration/t12-integration-validation.md#run-the-manual-offline-preview).
+It preloads fictional inputs and prints the fixture directory, including positive
+and negative TXT files. Its output files contain fictional bytes and cannot be
+opened as real images. No ComfyUI/GPU is used. Running main.py without --gui retains
+the legacy CLI. Phase D real-generation acceptance requires separate authorization.
+
 ### 📂 Project Structure
 
 - `__init__.py`: Initializing dependencies and validates the current python version that is being executed.
@@ -120,7 +140,7 @@ Other notable files and folders:
 
 Testing and CI:
 
-- Automated test files exist, including local changes awaiting their own review. Some client tests require a running ComfyUI server; they are not an offline suite. No CI configuration is included yet. Test coverage and isolation remain work items.
+- 287 offline application tests and 7 management tests passed. Run widget suites in separate processes to isolate Tk timers; see [commands, module counts and the 53-criterion matrix](docs/code/configuration/t12-integration-validation.md). Some original client tests require a running ComfyUI server and are excluded from that offline result. No CI configuration is included.
 
 ### 🧭 Work Management
 
@@ -130,7 +150,7 @@ Testing and CI:
 | :--- | :--- | :--- |
 | A — Foundation | Codex instructions, agent roles, skills, memory, PR tooling | Integrated through PR #1 |
 | B — Specification | GUI acceptance criteria, decisions, technical plan | Approved 2026-10-21; publication pending |
-| C — Implementation | Approved tasks, tests, primary-agent review | In progress; T01-T08 complete, worker lifecycle next in a new chat |
+| C — Implementation | Approved tasks, tests, primary-agent review | T01-T13 complete on delivery branch; owner review/merge pending |
 | D — Verification | Demonstrated local ComfyUI workflow | Not opened |
 
 - `docs/` contains reviewed project memory and decisions; `documents/` remains local and ignored.
@@ -154,6 +174,10 @@ Phase B deliverables (approved 2026-10-21; implementation underway):
 
 ### Previous Tasks:
 
+Historical implementation descriptions follow. Current execution confirms successful
+history before saving and uses finite waits/history fallback; older descriptions
+of unconditional WebSocket completion do not describe the current runner.
+
 1. `file_system.py`:
     - [x] **Path Management**: Define where everything lives in the working directory, especially making it dynamical to locate the project's root folder and the `Assets` folder. Avoid hardcoding strings for defining paths, and use the built-in `pathlib` module and utilize the `__file__` variable to anchor paths relatively.
     - [x] **Workflow Loading**: Read the ComfyUI Canvas configuration, by creating a function that opens the `workflow_api.json` file, parses its contents, and returns it as a native Python dictionary so other scripts can modify it later. Use proper file-handling blocks like `with open(...)` to ensure files close automatically, and consider how to catch errors if the file is missing or corrupted.
@@ -174,7 +198,12 @@ Phase B deliverables (approved 2026-10-21; implementation underway):
     - [x] **Dynamic Loop Orchestration:** The generations runner loop should step through the time-stamped files line by line, separating the timestamp data from the core scene description text and execute a chain mutation for every independent line item. Run the chain mutation sequence to prepare a distinct frame.
     - [x] **Execution and Handoff Routing:** Responsible for transferring the newly calculated `ready_graph` dictionary payload directly into your network submitter: `prompt_id = comfy_client.queue_workflow(ready_graph)`. Pass the active execution identifier token straight into the tracker block: `comfy_client.track_generation_progress(prompt_id)`. Once the websocket loop hits its exit condition and breaks, it'll mean that ComfyUI has successfully dropped your newly generated image directly into the user's computer output file space!
 
-### Current Tasks:
+### Original GUI task checklist (historical)
+
+Updated 2026-10-25: the unchecked list below is retained as the original requirement
+source. T08-T12 now implement and verify these behaviors; current status is in the
+[task board](docs/tasks.md). Sampler progress uses correlated value/max, and batch
+progress counts fully saved scenes. A node executing alone is not completion.
 
 1. `config_panel.py`: **(The Setting Sidebar/Tabs)**
     - [ ] **Handle User Input:** Wrap components like `CTkButton` + `filedialog` to let users browse and click to select their script files or workflow paths.
@@ -196,4 +225,4 @@ Phase B deliverables (approved 2026-10-21; implementation underway):
 - [x] **Automatic Retrieval**: Automatically download and rename images based on script timestamps.
 - [x] **Utility Classes**: Simplify the code exhibition by separating what must be considered as an utility and helper action.
 - [x] **Addition to Flexibility**: Be able to optionally select files in folders, swapping models.
-- [ ] **Simple UI**: Easy to use UI for quickly configuring options and generating images (using `CustomTKinter).
+- [x] **Simple UI** (Phase C implemented and offline/manual verified; Phase D pending): Easy to use UI for quickly configuring options and generating images (using `CustomTKinter).

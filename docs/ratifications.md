@@ -264,3 +264,11 @@ Protected profile/skill changes are prepared for local application by the owner.
 Single-agent configuration applied by the owner on 2026-10-22: five profiles
 archived as `.toml.disabled` and two skills updated. Primary agent verified the
 archive filenames and active review instructions.
+
+## Complete remaining Phase C tasks - 2026-10-24
+
+Owner request: "Do you think you can complete all of phase C? But for each T that
+you complete, always update state.md". Recorded by the primary agent as permission
+to continue T11, T12 and T13 sequentially in this chat, superseding the earlier
+one-completed-task-per-chat limit. Update docs/state.md after each completed task.
+Single-agent review, scoped commits, owner-only merge and the Phase D gate remain.

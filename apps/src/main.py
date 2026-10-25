@@ -15,6 +15,7 @@ from comfy_generator.exceptions import (
 )
 
 # Utility Methods:
+from utils import media_utils as MediaUtils
 from utils.media_utils import (
     WIDTH, HEIGHT, PERMITTED_ASPECT_RATIOS, PERMITTED_FILE_TYPES,
     calculate_landscape_dimensions,
@@ -147,5 +148,18 @@ def main() -> None:
         print(f"Unexpected {type(e).__name__}: {e}")
         print(format_exc())
 
+def entrypoint(argv=None):
+    """Keep main() and no-argument execution as the existing CLI contract."""
+    import argparse
+    parser = argparse.ArgumentParser(description="ComfyUI image generator")
+    parser.add_argument("--gui", action="store_true", help="Open the desktop interface")
+    arguments = parser.parse_args(argv)
+    if arguments.gui:
+        from gui import launch
+        launch()
+    else:
+        main()
+
+
 if __name__ == "__main__":
-    main()
+    entrypoint()
