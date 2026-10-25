@@ -1,54 +1,44 @@
-Phase: C - Implementation
+Phase: C - Implementation complete; delivery awaiting owner review/merge.
 Updated: 2026-10-25. Sources and prompt hashes: docs/origin.md.
 
 ## Current position
-- Phase B approved; Phase C authorized 2026-10-21. Phase D remains closed.
-- T01-T12 complete. T12 primary-agent review passed; no subagents.
-- Branch: phase-c/window-launch; T11 3782269 on reviewed T10 6f0c6bd.
-- T09 e070fba verified in main via PR #10; older merge-target warnings resolved.
-- T11 evidence: docs/code/configuration/t11-window-validation.md.
-- T12 automated work at a120472 plus all 13 owner-reported manual checks passed.
-- Final T12 verification: 287 application tests and 7 management tests passed.
-- Each module ran in isolation with no stderr; full-window heartbeat max 0.102s.
-- Owner authorized T11-T13 in this chat; update state after each task.
+- T01-T13 complete on phase-c/window-launch; primary-agent review, no subagents.
+- Phase D remains closed. Phase C completion does not authorize real generation.
+- Delivery PR #12 is ready for review and targets main; owner merges only.
+- URL: https://github.com/Vimtoooo/AI_Image_Generator/pull/12
+- Last fetched main: 604a426; T09 e070fba verified in ancestry.
+- PR #12 includes reviewed T10 from #11; merge #11 first and recheck #12, or review #12 cumulatively.
+- T11 3782269; T12 automated a120472, manual completion 0d3d1ef; T13 d922525.
+- Separate state commits recorded after T11, T12 and T13 as requested.
 
-## Next-session handoff
-- Draft PR #12 targets main, includes PR #11 dependency; last verified main 604a426.
-- Read T12 plan entry and specs; T08-T11 evidence records integration contracts.
-- T12 manual checks 1-13 passed (owner-reported), including cancel/confirm close.
-- Next: T13 final evidence/documentation review and ready delivery PR.
-- Offline PNG-named files contain fictional bytes; inability to open them is expected.
-- Desktop helper unavailable here; owner chose guided manual testing.
-- Evidence/matrix: docs/code/configuration/t12-integration-validation.md (53 criteria).
-- Window assembled; launch via python src/main.py --gui; no args retains CLI.
-- After controller.start(config) returns ID, call panel.start_run(id, scene count).
-- Route on_event to panel.on_event; on_error to panel.show_error.
-- Call panel.show_stopping on first acknowledged Stop; host owns window states.
-- Feedback stage is not execution-control state. Last summary survives new runs.
-- Worker busy clears after terminal delivery AND observed exit; wait before restart.
-- Bind request_catalog(id, url, deliver); monotonic IDs, Tk-thread delivery.
-- close(on_closed) keeps draining; destroy Tk only in on_closed. No UI-thread join.
-- Queue defaults: 256 envelopes, 64 events/tick, 20ms poll; overflow gets a notice.
-- T12 complete; this state update precedes T13. Phase D remains closed.
+## Evidence
+- 287 offline application tests passed in 13 isolated module processes; no stderr.
+- Seven management tests passed with approved temporary-repository permissions.
+- Full-window heartbeat: 50 samples / five seconds, max 0.102s.
+- Owner reported all 13 manual GUI checks passed, including Stop and both close choices.
+- Manual results are owner-reported, not screenshots observed by this agent.
+- T12 evidence and 53-criterion matrix: docs/code/configuration/t12-integration-validation.md.
+- Delivery review and limitations: docs/code/configuration/t13-delivery-validation.md.
+- No application code changes after the final automated run; later edits are documentation.
 
-## Publication and working policy
-- Automatic reviewed commits, feature-branch pushes and PR creation authorized.
-- Owner merges only; no default-branch push or force push. Preserve local work.
-- Review every included commit against remote base; state committed separately.
-- English names/docs/conversation; primary-agent review only since 2026-10-22.
-- Historical profiles remain archived; ignored skill backups retained.
+## Next actions and runtime
+- Owner reviews/merges delivery; verify actual main ancestry on resume.
+- Open Phase D only after explicit owner authorization; update phase/state/README together.
+- Real GUI from repo root: apps/.venv/Scripts/python.exe apps/src/main.py --gui.
+- No arguments preserves legacy CLI; MediaUtils binding is fixed.
+- Offline preview command in T12 evidence creates fictional inputs and prints their folder.
+- Latest manual fixtures: C:/Users/leone/AppData/Local/Temp/comfy-manual-tuogt8es.
+- Offline PNG-named files contain fictional bytes and are not valid generated images.
+- Python 3.14.3 / pytest 9.1.1 / CTk 6.0.0 / Tk 8.6.15; T02 test-directory wrapper retained.
+- ComfyUI endpoint http://127.0.0.1:8188/; C:\AI\ComfyUI_windows_portable\run_nvidia_gpu.bat.
+- Startup uses portable cwd and hidden helper; metadata 0.24.0 checked 2026-10-21.
+- Last recorded live startup 2026-10-22 refused connection; recheck before authorized D01.
 
-## Runtime and remaining limits
-- Python 3.14.3 / pytest 9.1.1: apps/.venv/Scripts/python.exe; CTk 6.0.0 / Tk 8.6.15.
-- Use T02 fresh-test-directory wrapper. Management temp-repo tests needed elevation.
-- Graphify: %TEMP%/comfy-code-map/graphify-out/graph.json; reuse T08 findings.
-- Runner/workers not indexed. Context7 Tk timers/HTTP server docs fetched for T12.
-- ComfyUI 0.24.0 read-only compatibility checked 2026-10-21; no generation demo.
-- Endpoint http://127.0.0.1:8188/; C:\AI\ComfyUI_windows_portable\run_nvidia_gpu.bat.
-- Last 2026-10-22 startup met connection refusal; live T04 catalog unverified.
-- Shutdown is cooperative with finite transport waits, not hard I/O cancellation.
-- CLI MediaUtils binding fixed; manual server tests are not acceptance evidence.
-- Visible layout/dialogs/SVG and real generation unverified. Phase D remains closed.
-- Repeatable offline launch command is in T12 evidence under Run the manual offline preview.
-- Existing fixtures: %TEMP%/comfy-t12-manual-29cdac5084d54df9934c9a8d682cff7e.
-- Preview uses fictional catalog/runner, not real ComfyUI. Close it after visual checks.
+## Preserved limits and policy
+- Real generation/image inspection/live Stop remain unverified; exact SVG fidelity unassessed.
+- Shutdown is cooperative with finite I/O waits, not hard cancellation of arbitrary external I/O.
+- Worker busy clears after terminal AND observed exit; close drains before Tk destruction.
+- Desktop helper unavailable here; owner completed guided manual testing instead.
+- Graphify: %TEMP%/comfy-code-map/graphify-out/graph.json; T08 findings reused, workers not indexed.
+- English, single agent, preserve local work, explicit staging; automatic reviewed publication authorized.
+- No default-branch push, force push, merge or deployment by agent; historical profiles remain archived.
