@@ -1,5 +1,11 @@
 # Task board
 
+Current delivery, 2026-10-25: T01-T13 complete on phase-c/window-launch.
+[PR #12](https://github.com/Vimtoooo/AI_Image_Generator/pull/12) targets main; owner
+review/merge pending. T12 has 287 offline tests, 7 management tests and 13
+owner-reported manual passes. Phase D remains closed. Historical statuses below
+are retained for provenance and superseded by this update.
+
 Current update, 2026-10-25: T12 is complete; all 13 guided manual checks passed
 (owner-reported). Earlier blocked/pending visual statements are historical.
 T13 delivery review is next; Phase D remains closed.
@@ -54,7 +60,7 @@ Keep completed tasks. Product criteria use stable CA-NN.M IDs; a planned test is
 | B04 | B | Prepare technical plan and task breakdown | All 53 criteria mapped to T01–T13 | done - all 53 criteria mapped to approved T01-T13 |
 | B05 | B | Approve Phase B package | Owner approves specs, ADRs and plan | done · owner approved 2026-10-21 and authorized Phase C subject to entry checks |
 | B06 | B | Standardize English names and documentation | Updated references, helper tests and profile/skill validation | done - English migration independently reviewed; publication pending |
-| C01 | C | Implement approved tasks in small units | Historical umbrella task, expanded below without reusing its ID | todo · Phase C closed |
+| C01 | C | Implement approved tasks in small units | Historical umbrella task, expanded below without reusing its ID | done - T01-T13; delivery PR #12 awaits owner review/merge |
 | D01 | D | Demonstrate full local generation | Real ComfyUI evidence per criterion and human acceptance | todo · Phase D closed |
 
 ## Implementation breakdown
@@ -77,7 +83,7 @@ The status table below distinguishes completed implementation from planned work.
 | T10 | T09 | Read-only logs, real progress and summaries | done - [T10 evidence](code/configuration/t10-feedback-validation.md); 25 focused tests, primary-agent review passed |
 | T11 | T10 | Main window, catalog wiring and CLI-compatible launch | done - [T11 evidence](code/configuration/t11-window-validation.md); 16 window / 6 CLI tests, primary-agent review passed |
 | T12 | T11 | Offline integration, races and real GUI interaction checks | done - [T12 evidence](code/configuration/t12-integration-validation.md); 287 offline tests and 13 owner-reported manual checks passed |
-| T13 | T12 | Evidence review, documentation and delivery PR | todo |
+| T13 | T12 | Evidence review, documentation and delivery PR | done - [T13 evidence](code/configuration/t13-delivery-validation.md); primary-agent delivery review, PR #12 |
 
 The owner approved Phase B and authorized Phase C on 2026-10-21, then created
 `phase-c/environment` and validated the prepared environment.
