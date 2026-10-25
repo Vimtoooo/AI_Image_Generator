@@ -65,6 +65,10 @@ Desktop.ini
 .codex/agent-memory/
 graphify-out/
 
+# Local backups made before the owner applied the single-agent policy
+.agents/skills/review-delivery/SKILL.md.before-single-agent
+.agents/skills/session-management/SKILL.md.before-single-agent
+
 # Local model weights
 *.safetensors
 *.ckpt

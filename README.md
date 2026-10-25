@@ -4,7 +4,7 @@
 
 This directory contains the automated tools designed to simply the generation of images on the fly. The primary application is a **ComfyUI Image Generator** that interacts with a local AI instance to generate custom visual assets programmatically.
 
-**Status:** Backend implemented; desktop UI pending. Repository governance foundation is under review (2026-10-20). End-to-end GUI readiness has not been demonstrated.
+**Status:** Phase C implementation is in progress; T01-T08 are complete. The configuration panel is implemented; worker lifecycle and full-window integration remain pending. End-to-end GUI readiness has not been demonstrated.
 
 **License:** This repository is licensed under the GNU General Public License v3 (GPLv3). See the [License](License) file for the full text.
 
@@ -24,7 +24,7 @@ Minimum required to start using the generator today:
 2. **Download your target AI Image Model Checkpoint:** Download your preferred `.safetensors` file from [Civitai](https://civitai.com/) or [Hugging Face](https://huggingface.co/) and place it inside your local `ComfyUI/models/checkpoints/` directory.
 3. **Configure your Text-Generation LLM:** Ensure you have access to your recommended external Large Language Model (either locally via **Ollama** or via a cloud API provider) to pre-process your script text into the target keyword schema.
 4. **ComfyUI: Dev / API export enabled** so you can Save workflows in the "API Format (JSON)" and place them in `apps/workflows/`.
-5. **Python 3.10+** and the project dependencies installed (`pip install -r apps/requirements.txt`).
+5. **Python 3.14.x** for this application, with **CustomTkinter 6.0.0**. ComfyUI uses its own separate environment.
 
 ### 🎛️ AI Model & LLM Pairing Guide
 
@@ -60,11 +60,15 @@ Newer generation models like **Flux.1 Shnell, Fluxed up and Persephone**, has an
 2.  **Install Dependencies**:
     ```bash
     # Using pip:
-    pip install -r requirements.txt
+    python -m pip install --require-hashes -r requirements.txt
 
     # Using UV (recommended):
-    uv sync
+    uv sync --locked
     ```
+    The pip requirements install runtime dependencies only. `uv sync --locked`
+    also installs development dependencies, including pytest. Use `--no-dev`
+    for a runtime-only uv environment. See [environment details](apps/README.md).
+
 3.  **Configure Environment**:
     Create or update the `.env` file in `apps` with your local settings:
     ```dotenv
@@ -120,20 +124,27 @@ Testing and CI:
 
 ### 🧭 Work Management
 
-**Work follows documented requirements, small tasks, verification, and independent review.** Start with [AGENTS.md](AGENTS.md), [project state](docs/estado.md), and the [task board](docs/tarefas.md).
+**Work follows documented requirements, small tasks, verification, and primary-agent review.** Start with [AGENTS.md](AGENTS.md), [project state](docs/state.md), and the [task board](docs/tasks.md).
 
 | Phase | Deliverable | Current status |
 | :--- | :--- | :--- |
-| A — Foundation | Codex instructions, agent roles, skills, memory, PR tooling | Under review |
-| B — Specification | GUI acceptance criteria, decisions, technical plan | Not opened |
-| C — Implementation | Approved tasks, tests, independent review | Not opened |
+| A — Foundation | Codex instructions, agent roles, skills, memory, PR tooling | Integrated through PR #1 |
+| B — Specification | GUI acceptance criteria, decisions, technical plan | Approved 2026-10-21; publication pending |
+| C — Implementation | Approved tasks, tests, primary-agent review | In progress; T01-T08 complete, worker lifecycle next in a new chat |
 | D — Verification | Demonstrated local ComfyUI workflow | Not opened |
 
 - `docs/` contains reviewed project memory and decisions; `documents/` remains local and ignored.
-- `.codex/agents/` defines five roles; `.agents/skills/` contains project procedures. Agent scratch memory is ignored by Git.
-- Commits, branch pushes and PR creation follow verification and independent review. The repository owner performs merges.
-- Python requirements currently differ: this README states 3.10+, while `apps/pyproject.toml` requires 3.14+. Resolving compatibility and adding the GUI dependency are specification work items.
-- The four GUI module files exist but are empty. The current tasks below remain pending.
+- Subagents are disabled by owner instruction (2026-10-22); `.codex/agents/` retains historical profiles. `.agents/skills/` contains project procedures. Agent scratch memory is ignored by Git.
+- Commits, branch pushes and PR creation follow verification and primary-agent review. The repository owner performs merges.
+- Python requirements and the lockfile target 3.14.x with CustomTkinter 6.0.0; pytest is a development dependency.
+- The configuration panel is implemented and tested with withdrawn widgets. Worker, log and main-window modules remain pending; visual acceptance is not yet demonstrated.
+
+Phase B deliverables (approved 2026-10-21; implementation underway):
+
+- [Configuration specification](docs/specs/01-configuration.md), [execution specification](docs/specs/02-execution.md), and [interface feedback specification](docs/specs/03-interface-feedback.md): 53 acceptance criteria.
+- [Implementation plan](docs/implementation-plan.md): 13 tasks with dependencies, file ownership and verification scenarios.
+- [Desktop integration](docs/adr/0003-desktop-integration.md), [Python environment](docs/adr/0004-python-environment.md), and [English naming](docs/adr/0005-english-naming.md) decisions.
+- [Ratifications](docs/ratifications.md) preserve the owner's choices; a proposed criterion is not an implemented feature.
 
 ### Architecture & Design Patters:
 

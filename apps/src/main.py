@@ -55,8 +55,11 @@ def main() -> None:
         comfy_mgr: PayloadManager = PayloadManager(current_workflow)
 
         # Load the desired model
-        MODEL: Final[str] = "DreamShaper_8_pruned.safetensors" # ENTER THE NAME OF YOUR MODEL FILENAME HERE!
+        model: str = "DreamShaper_8_pruned.safetensors" # ENTER THE NAME OF YOUR model FILENAME HERE!
         available_checkpoints: list[str] = comfy_client.get_available_checkpoints()
+
+        sampler: str = "euler" # ENTER THE SAMPLER NAME HERE!
+        available_samplers: list[str] = comfy_client.get_available_samplers()
 
         # Configure the desired resolutions
         DESIRED_ASPECT_RATIO: Final[str] = PERMITTED_ASPECT_RATIOS[0] # 0: 16:9, 1: 9:16, 2: custom
@@ -89,12 +92,13 @@ def main() -> None:
 
             ready_graph = (
                 comfy_mgr.reset_payload()
-                    .update_checkpoint_model(MODEL, available_checkpoints)
+                    .update_checkpoint_model(model, available_checkpoints)
                     .update_positive_prompt(full_positive_prompt)
                     .update_negative_prompt(MASTER_NEGATIVE)
                     .update_seed(seed)
                     .update_steps(steps)
                     .update_cfg(cfg)
+                    .update_sampler(sampler, available_samplers)
                     .update_resolution(width, height)
                     .current_payload
             )

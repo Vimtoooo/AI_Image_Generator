@@ -1,6 +1,203 @@
 from __future__ import annotations
 import copy
-from typing import Any, Final, Literal
+import json
+import math
+from collections.abc import Mapping
+from dataclasses import dataclass, fields
+
+from comfy_generator.models import NodeMapping, freeze
+from utils.formatting_utils import format_positive_prompt
+from typing import Any, Final
+
+
+class CatalogError(ValueError):
+    """Server metadata is unavailable or incompatible; refresh before generating."""
+
+
+class ParameterValidationError(ValueError):
+    def __init__(self, field: str, reason: str):
+        self.field = field
+        super().__init__(f"{field}: {reason}")
+
+
+@dataclass(frozen=True)
+class GenerationCatalog:
+    checkpoints: tuple[str, ...]
+    samplers: tuple[str, ...]
+    schedulers: tuple[str, ...]
+    limits: Mapping[str, Any]
+
+    def __post_init__(self):
+        for name in ("checkpoints", "samplers", "schedulers"):
+            object.__setattr__(self, name, tuple(getattr(self, name)))
+        object.__setattr__(self, "limits", freeze(self.limits))
+
+
+def parse_catalog(metadata: Any) -> GenerationCatalog:
+    """Read only standard-node choices and numeric bounds from object_info."""
+    try:
+        loader = metadata["CheckpointLoaderSimple"]["input"]["required"]
+        sampler = metadata["KSampler"]["input"]["required"]
+        latent = metadata["EmptyLatentImage"]["input"]["required"]
+
+        def choices(inputs, field):
+            value = inputs[field][0]
+            if not isinstance(value, (list, tuple)) or any(not isinstance(x, str) or not x for x in value):
+                raise CatalogError(f"Invalid catalog choices for {field}; refresh the catalog")
+            return tuple(value)
+
+        limits = {}
+        for name in ("width", "height", "steps", "cfg", "seed"):
+            entry = (latent if name in ("width", "height") else sampler)[name]
+            expected_type = "FLOAT" if name == "cfg" else "INT"
+            if entry[0] != expected_type or not isinstance(entry[1], Mapping):
+                raise CatalogError(f"Invalid {name} metadata; refresh the catalog")
+            bounds = entry[1]
+            lower, upper = bounds["min"], bounds["max"]
+            if any(type(x) not in (int, float) or not math.isfinite(x) for x in (lower, upper)) or lower > upper:
+                raise CatalogError(f"Invalid {name} bounds; refresh the catalog")
+            limits[name] = {"min": lower, "max": upper}
+        return GenerationCatalog(choices(loader, "ckpt_name"), choices(sampler, "sampler_name"),
+                                 choices(sampler, "scheduler"), limits)
+    except (KeyError, IndexError, TypeError, OverflowError) as exc:
+        raise CatalogError("Incomplete standard-node metadata; refresh the catalog") from exc
+
+
+def validate_generation_parameters(catalog: GenerationCatalog | None, *, checkpoint: str,
+                                   sampler: str, scheduler: str, width: int, height: int,
+                                   steps: int, cfg: float, seed: int) -> None:
+    """Validate all fields before mutating a payload or submitting work."""
+    if not isinstance(catalog, GenerationCatalog):
+        raise CatalogError("Catalog unavailable; refresh before generating")
+    for field, value, options in (("checkpoint", checkpoint, catalog.checkpoints),
+                                  ("sampler", sampler, catalog.samplers),
+                                  ("scheduler", scheduler, catalog.schedulers)):
+        if not isinstance(value, str) or not options or value not in options:
+            raise ParameterValidationError(field, "selection unavailable; refresh or choose a valid option")
+    for field, value in (("width", width), ("height", height), ("steps", steps), ("cfg", cfg), ("seed", seed)):
+        if field == "cfg":
+            if type(value) not in (int, float) or (isinstance(value, float) and not math.isfinite(value)) or value < 0:
+                raise ParameterValidationError(field, "must be finite and nonnegative")
+        elif type(value) is not int:
+            raise ParameterValidationError(field, "must be an integer")
+        if field == "seed" and value == -1:
+            continue
+        if field in ("width", "height") and (value <= 0 or value % 8):
+            raise ParameterValidationError(field, "must be a positive multiple of 8")
+        if field == "steps" and value <= 0:
+            raise ParameterValidationError(field, "must be positive")
+        try:
+            bounds = catalog.limits[field]
+            if not bounds["min"] <= value <= bounds["max"]:
+                raise ParameterValidationError(field, f"must be between {bounds['min']} and {bounds['max']}")
+        except (KeyError, TypeError) as exc:
+            raise CatalogError(f"Missing {field} limits; refresh the catalog") from exc
+
+class WorkflowError(ValueError):
+    """Workflow shape or selected role is incompatible with the standard chain."""
+
+
+class AmbiguousWorkflowError(WorkflowError):
+    """Multiple complete chains require an explicit user selection."""
+
+    def __init__(self, candidates: tuple[NodeMapping, ...]):
+        self.candidates = candidates
+        super().__init__("Multiple standard chains found; select explicit node IDs by role")
+
+
+def _mutable(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {key: _mutable(item) for key, item in value.items()}
+    if isinstance(value, (tuple, list)):
+        return [_mutable(item) for item in value]
+    return copy.deepcopy(value)
+
+
+def validate_workflow_shape(workflow: Any) -> Mapping[str, Any]:
+    """Accept the API node dictionary, including a recursively frozen snapshot."""
+    if not isinstance(workflow, Mapping) or not workflow:
+        raise WorkflowError("Select a nonempty API-format workflow JSON object")
+    for node_id, node in workflow.items():
+        if (not isinstance(node_id, str) or not node_id or not isinstance(node, Mapping)
+                or not isinstance(node.get("class_type"), str)
+                or not isinstance(node.get("inputs"), Mapping)):
+            raise WorkflowError("Select an API-format workflow; Canvas exports are unsupported")
+    return workflow
+
+
+def parse_workflow_json(text: str) -> dict[str, Any]:
+    try:
+        workflow = json.loads(text)
+    except (ValueError, TypeError) as exc:
+        raise WorkflowError("Invalid JSON; select an API-format workflow") from exc
+    return dict(validate_workflow_shape(workflow))
+
+
+def _source(workflow: Mapping[str, Any], node_id: str, field: str, slot: int, role: str) -> str:
+    link = workflow[node_id]["inputs"].get(field)
+    if (not isinstance(link, (list, tuple)) or len(link) != 2
+            or not isinstance(link[0], str) or link[0] not in workflow
+            or type(link[1]) is not int or link[1] != slot):
+        raise WorkflowError(f"{role}.{field}: expected a connected output at slot {slot}")
+    return link[0]
+
+
+def validate_node_mapping(workflow: Mapping[str, Any], mapping: NodeMapping) -> None:
+    validate_workflow_shape(workflow)
+    if not isinstance(mapping, NodeMapping):
+        raise WorkflowError("Explicit mapping must specify all seven node roles")
+    roles = {"sampler": "KSampler", "checkpoint": "CheckpointLoaderSimple", "latent": "EmptyLatentImage",
+             "positive": "CLIPTextEncode", "negative": "CLIPTextEncode", "decode": "VAEDecode", "save": "SaveImage"}
+    ids = [getattr(mapping, role) for role in roles]
+    if any(not isinstance(node_id, str) for node_id in ids) or len(set(ids)) != 7:
+        raise WorkflowError("Mapping roles must use seven distinct string node IDs")
+    for role, class_type in roles.items():
+        node = workflow.get(getattr(mapping, role))
+        if node is None or node["class_type"] != class_type:
+            raise WorkflowError(f"{role}: expected {class_type}")
+    edges = (("sampler", "model", "checkpoint", 0), ("sampler", "latent_image", "latent", 0),
+             ("sampler", "positive", "positive", 0), ("sampler", "negative", "negative", 0),
+             ("positive", "clip", "checkpoint", 1), ("negative", "clip", "checkpoint", 1),
+             ("decode", "samples", "sampler", 0), ("decode", "vae", "checkpoint", 2),
+             ("save", "images", "decode", 0))
+    for role, field, source, slot in edges:
+        if _source(workflow, getattr(mapping, role), field, slot, role) != getattr(mapping, source):
+            raise WorkflowError(f"{role}.{field}: disconnected from mapped {source}")
+    batch = workflow[mapping.latent]["inputs"].get("batch_size")
+    if type(batch) is not int or batch != 1:
+        raise WorkflowError("latent.batch_size: only batch size 1 is supported")
+    # Other linked inputs would escape the validated subgraph (custom topology).
+    expected_links = {(role, field) for role, field, _, _ in edges}
+    for role in roles:
+        for field, value in workflow[getattr(mapping, role)]["inputs"].items():
+            if isinstance(value, (list, tuple, Mapping)) and (role, field) not in expected_links:
+                raise WorkflowError(f"{role}.{field}: unsupported input topology")
+
+
+def detect_node_mapping(workflow: Mapping[str, Any]) -> NodeMapping:
+    validate_workflow_shape(workflow)
+    candidates: list[NodeMapping] = []
+    errors: list[str] = []
+    for save, node in workflow.items():
+        if node["class_type"] != "SaveImage":
+            continue
+        try:
+            decode = _source(workflow, save, "images", 0, "save")
+            sampler = _source(workflow, decode, "samples", 0, "decode")
+            mapping = NodeMapping(sampler, _source(workflow, sampler, "model", 0, "sampler"),
+                                  _source(workflow, sampler, "latent_image", 0, "sampler"),
+                                  _source(workflow, sampler, "positive", 0, "sampler"),
+                                  _source(workflow, sampler, "negative", 0, "sampler"), decode, save)
+            validate_node_mapping(workflow, mapping)
+            candidates.append(mapping)
+        except WorkflowError as exc:
+            errors.append(str(exc))
+    if len(candidates) > 1:
+        raise AmbiguousWorkflowError(tuple(candidates))
+    if not candidates:
+        raise WorkflowError("No supported standard chain: " + ("; ".join(errors) or "save: expected SaveImage"))
+    return candidates[0]
+
 
 class PayloadManager:
     """
@@ -23,15 +220,42 @@ class PayloadManager:
     NEGATIVE_PROMPT_NODE: Final[str] = "7"
     SAVE_IMAGE_NODE: Final[str] = "9"
 
-    def __init__(self, template_workflow: dict[str, Any]) -> None:
-        self.__BASE_WORKFLOW: Final[dict[str, Any]] = copy.deepcopy(template_workflow)
-        """The original workflow that shall remain the same."""
+    def __init__(self, template_workflow: Mapping[str, Any], node_mapping: NodeMapping | None = None) -> None:
+        workflow = validate_workflow_shape(template_workflow)
+        self.node_mapping = node_mapping or detect_node_mapping(workflow)
+        validate_node_mapping(workflow, self.node_mapping)
+        # Instance aliases preserve fluent legacy calls while removing fixed-ID assumptions.
+        for attribute, role in (("KSAMPLER_NODE", "sampler"), ("CHECKPOINT_MODEL_NODE", "checkpoint"),
+                                ("LATENT_IMAGE_NODE", "latent"), ("POSITIVE_PROMPT_NODE", "positive"),
+                                ("NEGATIVE_PROMPT_NODE", "negative"), ("SAVE_IMAGE_NODE", "save")):
+            setattr(self, attribute, getattr(self.node_mapping, role))
+        self.__BASE_WORKFLOW = {getattr(self.node_mapping, role.name):
+                                _mutable(workflow[getattr(self.node_mapping, role.name)])
+                                for role in fields(NodeMapping)}
+        self.__current_payload = copy.deepcopy(self.__BASE_WORKFLOW)
 
-        self.__current_payload: dict[str, Any] = copy.deepcopy(template_workflow)
-        """
-        The workflow that will interact with the system and alter itself during
-        mutation.
-        """
+    def build_scene_payload(self, scene_description: str, positive_prompt: str,
+                            negative_prompt: str) -> dict[str, Any]:
+        """Return a fresh scene graph, preserving current parameter edits and defaults."""
+        if not isinstance(negative_prompt, str):
+            raise ValueError("Negative prompt must be text")
+        payload = self.current_payload
+        payload[self.POSITIVE_PROMPT_NODE]["inputs"]["text"] = format_positive_prompt(positive_prompt, scene_description)
+        payload[self.NEGATIVE_PROMPT_NODE]["inputs"]["text"] = negative_prompt
+        return payload
+
+    def apply_parameters(self, catalog: GenerationCatalog, **values) -> "PayloadManager":
+        """Apply a complete validated set atomically, preserving workflow defaults."""
+        validate_generation_parameters(catalog, **values)
+        payload = self.current_payload
+        sampler = payload[self.KSAMPLER_NODE]["inputs"]
+        for name in ("steps", "cfg", "seed", "scheduler"):
+            sampler[name] = values[name]
+        sampler["sampler_name"] = values["sampler"]
+        payload[self.CHECKPOINT_MODEL_NODE]["inputs"]["ckpt_name"] = values["checkpoint"]
+        payload[self.LATENT_IMAGE_NODE]["inputs"].update(width=values["width"], height=values["height"])
+        self.__current_payload = payload
+        return self
 
     """Core Methods"""
 
@@ -73,7 +297,7 @@ class PayloadManager:
             raise ValueError("The given positive prompt was empty.")
         
         if not isinstance(positive_prompt, str):
-            raise valueError(f"Invalid data type for the parameter '{positive_prompt}' of the type: {type(positive_prompt)}")
+            raise ValueError(f"Invalid data type for the parameter '{positive_prompt}' of the type: {type(positive_prompt)}")
         
         try:
             self.__current_payload[self.POSITIVE_PROMPT_NODE]["inputs"]["text"] = positive_prompt
@@ -112,9 +336,6 @@ class PayloadManager:
         - **KeyError:** If the key is missing.
         """
 
-        if not negative_prompt:
-            raise ValueError("The given negative prompt was empty.")
-        
         if not isinstance(negative_prompt, str):
             raise ValueError(f"Invalid data type for the parameter '{negative_prompt}' of the type: {type(negative_prompt)}")
         
@@ -232,6 +453,9 @@ class PayloadManager:
         - **ValueError:** If the `target_model` is not present in the given argument
         or in the hard drive.
         """
+
+        if not isinstance(target_model, str):
+            raise ValueError(f"Invalid data type for the 'target_model' value. Expected the type 'int', but got {type(target_model)}")
 
         if not target_model:
             raise ValueError("Target model filename cannot be empty.")
@@ -358,7 +582,7 @@ class PayloadManager:
             print(f"An unexpected error occurred: {e}")
             return self
         
-    # def update_sampler(self, sampler_value: Literal["euler", "ddim", "heun", "dpmpp_2m_karras"]) -> "PayloadManager":
+    def update_sampler(self, target_sampler: str, available_samplers: list[str]) -> "PayloadManager":
         """
         Updates the specific mathematical algorithm used to calculate *how* noise
         is stripped away at every step.
@@ -376,21 +600,45 @@ class PayloadManager:
         
         <h3>Parameters:</h3>
 
-        - **sampler_value:** The new sampler value which will be inserted to the
+        - **target_sampler:** The new sampler value which will be inserted to the
         newest workflows API.
 
         <h4>Breakdown of the process:</h4>
 
-        1. Validate if the `sampler_value` is valid.
-        2. Attempts to alter the "sampler_value" key-value by traveling through
+        1. Validate if `target_sampler` and `available_samplers` are valid.
+        2. Attempts to alter the "sampler_name" key-value by traveling through
         the nested dictionary.
         3. Returns `self` (the updated object) whether or not the operation was
         successful.
 
         <h3>Throws:</h3>
 
-        - **ValueError:** If the given `sampler_value` is invalid.
+        - **ValueError:** If the given `target_sampler` is invalid.
         """
+
+        if not target_sampler:
+            raise ValueError("Target sampler filename cannot be empty.")
+
+        if not isinstance(target_sampler, str):
+            raise ValueError(f"Invalid data type for the 'sampler_name' value. Expected the type 'int', but got {type(target_sampler)}")
+
+        if target_sampler not in available_samplers:
+            raise ValueError(
+                f"❌ Sampler Allocation Failure: '{target_sampler}' is not supported by your local ComfyUI version."
+                f"Please select a different sampler or check your spelling."
+            )
+
+        try:
+            self.__current_payload[self.KSAMPLER_NODE]["inputs"]["sampler_name"] = target_sampler
+            return self
+
+        except KeyError as e:
+            print(f"One of the keys for sampler name node is missing! {e}")
+            return self
+
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            return self
 
     """Getter Methods"""
 

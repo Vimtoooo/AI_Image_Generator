@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="960" viewBox="0 0 1440 960">
+  <defs>
+    <linearGradient id="cta" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#36c9aa"/><stop offset="1" stop-color="#52dfbd"/></linearGradient>
+    <linearGradient id="progress" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#35c8a8"/><stop offset="1" stop-color="#76ead0"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#000" flood-opacity=".26"/></filter>
+    <style>
+      .t{font-family:Inter,Arial,sans-serif;fill:#eef4fa}.m{font-family:Inter,Arial,sans-serif;fill:#93a3b5}.a{font-family:Inter,Arial,sans-serif;fill:#67dfc2}.h{font-weight:700}.s{font-size:12px}.xs{font-size:10px}.label{font-size:11px;font-weight:600;fill:#c7d2df;font-family:Inter,Arial,sans-serif}.card{fill:#151d27;stroke:#2a3746;stroke-width:1}.field{fill:#0f151d;stroke:#344354;stroke-width:1}.divider{stroke:#293543;stroke-width:1}.icon{fill:none;stroke:#9aabba;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+    </style>
+  </defs>
+
+  <g id="Comfy-Generator-Completed-Dark-UI">
+    <rect width="1440" height="960" rx="12" fill="#0e131a"/>
+    <rect width="1440" height="56" rx="12" fill="#121923"/>
+    <path d="M0 44h1440v12H0z" fill="#121923"/>
+    <rect x="20" y="12" width="32" height="32" rx="8" fill="#42d3b4"/>
+    <path d="M29 21h14v14H29zM32 24h8v8h-8z" fill="none" stroke="#092d29" stroke-width="2"/>
+    <text x="64" y="25" class="t h" font-size="16">Comfy Generator</text>
+    <text x="64" y="40" class="m h" font-size="9" letter-spacing="1.1">LOCAL GPU IMAGE AUTOMATION</text>
+    <rect x="1125" y="14" width="154" height="28" rx="14" fill="#102b26" stroke="#2b6558"/>
+    <circle cx="1141" cy="28" r="4" fill="#42d3b4"/>
+    <text x="1153" y="32" class="a h" font-size="11">ComfyUI connected</text>
+    <text x="1320" y="34" class="m" font-size="20">—</text><text x="1360" y="33" class="m" font-size="18">□</text><text x="1396" y="34" class="m" font-size="20">×</text>
+
+    <rect y="56" width="1440" height="72" fill="#10161e"/>
+    <text x="20" y="82" class="label">SCRIPT PATH</text>
+    <text x="20" y="100" class="m xs">Timestamped scene descriptions</text>
+    <rect x="156" y="72" width="1110" height="40" rx="7" class="field"/>
+    <path d="M174 84h13l5 5v12h-18zM187 84v5h5" class="icon"/>
+    <text x="206" y="97" class="t s">C:/Projects/my_script.txt</text>
+    <rect x="1169" y="81" width="81" height="22" rx="11" fill="#18232e"/>
+    <text x="1184" y="96" class="m h xs" letter-spacing=".7">12 SCENES</text>
+    <rect x="1278" y="72" width="142" height="40" rx="7" fill="#1c2732" stroke="#405064"/>
+    <path d="M1296 88h9l3 3h12v9h-24z" class="icon"/>
+    <text x="1328" y="97" class="t h s">Browse</text>
+
+    <rect x="20" y="146" width="570" height="790" rx="10" fill="#121922" stroke="#293645" filter="url(#shadow)"/>
+    <rect x="606" y="146" width="814" height="790" rx="10" fill="#121922" stroke="#293645" filter="url(#shadow)"/>
+
+    <g id="Configuration-Column">
+      <path d="M38 166v22M46 166v22M54 166v22M35 173h6M43 181h6M51 171h6" class="icon"/>
+      <text x="70" y="174" class="t h" font-size="14">Configuration</text>
+      <text x="70" y="191" class="m xs">Configure the workflow and generation settings.</text>
+
+      <rect x="36" y="214" width="538" height="86" rx="8" class="card"/>
+      <circle cx="55" cy="234" r="10" fill="#1b2b34"/><path d="M50 230l5-3 5 3v7l-5 3-5-3z" class="icon"/>
+      <text x="74" y="234" class="t h s">1. Checkpoint model</text>
+      <text x="74" y="251" class="m xs">Select the model used for generation.</text>
+      <rect x="48" y="262" width="514" height="28" rx="5" class="field"/>
+      <text x="60" y="280" class="t" font-size="11">DreamShaper_8_pruned.safetensors</text>
+      <path d="M544 273l5 5 5-5" class="icon"/>
+
+      <rect x="36" y="312" width="538" height="222" rx="8" class="card"/>
+      <path d="M47 327h18v13H54l-6 5v-5h-1z" class="icon"/>
+      <text x="76" y="335" class="t h s">2. Prompts</text>
+      <text x="48" y="361" class="label">Positive prompt</text>
+      <text x="468" y="361" class="a xs">Load prompt</text>
+      <rect x="48" y="370" width="514" height="58" rx="5" class="field"/>
+      <text x="60" y="391" class="m" font-size="11">Describe the scene, subject, lighting and visual style...</text>
+      <text x="518" y="418" class="m xs">0 / 500</text>
+      <text x="48" y="452" class="label">Negative prompt</text>
+      <text x="468" y="452" class="a xs">Load prompt</text>
+      <rect x="48" y="461" width="514" height="58" rx="5" class="field"/>
+      <text x="60" y="482" class="m" font-size="11">Exclude artifacts, styles and unwanted details...</text>
+      <text x="518" y="509" class="m xs">0 / 500</text>
+
+      <rect x="36" y="546" width="538" height="110" rx="8" class="card"/>
+      <path d="M47 562h20v14H47zM54 579h6" class="icon"/>
+      <text x="76" y="570" class="t h s">3. Image resolution</text>
+      <text x="48" y="596" class="label">Width</text><text x="201" y="596" class="label">Height</text><text x="354" y="596" class="label">Aspect ratio</text>
+      <rect x="48" y="604" width="137" height="36" rx="5" class="field"/><text x="60" y="627" class="t s">896 px</text><text x="165" y="627" class="m">⌃⌄</text>
+      <rect x="201" y="604" width="137" height="36" rx="5" class="field"/><text x="213" y="627" class="t s">512 px</text><text x="318" y="627" class="m">⌃⌄</text>
+      <rect x="354" y="604" width="208" height="36" rx="5" class="field"/><text x="366" y="627" class="t s">16:9 · Landscape</text><path d="M538 618l5 5 5-5" class="icon"/>
+
+      <rect x="36" y="668" width="538" height="140" rx="8" class="card"/>
+      <path d="M55 681v15M51 681h8M51 696h8M53 677h4" class="icon"/>
+      <text x="76" y="692" class="t h s">4. KSampler controls</text>
+      <text x="48" y="718" class="label">Steps</text><text x="165" y="718" class="label">CFG scale</text><text x="282" y="718" class="label">Sampler</text><text x="438" y="718" class="label">Seed</text>
+      <rect x="48" y="726" width="101" height="36" rx="5" class="field"/><text x="60" y="749" class="t s">20</text><text x="128" y="749" class="m">⌃⌄</text>
+      <rect x="165" y="726" width="101" height="36" rx="5" class="field"/><text x="177" y="749" class="t s">8.0</text><text x="245" y="749" class="m">⌃⌄</text>
+      <rect x="282" y="726" width="140" height="36" rx="5" class="field"/><text x="294" y="749" class="t" font-size="11">DPM++ 2M Karras</text><path d="M403 739l5 5 5-5" class="icon"/>
+      <rect x="438" y="726" width="96" height="36" rx="5" class="field"/><text x="450" y="749" class="t s">-1</text>
+      <rect x="536" y="726" width="26" height="36" rx="5" fill="#1b2834" stroke="#344354"/><text x="543" y="750" class="a" font-size="16">↻</text>
+      <text x="48" y="788" class="m xs">Seed −1 creates a new randomized result for every frame.</text>
+
+      <rect x="36" y="820" width="538" height="100" rx="8" class="card"/>
+      <path d="M48 837l6 6m-2-10l4-4 4 4-4 4m2 8l4 4" class="icon"/>
+      <text x="76" y="844" class="t h s">5. Workflow utilities</text>
+      <rect x="48" y="859" width="514" height="44" rx="6" fill="#18222d" stroke="#354556"/>
+      <text x="168" y="886" class="t h" font-size="11">↻  Reset workflow payload defaults</text>
+    </g>
+
+    <g id="Progress-Column">
+      <path d="M624 169h24v18h-24zM629 174l5 4-5 4M638 183h6" class="icon"/>
+      <text x="660" y="174" class="t h" font-size="14">Logs &amp; progress</text>
+      <text x="660" y="191" class="m xs">Real-time status, render events and generated output.</text>
+
+      <rect x="622" y="214" width="782" height="352" rx="8" class="card"/>
+      <text x="640" y="242" class="t h s">REAL-TIME STATUS OUTPUT</text>
+      <rect x="1305" y="226" width="81" height="28" rx="5" fill="#19242f" stroke="#354557"/>
+      <text x="1324" y="244" class="m" font-size="11">Clear</text>
+      <line x1="622" y1="264" x2="1404" y2="264" class="divider"/>
+      <rect x="640" y="280" width="746" height="266" rx="6" fill="#0d131a"/>
+      <text x="658" y="307" font-family="Roboto Mono,Consolas,monospace" font-size="11" fill="#7f90a4">[10:21:45]  <tspan fill="#d8e2ed">Connected to ComfyUI backend</tspan></text>
+      <text x="658" y="331" font-family="Roboto Mono,Consolas,monospace" font-size="11" fill="#7f90a4">[10:21:45]  <tspan fill="#d8e2ed">GPU: NVIDIA GeForce RTX 4070 Ti · 12 GB</tspan></text>
+      <text x="658" y="355" font-family="Roboto Mono,Consolas,monospace" font-size="11" fill="#7f90a4">[10:21:46]  <tspan fill="#d8e2ed">Loaded script lines · 12 scenes</tspan></text>
+      <text x="658" y="379" font-family="Roboto Mono,Consolas,monospace" font-size="11" fill="#7f90a4">[10:21:46]  <tspan fill="#d8e2ed">Model loaded successfully · 2.13 GB VRAM</tspan></text>
+      <text x="658" y="403" font-family="Roboto Mono,Consolas,monospace" font-size="11" fill="#7f90a4">[10:21:47]  <tspan fill="#d8e2ed">Applying prompts and workflow settings...</tspan></text>
+      <text x="658" y="427" font-family="Roboto Mono,Consolas,monospace" font-size="11" fill="#42d3b4">[10:21:47]  GPU rendering active</text>
+      <text x="658" y="451" font-family="Roboto Mono,Consolas,monospace" font-size="11" fill="#7f90a4">[10:21:52]  <tspan fill="#d8e2ed">Frame 08 generated successfully · 896×512</tspan></text>
+      <text x="658" y="475" font-family="Roboto Mono,Consolas,monospace" font-size="11" fill="#7f90a4">[10:21:52]  <tspan fill="#d8e2ed">Saved: /outputs/frame_08.png</tspan></text>
+      <text x="658" y="511" font-family="Roboto Mono,Consolas,monospace" font-size="12" fill="#42d3b4">▍</text>
+
+      <rect x="622" y="578" width="782" height="94" rx="8" class="card"/>
+      <text x="640" y="605" class="t h s">OVERALL PROGRESS</text><text x="1276" y="605" class="m s">8 of 12 frames</text>
+      <rect x="640" y="620" width="746" height="18" rx="9" fill="#0c1218" stroke="#2e3b4a"/>
+      <rect x="642" y="622" width="496" height="14" rx="7" fill="url(#progress)"/>
+      <circle cx="1137" cy="629" r="5" fill="#d8fff6"/>
+      <text x="640" y="656" class="m xs">Rendering frame 08 · “A wide aerial view of the Global Seed Vault...”</text><text x="1361" y="656" class="a h xs">67%</text>
+
+      <rect x="622" y="684" width="782" height="126" rx="8" class="card"/>
+      <line x1="817" y1="704" x2="817" y2="790" class="divider"/><line x1="1012" y1="704" x2="1012" y2="790" class="divider"/><line x1="1207" y1="704" x2="1207" y2="790" class="divider"/>
+      <text x="644" y="716" class="m h xs" letter-spacing=".6">CURRENT FRAME</text><text x="644" y="756" class="t h" font-size="22">08</text><text x="679" y="756" class="m s">/ 12</text>
+      <text x="839" y="716" class="m h xs" letter-spacing=".6">ELAPSED TIME</text><text x="839" y="756" class="t h" font-size="18">00:02:34</text>
+      <text x="1034" y="716" class="m h xs" letter-spacing=".6">GPU STATUS</text><text x="1034" y="752" class="a h" font-size="14">Active · 100%</text><text x="1034" y="772" class="m xs">8.4 / 12 GB VRAM</text>
+      <text x="1229" y="716" class="m h xs" letter-spacing=".6">OUTPUT FOLDER</text><text x="1229" y="750" class="t h" font-size="12">/generated_images</text><text x="1229" y="772" class="m xs">12.4 GB free</text>
+
+      <rect x="622" y="822" width="782" height="62" rx="8" fill="url(#cta)"/>
+      <path d="M933 842l18 11-18 11z" fill="#082b26"/>
+      <text x="971" y="860" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="15" fill="#082b26">GENERATE ALL STORYBOARD FRAMES</text>
+      <text x="890" y="914" class="m" font-size="11">Processes every timestamped scene using the current workflow settings.</text>
+    </g>
+  </g>
+</svg>
