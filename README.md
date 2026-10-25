@@ -4,7 +4,7 @@
 
 This directory contains the automated tools designed to simply the generation of images on the fly. The primary application is a **ComfyUI Image Generator** that interacts with a local AI instance to generate custom visual assets programmatically.
 
-**Status:** Phase C implementation is in progress; T01-T09 are complete. The configuration panel and worker lifecycle are implemented; feedback panels and full-window integration remain pending. End-to-end GUI readiness has not been demonstrated.
+**Status:** Phase C implementation is in progress; T01-T10 are complete. Configuration, worker lifecycle and feedback panels are implemented; full-window integration remains pending. End-to-end GUI readiness has not been demonstrated.
 
 **License:** This repository is licensed under the GNU General Public License v3 (GPLv3). See the [License](License) file for the full text.
 
