@@ -1,5 +1,13 @@
 # Task board
 
+Update, 2026-10-24 (T09): worker lifecycle is complete; 20 focused worker tests
+and 226 combined offline application tests passed. Seven management tests passed.
+See [T09 evidence](code/configuration/t09-worker-validation.md). T10 is next in a
+new chat. Earlier T09-not-started and PR-open statements below are historical.
+PRs #3-#7 are merged, but #4-#7 targeted feature branches, so main lacks T01-T08.
+[Recovery PR #8](https://github.com/Vimtoooo/AI_Image_Generator/pull/8) targets main;
+merge it first, then retarget the T09 PR to main before merging. Owner merges only.
+
 Current update, 2026-10-24: the owner authorized committing all pending repository
 work. Phase B and T01-T08 files are recorded in scoped local commits;
 older statements below about read-only Git and uncommitted dependencies are
@@ -46,7 +54,7 @@ The status table below distinguishes completed implementation from planned work.
 | T06 | T05 | Safe batch directories and atomic image storage | done - [T06 evidence](code/configuration/t06-output-validation.md); 146 combined tests, primary-agent review passed |
 | T07 | T06 | Serial runner, per-scene seeds and cooperative Stop | done - [T07 evidence](code/configuration/t07-runner-validation.md); 174 combined tests, primary-agent review passed |
 | T08 | T07 | Configuration panel and testable catalog boundary | done - [T08 evidence](code/configuration/t08-panel-validation.md); 201 combined tests, primary-agent review passed |
-| T09 | T08 | Workers, queues, stale-event control and shutdown | todo |
+| T09 | T08 | Workers, queues, stale-event control and shutdown | done - [T09 evidence](code/configuration/t09-worker-validation.md); 20 worker / 226 combined tests, primary-agent review passed |
 | T10 | T09 | Read-only logs, real progress and summaries | todo |
 | T11 | T10 | Main window, catalog wiring and CLI-compatible launch | todo |
 | T12 | T11 | Offline integration, races and real GUI interaction checks | todo |

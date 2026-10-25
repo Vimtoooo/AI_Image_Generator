@@ -2,44 +2,42 @@ Phase: C - Implementation
 Updated: 2026-10-24. Sources and prompt hashes: docs/origin.md.
 
 ## Current position
-- Phase B package approved; Phase C authorized by owner on 2026-10-21.
-- Active publication branch: phase-c/pending-work-publication; original local branches preserved.
-- T01-T02 complete with historical independent review; T03-T08 primary-agent review passed.
-- Offline evidence: 206 application tests and 7 management tests passed; includes 27 panel tests.
-- Session stopped after T08. T09 workers starts in a NEW chat; one completed task per chat.
+- Phase B approved; Phase C authorized by owner on 2026-10-21. Phase D remains closed.
+- T01-T09 complete. T09 primary-agent review passed; no subagents.
+- Handoff branch: phase-c/t09-handoff; T09 implementation e070fba, previous handoff 83f3578.
+- Evidence: 226 offline application tests (20 T09) and 7 management tests passed.
+- Real withdrawn Tk heartbeat: 50 samples / 5s, max 0.103s with simulated batch/catalog I/O.
+- Stop after T09; T10 starts in a NEW chat under one-completed-task-per-chat policy.
 
 ## Next-session handoff
-- Start with AGENTS.md, this file and docs/tasks.md; check Git status before T09.
-- T09 has not started. Read its plan entry, SPEC-02/03 and T08 evidence; use build-interface skill.
-- Implement thread_worker.py/test_gui_worker.py; queues, coalescing, finite shutdown and async catalog adapter.
-- Panel boundary: request_catalog(id, url, deliver); return promptly, deliver(id, catalog, error) on Tk thread.
-- Runner API: run(config, emit, StopControl(), run_id=...). Use a non-raising sink; runner alone emits terminal.
-- Later: T09 workers; T10 logs/progress; T11 window/CLI; T12 integration/GUI; T13 delivery; Phase D needs authorization.
-- T08 evidence: docs/code/configuration/t08-panel-validation.md; T07 evidence retains runner contracts/races.
+- First check git status/branch, fetch origin, and verify T09 reached main before choosing the T10 base; preserve local changes.
+- Read AGENTS.md, state/tasks, T10 plan entry, SPEC-03 and T09 worker evidence; use build-interface/session-management skills.
+- T10 owns apps/src/gui/log_panel.py and apps/src/tests/test_log_panel.py: read-only logs, 2,000-line limit, preserved summaries and real progress.
+- WorkerController(root, on_event, on_error=...); start(config) returns ID or None when busy/closing.
+- busy clears only after terminal delivery AND observed exit; runner alone emits terminal.
+- Bind request_catalog(id, url, deliver) to panel; monotonic IDs per controller, delivery on Tk thread.
+- stop() acknowledges once. close(on_closed) keeps draining; destroy Tk only in on_closed.
+- Queue defaults: 256 envelopes, 64 events/tick, 20ms poll; overflow log/progress gets a notice.
+- Later: T11 window/CLI; T12 integration/GUI; T13 delivery; Phase D requires authorization.
+- Contracts/limits: docs/code/configuration/t09-worker-validation.md; T07 retains runner races.
 
-## Working policy
-- No subagents: owner instruction 2026-10-22. Primary agent implements, tests and reviews.
-- Five .codex/agents profiles archived as .toml.disabled by owner; two skills updated and verified.
-- English names, documentation, conversation, branches and new commit messages.
-- Reuse scoped Graphify index and Context7 documentation; avoid repeated broad reads.
-- Owner instruction, 2026-10-24: publish a reviewed PR per substantive branch; report URL or exact blocker at close.
-- Foundation PRs #1/#2 merged. Stacked PRs #3-#7 open; merge order 3 -> 4 -> 5 -> 6 -> 7, owner only.
-- Publication starts from main 1b324ab, excludes 620feea ancestry; reviewed sampler behavior retained. No force-push.
-- See docs/code/configuration/publication-validation.md for PR links, branch mapping and retarget instructions.
+## Publication and working policy
+- Verified: PR #8 merged into main at 8f90ae3; T01-T08 and preserved earlier work now reached main.
+- PR #9 is merged into phase-c/configuration-publication, NOT main; T09 commits e070fba/83f3578 are still absent from main.
+- Owner must merge the phase-c/t09-handoff PR targeting main to deliver T09 and this correction; verify ancestry, not just the merged badge.
+- Owner merges only. No force-push/default-branch push; original local branches remain intact.
+- Prior PRs: https://github.com/Vimtoooo/AI_Image_Generator/pull/8 and /pull/9. Older open/merge-order notes in tasks/evidence are historical.
+- Automatic reviewed commits/pushes/PRs authorized; sandbox approvals still apply.
+- English names/docs/conversation; primary-agent review only (owner decision 2026-10-22).
+- Five .codex/agents profiles archived as .toml.disabled; ignored skill backups retained.
 
-## Runtime and evidence
-- Desktop: Python 3.14.3, CustomTkinter 6.0.0, Tk 8.6.15; uv sync --frozen restored missing GUI dependency.
-- Test interpreter: apps/.venv/Scripts/python.exe (Python 3.14.3/pytest 9.1.1); old temporary interpreter no longer runs.
-- Tests use fresh temporary-directory permissions wrapper documented in T02 evidence.
-- ComfyUI 0.24.0 compatibility was verified read-only on 2026-10-21.
-- Endpoint: http://127.0.0.1:8188/. Startup: C:\AI\ComfyUI_windows_portable\run_nvidia_gpu.bat.
-- Launch from portable directory, hidden. 2026-10-22 launch requested; endpoint still refused connection.
-- No image generation performed; live T04 catalog check remains unverified.
-- Graphify: %TEMP%\comfy-code-map\graphify-out\graph.json; reused backend map, new runner not indexed yet.
-
-## Preserved work and remaining limitations
-- Owner's client/CLI/GUI edits, manual client tests and SVG are committed; no live CLI acceptance claimed.
-- Filesystem test rename retained all five scenarios; corrected platform patch target, all five pass.
-- Local pre-policy skill backups remain on disk, ignored; see pending-work-validation.md for scope and limits.
-- Evidence: docs/code/configuration/t01-environment-validation.md through t08-panel-validation.md.
-- SVG structure inspected; rendered visual acceptance and Phase D demonstration remain pending.
+## Runtime and remaining limits
+- Python 3.14.3 / pytest 9.1.1: apps/.venv/Scripts/python.exe; CustomTkinter 6.0.0 / Tk 8.6.15.
+- Use T02 fresh-test-directory wrapper. Management temp-repo tests required approved elevation.
+- Graphify: %TEMP%/comfy-code-map/graphify-out/graph.json; reuse T08 findings, runner/workers not indexed.
+- ComfyUI 0.24.0 read-only compatibility checked 2026-10-21; no image generation demonstrated.
+- Endpoint http://127.0.0.1:8188/; C:\AI\ComfyUI_windows_portable\run_nvidia_gpu.bat (hidden, portable cwd).
+- Last 2026-10-22 startup request still met connection refusal; live T04 catalog check unverified.
+- Cooperative shutdown uses finite transport limits/deadlines, not hard cancellation of stuck external I/O.
+- CLI MediaUtils binding remains T11; manual server tests preserved, not acceptance evidence.
+- Visible layout/native dialogs/SVG rendering and real generation remain unverified; no Phase D approval.
