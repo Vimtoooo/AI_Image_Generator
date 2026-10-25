@@ -1,7 +1,8 @@
 # T12 - Desktop integration validation
 
 Date: 2026-10-25. Primary-agent implementation and review; no subagents.
-Status: automated verification passed; visible interaction checks pending.
+Status: complete. Automated verification passed; owner reported all 13 manual
+checks passed on 2026-10-25. Earlier pending statements below are historical.
 
 ## Executed evidence
 
@@ -152,11 +153,26 @@ Owner reported manual checks 1-4 passed:
 - Canceling workflow and destination dialogs retains both selections.
 
 These are owner-reported manual results, not agent-observed screenshots.
-Prompt replacement confirmation, Reset, running/Stop and close checks remain.
-Current fixture directory: %TEMP%/comfy-t12-manual-29cdac5084d54df9934c9a8d682cff7e.
+Initial fixture directory: %TEMP%/comfy-t12-manual-29cdac5084d54df9934c9a8d682cff7e.
 It includes positive.txt containing "A fictional watercolor style".
 Earlier statements that no native interaction evidence existed describe the
 pre-manual-check stopping point; the results above supersede those specific gaps.
+
+The owner subsequently reported checks 5-11 passed using the fresh fixture folder
+`C:\Users\leone\AppData\Local\Temp\comfy-manual-tuogt8es`:
+
+- 5/6: Declining prompt replacement preserves edits; accepting loads the TXT.
+- 7: Reset restores workflow defaults and preserves selections without running.
+- 8: Invalid scene deadline blocks generation with an actionable error.
+- 9: Completed batch; owner explicitly confirmed buttons including Reset were
+  disabled during execution while scrolling remained usable.
+- 10: Feedback remains read-only.
+- 11: Cooperative Stop during a scene passes the stated checklist.
+
+The owner could not open the saved images in check 9. This is expected for this
+offline harness: Client writes fictional bytes to PNG-named files, not valid
+images. This does not demonstrate image decoding or real generation. Checks 12
+(cancel close) and 13 (confirm close and wait for saving) remain pending.
 
 ## Run the manual offline preview
 
@@ -182,11 +198,24 @@ preview(folder)
 
 The harness also creates fictional.txt and fictional.json in that folder and
 preselects them. The simulated runner waits eight seconds per scene and writes
-fictional bytes, not viewable generated images. Complete tests 5-13 from the
-conversation checklist; 1-4 already have owner-reported passes.
+fictional bytes, not viewable generated images. Complete tests 12-13 from the
+conversation checklist; 1-11 already have owner-reported passes.
 
 The real GUI launches from the repository root with
 `.\apps\.venv\Scripts\python.exe .\apps\src\main.py --gui`.
 It uses the actual local ComfyUI endpoint, so it is not the offline test harness.
 Omitting --gui starts the legacy CLI; it is not the manual GUI testing command.
 Phase D real-generation demonstration remains unopened.
+
+## T12 completion - 2026-10-25
+
+The owner reported check 12 (cancel closing during execution) and check 13
+(confirm closing, wait for the current scene to save, then close) passed.
+All 13 manual checks now have owner-reported passes. This completes T12 together
+with the 287 passing offline application tests and seven management tests.
+The earlier visible-check pending entries, including matrix limitations, are
+superseded for the specific interactions in the manual checklist. No screenshots
+were captured by this agent; pixel fidelity to the original SVG was not assessed.
+Real ComfyUI generation, valid generated-image inspection and live server Stop
+remain Phase D work. Primary-agent review confirmed the evidence attribution
+and no blocking findings; proceed to T13 without opening Phase D.
