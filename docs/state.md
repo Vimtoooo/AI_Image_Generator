@@ -13,10 +13,11 @@ Updated: 2026-10-25. Sources and prompt hashes: docs/origin.md.
 - Owner authorized T11-T13 in this chat; update state after each task.
 
 ## Next-session handoff
-- PR #11 (T10) remains a dependency; main is 604a426. Owner merges only.
+- Draft PR #12 targets main, includes PR #11 dependency; last verified main 604a426.
 - Read T12 plan entry and specs; T08-T11 evidence records integration contracts.
-- T12 next: visible layout, scrolling, native dialogs, Reset/Stop/close checks.
-- Desktop helper native pipe unavailable after retry/reset; owner checking setup.
+- T12 manual checks 1-4 passed (owner-reported): resize, scroll, canceled selections.
+- Next: checks 5-13, prompt replacement, Reset, validation, completion, Stop and close.
+- Desktop helper unavailable here; owner chose guided manual testing.
 - Evidence/matrix: docs/code/configuration/t12-integration-validation.md (53 criteria).
 - Window assembled; launch via python src/main.py --gui; no args retains CLI.
 - After controller.start(config) returns ID, call panel.start_run(id, scene count).
@@ -47,6 +48,6 @@ Updated: 2026-10-25. Sources and prompt hashes: docs/origin.md.
 - Shutdown is cooperative with finite transport waits, not hard I/O cancellation.
 - CLI MediaUtils binding fixed; manual server tests are not acceptance evidence.
 - Visible layout/dialogs/SVG and real generation unverified. Phase D remains closed.
-- Offline preview PID 16900 was launched; its title ends OFFLINE TEST.
-- Preview fixtures: %TEMP%/comfy-t12-visible-6a3f0da8e1d840a7b98644d79a1a5dab.
+- Repeatable offline launch command is in T12 evidence under Run the manual offline preview.
+- Existing fixtures: %TEMP%/comfy-t12-manual-29cdac5084d54df9934c9a8d682cff7e.
 - Preview uses fictional catalog/runner, not real ComfyUI. Close it after visual checks.
