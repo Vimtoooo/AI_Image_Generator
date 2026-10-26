@@ -1,13 +1,13 @@
-Phase: C - Implementation complete; delivery awaiting owner review/merge.
+Phase: C - Implementation complete and merged; Phase D awaits owner authorization.
 Updated: 2026-10-25. Sources and prompt hashes: docs/origin.md.
 
 ## Current position
-- T01-T13 complete on phase-c/window-launch; primary-agent review, no subagents.
+- T01-T13 complete and delivered to main; primary-agent review, no subagents.
 - Phase D remains closed. Phase C completion does not authorize real generation.
-- Delivery PR #12 is ready for review and targets main; owner merges only.
-- URL: https://github.com/Vimtoooo/AI_Image_Generator/pull/12
-- Last fetched main: 604a426; T09 e070fba verified in ancestry.
-- PR #12 includes reviewed T10 from #11; merge #11 first and recheck #12, or review #12 cumulatively.
+- PR #11 merged into main at f8eee02: https://github.com/Vimtoooo/AI_Image_Generator/pull/11.
+- PR #12 merged into main at a34b0a6: https://github.com/Vimtoooo/AI_Image_Generator/pull/12.
+- Verified 2026-10-25: origin/main a34b0a6 contains T10-T13 and ff6e86d; its tree exactly matches ff6e86d.
+- Current handoff branch: phase-c/merged-delivery-handoff, based on a34b0a6; local main remains at 620feea.
 - T11 3782269; T12 automated a120472, manual completion 0d3d1ef; T13 d922525.
 - Separate state commits recorded after T11, T12 and T13 as requested.
 
@@ -19,11 +19,15 @@ Updated: 2026-10-25. Sources and prompt hashes: docs/origin.md.
 - Manual results are owner-reported, not screenshots observed by this agent.
 - T12 evidence and 53-criterion matrix: docs/code/configuration/t12-integration-validation.md.
 - Delivery review and limitations: docs/code/configuration/t13-delivery-validation.md.
-- No application code changes after the final automated run; later edits are documentation.
+- Merge verification checked ancestry and tree equality; tests were not rerun. Application code is unchanged.
 
 ## Next actions and runtime
-- Owner reviews/merges delivery; verify actual main ancestry on resume.
+- Next agent: inspect branch/status and preserve the two untracked .agents/skills/*.before-single-agent backups.
 - Open Phase D only after explicit owner authorization; update phase/state/README together.
+- D01: verify live ComfyUI metadata; use a standard workflow and fictional two-scene script.
+- Demonstrate real images/files, seeds, progress, Stop and connection failure without interrupting other jobs.
+- Keep generated data local/ignored; record evidence and obtain owner acceptance of the demonstration.
+- docs/tasks.md still describes delivery as awaiting merge; this verified state supersedes that status.
 - Real GUI from repo root: apps/.venv/Scripts/python.exe apps/src/main.py --gui.
 - No arguments preserves legacy CLI; MediaUtils binding is fixed.
 - Offline preview command in T12 evidence creates fictional inputs and prints their folder.
