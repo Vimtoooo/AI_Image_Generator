@@ -4,7 +4,7 @@
 
 This directory contains the automated tools designed to simply the generation of images on the fly. The primary application is a **ComfyUI Image Generator** that interacts with a local AI instance to generate custom visual assets programmatically.
 
-**Status:** Phase C tasks T01-T13 are complete and merged through [PR #12](https://github.com/Vimtoooo/AI_Image_Generator/pull/12). Phase D was authorized on 2026-10-26 and D01 is in progress: live backend generation, fixed seeds, cooperative Stop and connection-failure checks passed. Live GUI demonstration and owner acceptance remain pending. See [Phase D evidence](docs/code/configuration/d01-live-validation.md).
+**Status:** Phase C tasks T01-T13 are complete and merged through [PR #12](https://github.com/Vimtoooo/AI_Image_Generator/pull/12). Phase D was authorized on 2026-10-26 and D01 technical verification is complete: real GUI generation, fixed/random seeds, progress, cooperative Stop and connection-error presentation passed. A log-scrolling defect was fixed and regression-tested. Owner acceptance remains pending. See [Phase D evidence](docs/code/configuration/d01-live-validation.md).
 
 **License:** This repository is licensed under the GNU General Public License v3 (GPLv3). See the [License](License) file for the full text.
 
@@ -151,7 +151,7 @@ Testing and CI:
 | A — Foundation | Codex instructions, agent roles, skills, memory, PR tooling | Integrated through PR #1 |
 | B — Specification | GUI acceptance criteria, decisions, technical plan | Approved 2026-10-21; publication pending |
 | C — Implementation | Approved tasks, tests, primary-agent review | T01-T13 complete and merged through PR #12 |
-| D — Verification | Demonstrated local ComfyUI workflow | Open; live backend checks passed, GUI demonstration and owner acceptance pending |
+| D — Verification | Demonstrated local ComfyUI workflow | Live technical checks complete; owner acceptance pending |
 
 - `docs/` contains reviewed project memory and decisions; `documents/` remains local and ignored.
 - Subagents are disabled by owner instruction (2026-10-22); `.codex/agents/` retains historical profiles. `.agents/skills/` contains project procedures. Agent scratch memory is ignored by Git.

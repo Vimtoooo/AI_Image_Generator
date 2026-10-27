@@ -189,3 +189,20 @@ def test_widget_rejects_worker_thread_and_fault_does_not_invent_result(panel):
     panel.show_error("Worker failed; inspect server before retrying")
     assert panel.feedback.saved == 0 and panel.feedback.summary == ""
     assert panel.scene_bar.cget("mode") == "determinate"
+
+
+@pytest.mark.parametrize("horizontal", [0, .3])
+def test_long_terminal_path_preserves_horizontal_view(panel, root, horizontal):
+    panel.start_run("run", 2)
+    panel.on_event(event("log", message="wide reference " + "x" * 600))
+    panel.on_event(event("log", message="\n".join(f"line {i}" for i in range(80))))
+    root.update_idletasks()
+    panel.terminal_text.yview_moveto(1)
+    panel.terminal_text.xview_moveto(horizontal)
+    before = panel.terminal_text.xview()[0]
+    panel.on_event(event("terminal", result=RunResult(
+        "completed", 2, 2, 2, Path("fictional") / ("long-directory-" * 15))))
+    root.update_idletasks()
+    assert panel.terminal_text.xview()[0] == pytest.approx(before, abs=.01)
+    assert panel.terminal_text.yview()[1] >= .999
+    assert "Completed: 2/2" in panel.summary_text.get("1.0", "end")

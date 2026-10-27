@@ -1,5 +1,10 @@
 # Task board
 
+Current update, 2026-10-27: D01 live GUI/random-seed verification passed; a
+horizontal log-scroll defect was fixed. 27 feedback and 14 desktop integration
+tests passed. All technical checklist items are complete; owner acceptance alone
+remains pending. See [D01 evidence](code/configuration/d01-live-validation.md).
+
 Current update, 2026-10-26: Phase C is merged through PR #12 (a34b0a6).
 The owner authorized starting the next phase; Phase D is open and D01 is in progress.
 Live backend preflight, two-scene generation, fixed seeds, progress events,
@@ -68,7 +73,7 @@ Keep completed tasks. Product criteria use stable CA-NN.M IDs; a planned test is
 | B05 | B | Approve Phase B package | Owner approves specs, ADRs and plan | done · owner approved 2026-10-21 and authorized Phase C subject to entry checks |
 | B06 | B | Standardize English names and documentation | Updated references, helper tests and profile/skill validation | done - English migration independently reviewed; publication pending |
 | C01 | C | Implement approved tasks in small units | Historical umbrella task, expanded below without reusing its ID | done - T01-T13; PR #12 merged at a34b0a6 |
-| D01 | D | Demonstrate full local generation | Real ComfyUI evidence per criterion and human acceptance | in progress · authorized 2026-10-26; live backend checks passed; GUI/owner acceptance pending |
+| D01 | D | Demonstrate full local generation | Real ComfyUI evidence per criterion and human acceptance | in progress · technical checks complete 2026-10-27; owner acceptance pending |
 
 ## Implementation breakdown
 
@@ -128,6 +133,6 @@ in `%TEMP%\comfy-single-agent-update\apply.ps1`; owner applied the script succes
 - [x] Generate and decode two real PNGs; verify fixed seed metadata and progress events.
 - [x] Request cooperative Stop after submission; save current scene and skip next.
 - [x] Verify connection failure without stopping the shared server or submitting work.
-- [ ] Demonstrate the live desktop flow, visible progress, responsiveness and Stop.
-- [ ] Demonstrate random-seed mode against the live server (offline coverage already exists).
+- [x] Demonstrate the live desktop flow, visible progress, responsiveness and Stop.
+- [x] Demonstrate random-seed mode against the live server; seeds match PNG metadata.
 - [ ] Record owner acceptance and close D01; owner alone merges delivery.

@@ -55,7 +55,7 @@ the first complete-batch PNG: a red boat on a wooded pond, with no decoding defe
 The other PNGs were decoded and their dimensions/seed metadata checked, but not
 visually assessed. This is backend verification, not evidence of GUI interaction.
 
-## Remaining D01 work
+## Remaining D01 work at initial backend handoff (historical)
 
 1. Use the local TXT/workflow with the real desktop; refresh catalog, select the
    destination and generate. Observe visible progress, logs, saved files and responsiveness.
@@ -69,3 +69,77 @@ Phase C evidence; they were not rerun or relabeled as live Phase D GUI verificat
 No application code changed. Primary-agent review checked scenario assertions,
 source runner behavior, document consistency and ignored-output boundaries.
 No completion or owner acceptance is claimed. The server remains running.
+
+
+## Live desktop verification and correction - 2026-10-26/27
+
+Current status: all planned technical checks complete; owner acceptance remains
+pending. This update supersedes the earlier GUI/random-seed pending statements.
+The primary agent operated the real desktop through the computer-use skill,
+selecting the fictional TXT and workflow with native dialogs. No subagents.
+
+### Observed desktop scenarios
+
+- Live catalog loaded. The two-scene run used seed -1, 512x512, 12 steps,
+  CFG 7, euler/normal and the installed DreamShaper checkpoint. Visible sampler
+  progress advanced; saved counts progressed from 0/2 through 1/2 to 2/2.
+  Scrolling responded during generation; configuration controls were disabled
+  while running and restored afterward. Responsiveness was observed, not timed.
+- Completed summary: 2/2 scenes saved, 0 pending, 2 files saved, destination shown.
+  Both PNGs decoded successfully. Embedded seeds were 7795494556777795134 and
+  11123422455725577059, matching the two effective seeds observed in the logs.
+  Local batch: batch_20261026_135351_2266e581f8284285bfa02d1fa42c8880.
+- An 80-step run provided time to press the real Stop button during the first
+  scene. The UI showed Stopping while sampling continued, then Stopped with
+  1/2 scenes saved, 1 pending, 1 file saved. Exactly one PNG was present, with
+  seed 1566243185716819391 and dimensions 512x512. Local batch:
+  batch_20261026_135440_6ec3a867026a473585f854850f13039f.
+- An isolated MainWindow instance pointed at a reserved non-listening loopback
+  port displayed: "Catalog unavailable; check the server address and connection,
+  then refresh." Refresh visibly entered loading and returned to that error.
+  The instance was closed; the real ComfyUI server was not interrupted. This
+  demonstrates catalog failure presentation, not a mid-generation disconnect.
+- On resuming 2026-10-27, ComfyUI was stopped. Restarted the approved launcher;
+  the fresh GUI initially showed the same error, then Refresh recovered to
+  Catalog ready once the server was available. The queue was empty before the
+  final run. No interrupt, queue deletion or server configuration change occurred.
+
+### Display defect and fix
+
+The live run exposed horizontal auto-scrolling when a long destination path was
+appended. Tk Text.see("end") moved both axes, hiding the beginning of log lines.
+LogPanel now follows the bottom with yview_moveto(1) and restores the previous
+horizontal fraction. A reader's vertical position remains preserved when reading
+older entries. Existing summary retention across runs remains unchanged.
+
+Two regression cases (left edge and deliberately scrolled right) failed before
+this fix, then passed. The full feedback module passed: **27 tests**. Desktop
+integration passed: **14 tests in 25.65s**, with the existing no-stderr assertions.
+The interrupted earlier integration run had no recoverable final result. A fresh
+sandbox run failed on CTk font-loading warnings and restricted loopback traffic;
+rerunning with approved system access passed without weakening any tests.
+Commands: from apps/, use .venv/Scripts/python.exe -m pytest with each module in a
+separate process, -p no:cacheprovider -q. The feedback run used the documented T02
+fresh-directory wrapper; the successful integration run required no wrapper.
+
+Context7 /tomschimansky/customtkinter documented CTkTextbox's Tk Text methods;
+the installed wrapper source confirmed xview/yview delegation:
+https://github.com/tomschimansky/customtkinter/wiki/CTkTextbox.
+
+A fresh real GUI run after the fix completed two images on 2026-10-27. Log line
+prefixes stayed visible after the long final path, and the summary showed 2/2,
+0 pending, 2 files. Both PNGs decoded as 512x512 with seed 42. Local batch:
+batch_20261027_122642_6b15ddfe0cac401082df0fe88f06075b.
+The observed screenshot is stored locally as
+assets/generated_images/phase-d-validation/gui-completed-2026-10-27.png.
+The local gui-results.json records decoded PNG metadata. All outputs stay ignored.
+
+### Review and acceptance boundary
+
+Primary-agent review checked the five-line display change against CA-03.7 and
+retained vertical scrolling, read-only controls, buffer limits and summary behavior.
+Live evidence supports CA-01.16, CA-02.10/18 and CA-03.3/4/8/11/12/13/14/15
+for the scenarios above; this is not a claim that every edge case was run live.
+The prior Phase C matrix remains the source for offline and owner-reported checks.
+No new blocking finding remains. The corrected GUI is left open at Completed and
+ComfyUI is running. D01 closes only after the owner accepts the demonstration.

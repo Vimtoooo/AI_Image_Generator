@@ -187,11 +187,14 @@ class LogPanel(ctk.CTkFrame):
         self.batch_bar.set(state.batch_fraction)
         # Keep a reader's scroll position; follow new messages only at the bottom.
         top, bottom = self.terminal_text.yview()
+        left = self.terminal_text.xview()[0]
         self._replace(self.terminal_text, state.text)
         if bottom >= 0.999:
-            self.terminal_text.see("end")
+            self.terminal_text.yview_moveto(1)
         else:
             self.terminal_text.yview_moveto(top)
+        # A long final path must not pull the viewport past the log's field names.
+        self.terminal_text.xview_moveto(left)
         self._replace(self.summary_text, state.summary)
 
     def destroy(self):
