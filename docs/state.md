@@ -6,6 +6,8 @@ Updated: 2026-10-27. Sources and prompt hashes: docs/origin.md.
 - Owner authorized Phase D on 2026-10-26 and continued D01 on 2026-10-27.
 - PR #11 merged at f8eee02; PR #12 merged at a34b0a6; handoff #13 at c4de97b.
 - Current branch: phase-d/local-verification; PR #14 is open against main.
+- Follow-up commits a35e429 and 2dd6827 are local; automatic review blocked push/PR edit.
+- Ask owner approval to publish this reviewed fix/evidence to GitHub PR #14; no bypass.
 - PR: https://github.com/Vimtoooo/AI_Image_Generator/pull/14.
 - Phase D opening/evidence 37dee9e and state dea5aac; follow-up commits on this branch.
 - Implementation history and prior state remain available in Git; state committed separately.
