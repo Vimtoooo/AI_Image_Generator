@@ -1,5 +1,17 @@
 # Task board
 
+Current update, 2026-10-27: D01 live GUI/random-seed verification passed; a
+horizontal log-scroll defect was fixed. 27 feedback and 14 desktop integration
+tests passed. All technical checklist items are complete; owner acceptance alone
+remains pending. See [D01 evidence](code/configuration/d01-live-validation.md).
+
+Current update, 2026-10-26: Phase C is merged through PR #12 (a34b0a6).
+The owner authorized starting the next phase; Phase D is open and D01 is in progress.
+Live backend preflight, two-scene generation, fixed seeds, progress events,
+cooperative Stop and connection failure passed. GUI demonstration and final owner
+acceptance remain pending. See [D01 evidence](code/configuration/d01-live-validation.md).
+Earlier delivery/closed-phase statements below are historical and superseded.
+
 Current delivery, 2026-10-25: T01-T13 complete on phase-c/window-launch.
 [PR #12](https://github.com/Vimtoooo/AI_Image_Generator/pull/12) targets main; owner
 review/merge pending. T12 has 287 offline tests, 7 management tests and 13
@@ -60,8 +72,8 @@ Keep completed tasks. Product criteria use stable CA-NN.M IDs; a planned test is
 | B04 | B | Prepare technical plan and task breakdown | All 53 criteria mapped to T01–T13 | done - all 53 criteria mapped to approved T01-T13 |
 | B05 | B | Approve Phase B package | Owner approves specs, ADRs and plan | done · owner approved 2026-10-21 and authorized Phase C subject to entry checks |
 | B06 | B | Standardize English names and documentation | Updated references, helper tests and profile/skill validation | done - English migration independently reviewed; publication pending |
-| C01 | C | Implement approved tasks in small units | Historical umbrella task, expanded below without reusing its ID | done - T01-T13; delivery PR #12 awaits owner review/merge |
-| D01 | D | Demonstrate full local generation | Real ComfyUI evidence per criterion and human acceptance | todo · Phase D closed |
+| C01 | C | Implement approved tasks in small units | Historical umbrella task, expanded below without reusing its ID | done - T01-T13; PR #12 merged at a34b0a6 |
+| D01 | D | Demonstrate full local generation | Real ComfyUI evidence per criterion and human acceptance | in progress · technical checks complete 2026-10-27; owner acceptance pending |
 
 ## Implementation breakdown
 
@@ -113,3 +125,14 @@ Owner instruction, 2026-10-22: no more subagents. Future task reviews are perfor
 by the primary agent and must not be described as independent. Prior independent
 review evidence remains historical. Protected profile/skill changes are prepared
 in `%TEMP%\comfy-single-agent-update\apply.ps1`; owner applied the script successfully and the archive/skill changes were verified.
+
+## D01 verification checklist - 2026-10-26
+
+- [x] Open Phase D and verify local server metadata and idle queue.
+- [x] Prepare fictional two-scene TXT and standard API workflow in ignored local storage.
+- [x] Generate and decode two real PNGs; verify fixed seed metadata and progress events.
+- [x] Request cooperative Stop after submission; save current scene and skip next.
+- [x] Verify connection failure without stopping the shared server or submitting work.
+- [x] Demonstrate the live desktop flow, visible progress, responsiveness and Stop.
+- [x] Demonstrate random-seed mode against the live server; seeds match PNG metadata.
+- [ ] Record owner acceptance and close D01; owner alone merges delivery.

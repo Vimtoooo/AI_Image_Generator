@@ -4,7 +4,7 @@
 
 This directory contains the automated tools designed to simply the generation of images on the fly. The primary application is a **ComfyUI Image Generator** that interacts with a local AI instance to generate custom visual assets programmatically.
 
-**Status:** Phase C tasks T01-T13 are complete on the delivery branch. Verification: 287 offline application tests, 7 management tests, and 13 owner-reported manual GUI checks passed. [Delivery PR #12](https://github.com/Vimtoooo/AI_Image_Generator/pull/12) awaits owner review/merge. Phase D remains closed; real ComfyUI generation has not been demonstrated. See [delivery evidence](docs/code/configuration/t13-delivery-validation.md).
+**Status:** Phase C tasks T01-T13 are complete and merged through [PR #12](https://github.com/Vimtoooo/AI_Image_Generator/pull/12). Phase D was authorized on 2026-10-26 and D01 technical verification is complete: real GUI generation, fixed/random seeds, progress, cooperative Stop and connection-error presentation passed. A log-scrolling defect was fixed and regression-tested. Owner acceptance remains pending. See [Phase D evidence](docs/code/configuration/d01-live-validation.md).
 
 **License:** This repository is licensed under the GNU General Public License v3 (GPLv3). See the [License](License) file for the full text.
 
@@ -111,7 +111,7 @@ For the current offline/manual checks, use the [offline preview command](docs/co
 It preloads fictional inputs and prints the fixture directory, including positive
 and negative TXT files. Its output files contain fictional bytes and cannot be
 opened as real images. No ComfyUI/GPU is used. Running main.py without --gui retains
-the legacy CLI. Phase D real-generation acceptance requires separate authorization.
+the legacy CLI. Phase D is authorized; final demonstration acceptance remains with the owner.
 
 ### 📂 Project Structure
 
@@ -150,8 +150,8 @@ Testing and CI:
 | :--- | :--- | :--- |
 | A — Foundation | Codex instructions, agent roles, skills, memory, PR tooling | Integrated through PR #1 |
 | B — Specification | GUI acceptance criteria, decisions, technical plan | Approved 2026-10-21; publication pending |
-| C — Implementation | Approved tasks, tests, primary-agent review | T01-T13 complete on delivery branch; owner review/merge pending |
-| D — Verification | Demonstrated local ComfyUI workflow | Not opened |
+| C — Implementation | Approved tasks, tests, primary-agent review | T01-T13 complete and merged through PR #12 |
+| D — Verification | Demonstrated local ComfyUI workflow | Live technical checks complete; owner acceptance pending |
 
 - `docs/` contains reviewed project memory and decisions; `documents/` remains local and ignored.
 - Subagents are disabled by owner instruction (2026-10-22); `.codex/agents/` retains historical profiles. `.agents/skills/` contains project procedures. Agent scratch memory is ignored by Git.
